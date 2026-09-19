@@ -1,2 +1,2 @@
 `define BUILD_DATE "260826"
-`define HYPERRAM_DUAL
+
