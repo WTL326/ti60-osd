@@ -1,0 +1,14 @@
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/name=Local
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=win32
+configDescList=org.eclipse.launchbar.core.descriptorType.default\:launch_config_generator,org.eclipse.launchbar.core.descriptorType.default\:co_debug_register,org.eclipse.launchbar.core.descriptorType.default\:co_debug_deregister
+eclipse.preferences.version=1
+org.eclipse.launchbar.core.descriptorType.default\:co_debug_deregister/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:co_debug_deregister/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:co_debug_register/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:co_debug_uartEchoDemo_attach/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:co_debug_uartEchoDemo_group/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:gpioDemo_ti/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:launch_config_generator/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:launch_config_generator/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:uartEchoDemo_ti/activeLaunchMode=debug

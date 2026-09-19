@@ -1,0 +1,271 @@
+
+Efinity Interface Designer Timing Report
+Version: 2026.1.132.4.5
+Date: 2026-09-19 17:31
+
+Copyright (C) 2013 - 2026 Efinix Inc. All rights reserved.
+
+Device: Ti60F225
+Project: ivlab239_c
+Timing Model: C4 (final)
+
+---------- 1. Oscillator Timing Report (begin) ----------
+
++---------------+-------------+
+|     Clock     | Period (ns) |
++---------------+-------------+
+| intosc_clkout |    25.000   |
++---------------+-------------+
+
+---------- Oscillator Timing Report (end) ----------
+
+---------- 2. PLL Timing Report (begin) ----------
+
++---------------+----------+-----------------+-----------------------------+---------+-----------------------+---------------------------------+---------------------------------+
+|  PLL Instance | Resource | Reference Clock |   Core Clock Reference Pin  | FB Mode |   Core Feedback Pin   | PLL Compensation Delay Max (ns) | PLL Compensation Delay Min (ns) |
++---------------+----------+-----------------+-----------------------------+---------+-----------------------+---------------------------------+---------------------------------+
+|     my_sys    | PLL_BL0  |     external    |                             |   core  |   clk50M~CLKOUT~1~54  |              1.939              |              1.255              |
+|    my_hbram   | PLL_BR0  |       core      |    hbram_ref~CLKOUT~202~1   |   core  | hbramClk~CLKOUT~203~1 |              1.835              |              1.187              |
+|   pll_bt1120  | PLL_TL0  |       core      |   bt1120_clk~CLKOUT~22~322  |  local  |                       |              0.000              |              0.000              |
+| pll_hbram_ref | PLL_TR0  |       core      | adv_ctrl_clk~CLKOUT~200~322 |  local  |                       |              0.000              |              0.000              |
++---------------+----------+-----------------+-----------------------------+---------+-----------------------+---------------------------------+---------------------------------+
+
++------------------+-------------+----------------------------+-----------------------+----------+
+|      Clock       | Period (ns) | Enable Dynamic Phase Shift | Phase Shift (degrees) | Inverted |
++------------------+-------------+----------------------------+-----------------------+----------+
+|      clk50M      |    20.000   |           false            |         0.000         |  false   |
+|       clk        |    10.000   |           false            |         0.000         |  false   |
+|      clk_da      |    37.037   |           false            |         0.000         |  false   |
+|   adv_ctrl_clk   |    40.000   |           false            |         0.000         |  false   |
+|     hbramClk     |    5.000    |           false            |         0.000         |  false   |
+|    hbramClk90    |    5.000    |           false            |         90.000        |  false   |
+|   hbramClk_cal   |    5.000    |            true            |         0.000         |  false   |
+|  hbramClk_cal_2  |    5.000    |            true            |         0.000         |  false   |
+|  pll_bt1120_fb   |    12.500   |           false            |         0.000         |  false   |
+|     clk_dvp      |    10.000   |           false            |         0.000         |  false   |
+|    clk_scaler    |    6.250    |           false            |         0.000         |  false   |
+| pll_hbram_ref_fb |    10.000   |           false            |         0.000         |  false   |
+|    hbram_ref     |    20.000   |           false            |         0.000         |  false   |
++------------------+-------------+----------------------------+-----------------------+----------+
+
+---------- PLL Timing Report (end) ----------
+
+---------- 3. GPIO Timing Report (begin) ----------
+
+Non-registered GPIO Configuration:
+===================================
+
++---------------+---------------+-----------+----------+----------+
+| Instance Name |    Pin Name   | Parameter | Max (ns) | Min (ns) |
++---------------+---------------+-----------+----------+----------+
+| DEBUG_UART_RX | DEBUG_UART_RX |  GPIO_IN  |  1.907   |  1.271   |
+|  UART_FPGA_TX |  UART_FPGA_TX |  GPIO_IN  |  1.907   |  1.271   |
+|   UART_ST_FR  |   UART_ST_FR  |  GPIO_IN  |  1.907   |  1.271   |
+| DEBUG_UART_TX | DEBUG_UART_TX |  GPIO_OUT |  5.740   |  2.493   |
+|  UART_FPGA_RX |  UART_FPGA_RX |  GPIO_OUT |  5.740   |  2.493   |
+|   UART_SR_FT  |   UART_SR_FT  |  GPIO_OUT |  5.740   |  2.493   |
++---------------+---------------+-----------+----------+----------+
+
+---------- GPIO Timing Report (end) ----------
+
+---------- 4. JTAG Timing Report (begin) ----------
+
++----------------------+--------------------------+-----------+----------+----------+
+|    Instance Name     |         Pin Name         | Parameter | Max (ns) | Min (ns) |
++----------------------+--------------------------+-----------+----------+----------+
+|      jtag_inst1      |      jtag_inst1_TDI      |  JTAG_IN  |  2.454   |  1.505   |
+|      jtag_inst1      |      jtag_inst1_TMS      |  JTAG_IN  |  1.773   |  0.990   |
+| jtag_inst2_autodbg__ | jtag_inst2_autodbg_TDI__ |  JTAG_IN  |  2.454   |  1.505   |
+| jtag_inst2_autodbg__ | jtag_inst2_autodbg_TMS__ |  JTAG_IN  |  1.773   |  0.990   |
++----------------------+--------------------------+-----------+----------+----------+
+
+---------- JTAG Timing Report (end) ----------
+
+---------- 5.1 HSIO GPIO Timing Report (begin) ----------
+
+Clkout GPIO Configuration:
+===========================
+
++---------------+-----------+--------------+----------+----------+-----------------------+
+| Instance Name | Clock Pin |  Parameter   | Max (ns) | Min (ns) |   Reference Pin Name  |
++---------------+-----------+--------------+----------+----------+-----------------------+
+|     DA_CLK    |   clk_da  | GPIO_CLK_OUT |  2.205   |  1.470   | clk_da~CLKOUT~122~322 |
+|    dvp_clk    |  clk_dvp  | GPIO_CLK_OUT |  2.205   |  1.470   |  clk_dvp~CLKOUT~1~295 |
++---------------+-----------+--------------+----------+----------+-----------------------+
+
+Non-registered HSIO GPIO Configuration:
+========================================
+
++-----------------+-----------------+-------------+----------+----------+
+|  Instance Name  |     Pin Name    |  Parameter  | Max (ns) | Min (ns) |
++-----------------+-----------------+-------------+----------+----------+
+|    bt1120_clk   |    bt1120_clk   | GPIO_CLK_IN |  0.828   |  0.552   |
+|  bt1120_data[0] |  bt1120_data[0] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[1] |  bt1120_data[1] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[2] |  bt1120_data[2] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[3] |  bt1120_data[3] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[4] |  bt1120_data[4] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[5] |  bt1120_data[5] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[6] |  bt1120_data[6] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[7] |  bt1120_data[7] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[8] |  bt1120_data[8] |   GPIO_IN   |  0.828   |  0.552   |
+|  bt1120_data[9] |  bt1120_data[9] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[10] | bt1120_data[10] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[11] | bt1120_data[11] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[12] | bt1120_data[12] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[13] | bt1120_data[13] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[14] | bt1120_data[14] |   GPIO_IN   |  0.828   |  0.552   |
+| bt1120_data[15] | bt1120_data[15] |   GPIO_IN   |  0.828   |  0.552   |
+|    my_pll_pin   |    my_pll_pin   |   GPIO_IN   |  0.828   |  0.552   |
+|     CFG_nCSO    |     CFG_nCSO    |   GPIO_OUT  |  2.205   |  1.470   |
+|      DA_HS      |      DA_HS      |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[0]     |     DA_P[0]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[1]     |     DA_P[1]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[2]     |     DA_P[2]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[3]     |     DA_P[3]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[4]     |     DA_P[4]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[5]     |     DA_P[5]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[6]     |     DA_P[6]     |   GPIO_OUT  |  2.205   |  1.470   |
+|     DA_P[7]     |     DA_P[7]     |   GPIO_OUT  |  2.205   |  1.470   |
+|      DA_RST     |      DA_RST     |   GPIO_OUT  |  2.205   |  1.470   |
+|      DA_VS      |      DA_VS      |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[0]   |   dvp_data[0]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[1]   |   dvp_data[1]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[2]   |   dvp_data[2]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[3]   |   dvp_data[3]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[4]   |   dvp_data[4]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[5]   |   dvp_data[5]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[6]   |   dvp_data[6]   |   GPIO_OUT  |  2.205   |  1.470   |
+|   dvp_data[7]   |   dvp_data[7]   |   GPIO_OUT  |  2.205   |  1.470   |
+|      dvp_hs     |      dvp_hs     |   GPIO_OUT  |  2.205   |  1.470   |
+|      dvp_vs     |      dvp_vs     |   GPIO_OUT  |  2.205   |  1.470   |
+|   hbc_cal_pass  |   hbc_cal_pass  |   GPIO_OUT  |  2.205   |  1.470   |
+|      CFG_D0     |    CFG_D0_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      CFG_D0     |    CFG_D0_OE    |   GPIO_OUT  |  1.953   |  1.302   |
+|      CFG_D1     |    CFG_D1_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      CFG_D1     |    CFG_D1_OE    |   GPIO_OUT  |  1.953   |  1.302   |
+|      CFG_D2     |    CFG_D2_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      CFG_D2     |    CFG_D2_OE    |   GPIO_OUT  |  1.953   |  1.302   |
+|      CFG_D3     |    CFG_D3_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      CFG_D3     |    CFG_D3_OE    |   GPIO_OUT  |  1.953   |  1.302   |
+|      DA_SCL     |    DA_SCL_IN    |   GPIO_IN   |  0.828   |  0.552   |
+|      DA_SCL     |    DA_SCL_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      DA_SCL     |    DA_SCL_OE    |   GPIO_OUT  |  1.953   |  1.302   |
+|      DA_SDA     |    DA_SDA_IN    |   GPIO_IN   |  0.828   |  0.552   |
+|      DA_SDA     |    DA_SDA_OUT   |   GPIO_OUT  |  2.205   |  1.470   |
+|      DA_SDA     |    DA_SDA_OE    |   GPIO_OUT  |  1.953   |  1.302   |
++-----------------+-----------------+-------------+----------+----------+
+
+Registered HSIO GPIO Configuration:
+====================================
+
++---------------+----------------+----------------+----------------+---------------+---------------+-----------------------+-----------------------+
+| Instance Name |   Clock Pin    | Max Setup (ns) | Min Setup (ns) | Max Hold (ns) | Min Hold (ns) | Max Clock To Out (ns) | Min Clock To Out (ns) |
++---------------+----------------+----------------+----------------+---------------+---------------+-----------------------+-----------------------+
+|    CFG_DCLK   |     clk50M     |                |                |               |               |         2.226         |         1.484         |
+|    hbc_ck_n   |  ~hbramClk90   |                |                |               |               |         1.943         |         1.295         |
+|   hbc_ck_n_2  |  ~hbramClk90   |                |                |               |               |         1.943         |         1.295         |
+|    hbc_ck_p   |  ~hbramClk90   |                |                |               |               |         1.943         |         1.295         |
+|   hbc_ck_p_2  |  ~hbramClk90   |                |                |               |               |         1.943         |         1.295         |
+|    hbc_cs_n   |    hbramClk    |                |                |               |               |         1.943         |         1.295         |
+|   hbc_cs_n_2  |    hbramClk    |                |                |               |               |         1.943         |         1.295         |
+|   hbc_rst_n   |    hbramClk    |                |                |               |               |         1.943         |         1.295         |
+|  hbc_rst_n_2  |    hbramClk    |                |                |               |               |         1.943         |         1.295         |
+|     CFG_D0    |     clk50M     |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|     CFG_D1    |     clk50M     |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|     CFG_D2    |     clk50M     |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|     CFG_D3    |     clk50M     |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[0]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[0]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[1]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[1]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[2]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[2]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[3]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[3]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[4]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[4]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[5]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[5]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[6]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[6]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[7]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[7]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[8]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[8]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[9]   |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[9]   |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[10]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[10]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[11]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[11]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[12]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[12]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[13]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[13]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[14]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[14]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|   hbc_dq[15]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|   hbc_dq[15]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[0]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[0]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[1]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[1]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[2]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[2]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[3]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[3]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[4]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[4]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[5]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[5]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[6]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[6]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[7]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[7]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[8]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[8]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[9]  | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[9]  |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[10] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[10] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[11] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[11] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[12] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[12] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[13] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[13] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[14] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[14] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_dq_2[15] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_dq_2[15] |   ~hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_rwds[0]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_rwds[0]  |    hbramClk    |                |                |               |               |         1.943         |         1.127         |
+|  hbc_rwds[1]  |  hbramClk_cal  |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+|  hbc_rwds[1]  |    hbramClk    |                |                |               |               |         1.943         |         1.127         |
+| hbc_rwds_2[0] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+| hbc_rwds_2[0] |    hbramClk    |                |                |               |               |         1.943         |         1.127         |
+| hbc_rwds_2[1] | hbramClk_cal_2 |     0.618      |     0.412      |     -0.408    |     -0.272    |                       |                       |
+| hbc_rwds_2[1] |    hbramClk    |                |                |               |               |         1.943         |         1.127         |
++---------------+----------------+----------------+----------------+---------------+---------------+-----------------------+-----------------------+
+
+---------- HSIO GPIO Timing Report (end) ----------
+
+---------- 6. Clock Network Delay Report (begin) ----------
+
++----------------+----------+----------+
+|   Clock Pin    | Max (ns) | Min (ns) |
++----------------+----------+----------+
+|  adv_ctrl_clk  |  1.905   |  1.233   |
+|   bt1120_clk   |  1.888   |  1.222   |
+|     clk50M     |  1.939   |  1.255   |
+|     clk_da     |  1.874   |  1.213   |
+|    clk_dvp     |  1.873   |  1.212   |
+|    hbramClk    |  1.835   |  1.187   |
+|   hbramClk90   |  1.778   |  1.150   |
+|  hbramClk_cal  |  1.849   |  1.197   |
+| hbramClk_cal_2 |  1.856   |  1.201   |
+|   hbram_ref    |  1.812   |  1.172   |
++----------------+----------+----------+
+
+---------- Clock Network Delay Report (end) ----------

@@ -1,0 +1,222 @@
+Efinity Synthesis report for project edb_top
+Version: 2026.1.132.4.5
+Generated at: Sep 19, 2026 17:29:52
+Copyright (C) 2013 - 2026  All rights reserved.
+
+Top-level Entity Name : edb_top
+
+family : Titanium
+device : Ti60F225
+project : edb_top
+root : edb_top
+I,include : H:/Project/ivlab-239
+I,include : H:/Project/ivlab-239/ip/dual_hyperram_ctrl
+I,include : H:/Project/ivlab-239/ip/riscv
+insert-ios : 0
+insert-gclk : 0
+max-carry-cascade : 320
+max-dsp-cascade : 16
+max_mult : -1
+max_ram : -1
+mode : speed
+num_srl : -1
+gen-mark-debug-json : 0
+keep-gclk-in-module : 1
+mult-decomp-retime : 0
+output-dir : H:/Project/ivlab-239/outflow
+peri-syn-instantiation : 1
+project : edb_top
+retiming : 0
+root : edb_top
+seq_opt : 0
+work-dir : H:/Project/ivlab-239/work_dbg
+write-postmap-module : H:/Project/ivlab-239/work_dbg/debug_top.post.vdb
+
+File List:
+
+H:/Project/ivlab-239/work_dbg/debug_top.v
+
+### ### Report Section Start ### ###
+
+"MEM|SYN-0677" : ... Memory 'ram' is not initialized, assuming empty initial contents. (H:/Project/ivlab-239/work_dbg/debug_top.v:429)
+
+### ### EFX_FF CE enables (begin) ### ### ###
+
+Total number of enable signals: 27
+Total number of FFs with enable signals: 561
++------------------------------------------------+------------------+
+|CE Signal                                       |Number of FF loads|
++------------------------------------------------+------------------+
+|debug_hub_inst/n96                              |               82 |
+|la0/n1114                                       |               64 |
+|la0/n1631                                       |               64 |
+|la0/tu_trigger                                  |               64 |
+|ceg_net14                                       |               64 |
+|ceg_net19                                       |               32 |
+|la0/addr_ct_en                                  |               25 |
+|la0/n1764                                       |               22 |
+|ceg_net26                                       |               22 |
+|la0/n5458                                       |               21 |
+|la0/word_ct_en                                  |               16 |
+|la0/regsel_ld_en                                |               13 |
+|la0/la_biu_inst/n351                            |               11 |
+|la0/la_biu_inst/n2081                           |               10 |
+|la0/la_biu_inst/fifo_push                       |               10 |
+|la0/la_biu_inst/fifo_with_read_inst/is_last_data|               10 |
+|ceg_net5                                        |                6 |
+|la0/la_biu_inst/data_o_en                       |                4 |
+|la0/op_reg_en                                   |                4 |
+|debug_hub_inst/n267                             |                4 |
+|ceg_net11                                       |                3 |
+|la0/n2620                                       |                3 |
+|la0/n3453                                       |                3 |
+|la0/trigger_skipper_n/equal_6/n127              |                1 |
+|ceg_net27                                       |                1 |
+|ceg_net2                                        |                1 |
+|debug_hub_inst/n265                             |                1 |
++------------------------------------------------+------------------+
+
+### ### EFX_FF CE enables (end) ### ### ###
+
+### ### EFX_FF SR set/reset (begin) ### ### ###
+
+Total number of set/reset signals: 10
+Total number of FFs with set/reset signals: 580
++----------------------------------------+------------------+
+|SR Signal                               |Number of FF loads|
++----------------------------------------+------------------+
+|edb_soft_reset                          |              360 |
+|bscan_RESET                             |               83 |
+|la0/ts_resetn                           |               64 |
+|la0/la_biu_inst/fifo_with_read_inst/n642|               31 |
+|la0/la_biu_inst/fifo_rstn               |               21 |
+|la0/la_resetn                           |               16 |
+|la0/n2607                               |                2 |
+|la0/la_biu_inst/n2095                   |                1 |
+|la0/trigger_skipper_n/n469              |                1 |
+|la0/n5920                               |                1 |
++----------------------------------------+------------------+
+
+### ### EFX_FF SR set/reset (end) ### ### ###
+
+### ### Sequential Elements/Signals Trimming Report (begin) ### ### ### 
+'la0/data_from_biu[3]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[4]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[5]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[6]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[7]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[8]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[9]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[10]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[11]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[12]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[13]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[14]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[15]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[16]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[17]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[18]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[19]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[20]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[21]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[22]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[23]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[24]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[25]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[26]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[27]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[28]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[29]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[30]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[31]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[32]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[33]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[34]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[35]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[36]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[37]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[38]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[39]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[40]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[41]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[42]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[43]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[44]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[45]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[46]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[47]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[48]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[49]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[50]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[51]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[52]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[53]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[54]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[55]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[56]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[57]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[58]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[59]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[60]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[61]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[62]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/data_from_biu[63]' (H:/Project/ivlab-239/work_dbg/debug_top.v:3439) (optimized to 0)
+'la0/GEN_PROBE[1].genblk7.genblk3.trigger_cu/genblk1.genblk1.exp2' (H:/Project/ivlab-239/work_dbg/debug_top.v:5579) (merged to equivalence)
+'la0/GEN_PROBE[0].genblk7.genblk3.trigger_cu/genblk1.genblk1.exp2' (H:/Project/ivlab-239/work_dbg/debug_top.v:5579) (merged to equivalence)
+### ### Sequential Elements Trimming Report (end) ### ### ### 
+
+### ### Module Resource Usage Distribution Estimates (begin) ### ###
+
+**Note: some resources maybe grouped under different hierarchy due to optimization and LUT mapping
+
+Module                                                             FFs      SRLs      ADDs      LUTs    COMB4s      RAMs DSP/MULTs
+------------------------------------------------------------       ---      ----      ----      ----      ----      ---- ---------
+edb_top:edb_top                                                 601(0)      2(0)    149(0)    948(0)      0(0)      1(0)      0(0)
+ +la0:edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PRO...  514(317)      2(0)   149(39)  916(375)      0(0)      1(0)      0(0)
+  +axi_crc_i:edb_adbg_crc32_53d203d0e71143b69bde59f5c5a0887b    32(32)      0(0)      0(0)    36(36)      0(0)      0(0)      0(0)
+  +GEN_PROBE[0].genblk7.genblk3.trigger_cu:compare_unit_5...      7(7)      0(0)      0(0)      7(7)      0(0)      0(0)      0(0)
+  +GEN_PROBE[1].genblk7.genblk3.trigger_cu:compare_unit_5...      7(7)      0(0)      0(0)      7(7)      0(0)      0(0)      0(0)
+  +trigger_tu:trigger_unit_53d203d0e71143b69bde59f5c5a088...      1(1)      0(0)      0(0)      4(4)      0(0)      0(0)      0(0)
+  +trigger_skipper_n:trigger_skipper_53d203d0e71143b69bde...    65(65)      0(0)    63(63)  232(232)      0(0)      0(0)      0(0)
+  +la_biu_inst:la_biu_53d203d0e71143b69bde59f5c5a0887b(CA...    85(33)      2(0)     47(0)  255(151)      0(0)      1(0)      0(0)
+   +fifo_with_read_inst:fifo_with_read_53d203d0e71143b69b...    52(52)      2(2)    47(47)   104(64)      0(0)      1(0)      0(0)
+    +transcode_write_addr:fifo_address_trancode_unit_53d2...      0(0)      0(0)      0(0)    38(38)      0(0)      0(0)      0(0)
+    +simple_dual_port_ram_inst:edb_simple_dual_port_ram_5...      0(0)      0(0)      0(0)      2(2)      0(0)      1(1)      0(0)
+ +debug_hub_inst:debug_hub_53d203d0e71143b69bde59f5c5a0887b     87(87)      0(0)      0(0)    32(32)      0(0)      0(0)      0(0)
+
+### ### Module Resource Usage Distribution Estimates (end) ### ###
+
+
+### ### DSP Usage Report (begin) ### ### ### 
+
+ No DSP in design
+
+### ### Clock Load Distribution Report (begin) ### ###
+
++---------+----------+----------+------------+----------------+
+|Clock    |Flip-Flops|Shift-Regs|Memory Ports|Multipliers/DSPs|
++---------+----------+----------+------------+----------------+
+|la0_clk  |      154 |        2 |          2 |              0 |
+|bscan_TCK|      447 |        0 |          0 |              0 |
++---------+----------+----------+------------+----------------+
+
+### ### Clock Load Distribution Report (end) ### ###
+
+### ### Resource Summary (begin) ### ### ### 
+
+INPUT  PORTS    : 	13
+OUTPUT PORTS    : 	1
+
+EFX_ADD                 : 	149
+EFX_LUT4                : 	948
+   1-2  Inputs          : 	181
+   3    Inputs          : 	210
+   4    Inputs          : 	557
+EFX_FF                  : 	601
+EFX_SRL8                : 	2
+EFX_RAM10               : 	1
+EFX_GBUFCE              : 	1
+### ### Resource Summary (end) ### ### ###
+
+Plain synthesis (without verilog dump and post-map checks) time : 3s
+Elapsed synthesis time : 3s

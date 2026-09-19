@@ -1,0 +1,40 @@
+
+Elitestek FPGA Placement and Routing.
+Version: 2026.1.132.4.5 
+Date: Sat Sep 19 17:31:53 2026
+
+Copyright (C) 2013 - 2026 Efinix, Inc. All rights reserved.
+ 
+Family: Titanium 
+Device: Ti60F225
+Top-level Entity Name: ivlab239_c
+Elapsed time for routing: 0 hours 0 minutes 20 seconds
+
+
+---------- GBUFCE Assignments (begin) ----------
+
+
++-------------------------------------------+----------+----------+
+|                 Clock Net                 | GBUFCE_X | GBUFCE_Y |
++-------------------------------------------+----------+----------+
+|               adv_ctrl_clk                |   107    |    1     |
+|                bt1120_clk                 |   218    |   160    |
+|                    clk                    |   112    |    1     |
+|                  clk50M                   |   109    |    1     |
+|                  clk_da                   |   108    |    1     |
+|                  clk_dvp                  |    1     |   159    |
+|                clk_scaler                 |    1     |   163    |
+| edb_top_autodbg_inst__/bscan_TCK_buffered |   218    |   165    |
+|                 hbramClk                  |   110    |    1     |
+|                hbramClk90                 |   218    |   164    |
+|               hbramClk_cal                |   111    |    1     |
+|              hbramClk_cal_2               |   218    |   159    |
+|                 hbram_ref                 |   107    |   322    |
+|              jtag_inst1_TCK               |   106    |    1     |
++-------------------------------------------+----------+----------+
+
+
+----------- GBUFCE Assignments (end) ----------
+
+
+Elapsed time for Latest PnR Run: 0 hours 1 minutes 10 seconds

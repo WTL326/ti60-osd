@@ -1,0 +1,12 @@
+20:55:29 **** Incremental Build of configuration Default for project uartEchoDemo ****
+make all 
+CC src/main.c
+LD uartEchoDemo
+Memory region         Used Size  Region Size  %age Used
+             ram:       24704 B       124 KB     19.46%
+21:29:45 **** Incremental Build of configuration Default for project uartEchoDemo ****
+make all 
+make: Nothing to be done for 'all'.
+21:40:24 **** Incremental Build of configuration Default for project uartEchoDemo ****
+make all 
+make: Nothing to be done for 'all'.

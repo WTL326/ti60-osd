@@ -1,0 +1,103 @@
+CellDelayOverride {
+  Cell: "my_hbram~PLL"
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT0"
+    Type: "CLK_TO_Q"
+    value_min: -1187
+    value_max: -1835
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT1"
+    Type: "CLK_TO_Q"
+    value_min: -1187
+    value_max: -1835
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT2"
+    Type: "CLK_TO_Q"
+    value_min: -1187
+    value_max: -1835
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT3"
+    Type: "CLK_TO_Q"
+    value_min: -1187
+    value_max: -1835
+  }
+}
+CellDelayOverride {
+  Cell: "my_sys~PLL"
+  DelayOverride {
+    from: "CLKIN[0]"
+    to: "CLKOUT0"
+    Type: "CLK_TO_Q"
+    value_min: -1255
+    value_max: -1939
+  }
+  DelayOverride {
+    from: "CLKIN[0]"
+    to: "CLKOUT1"
+    Type: "CLK_TO_Q"
+    value_min: -1255
+    value_max: -1939
+  }
+  DelayOverride {
+    from: "CLKIN[0]"
+    to: "CLKOUT2"
+    Type: "CLK_TO_Q"
+    value_min: -1255
+    value_max: -1939
+  }
+  DelayOverride {
+    from: "CLKIN[0]"
+    to: "CLKOUT3"
+    Type: "CLK_TO_Q"
+    value_min: -1255
+    value_max: -1939
+  }
+}
+CellDelayOverride {
+  Cell: "pll_bt1120~PLL"
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT0"
+    Type: "CLK_TO_Q"
+    value_min: 0
+    value_max: 0
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT1"
+    Type: "CLK_TO_Q"
+    value_min: 0
+    value_max: 0
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT2"
+    Type: "CLK_TO_Q"
+    value_min: 0
+    value_max: 0
+  }
+}
+CellDelayOverride {
+  Cell: "pll_hbram_ref~PLL"
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT0"
+    Type: "CLK_TO_Q"
+    value_min: 0
+    value_max: 0
+  }
+  DelayOverride {
+    from: "CLKIN[3]"
+    to: "CLKOUT1"
+    Type: "CLK_TO_Q"
+    value_min: 0
+    value_max: 0
+  }
+}

@@ -1,0 +1,439 @@
+           
+           Elitestek FPGA Placement and Routing.
+           Version: 2026.1.132.4.5 
+           Compiled: May 29 2026.
+           
+           Copyright (C) 2013 - 2026 Efinix, Inc. All rights reserved.
+
+           
+           The Tool Is Based on VPR of University of Toronto,
+           a free open source code under MIT license.
+           
+INFO     : Input/inout port jtag_inst1_DRCK and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst1_RESET and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst1_TMS and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst1_RUNTEST and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst1_UPDATE and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port intosc_clkout and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port hbram_ref and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port DA_SCL_IN and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst2_autodbg_DRCK__ and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst2_autodbg_RUNTEST__ and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port jtag_inst2_autodbg_TMS__ and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+WARNING  : Found 38 warnings in the post-synthesis netlist.
+INFO     : Reading core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileReading]
+INFO     : Successfully read core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileLoadSuccess]
+INFO     : Creating interface clock pin hbramClk90 [DBMsg::NetlistInterfaceClockPinCreated]
+WARNING  : logical_block LUT__134995 #25522 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134996 #25523 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134997 #25524 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134998 #25525 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134999 #25526 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__135000 #25527 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__135001 #25528 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block cpu_arw_addr[31]~FF #25792 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block cpu_arw_lock~FF #25818 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[0]~FF #44730 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[1]~FF #44731 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[2]~FF #44732 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[3]~FF #44733 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[0]~FF #44734 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[1]~FF #44735 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[2]~FF #44736 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[0]~FF #44737 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[1]~FF #44738 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[2]~FF #44739 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[3]~FF #44740 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[0]~FF #44741 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[1]~FF #44742 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[2]~FF #44743 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[3]~FF #44744 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[0]~FF #45858 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[1]~FF #45859 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[2]~FF #45860 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[3]~FF #45861 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[4]~FF #45862 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[5]~FF #45863 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[6]~FF #45864 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[7]~FF #45865 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[0]~FF #47875 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[1]~FF #47876 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[2]~FF #47877 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[3]~FF #47878 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[4]~FF #47879 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[5]~FF #47880 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134995 #25522 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134996 #25523 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134997 #25524 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134998 #25525 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__134999 #25526 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__135000 #25527 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block LUT__135001 #25528 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block cpu_arw_addr[31]~FF #25792 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block cpu_arw_lock~FF #25818 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[0]~FF #44730 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[1]~FF #44731 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[2]~FF #44732 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_cache[3]~FF #44733 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[0]~FF #44734 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[1]~FF #44735 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_prot[2]~FF #44736 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[0]~FF #44737 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[1]~FF #44738 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[2]~FF #44739 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_qos[3]~FF #44740 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[0]~FF #44741 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[1]~FF #44742 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[2]~FF #44743 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/io_ddrA_arw_payload_region[3]~FF #44744 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[0]~FF #45858 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[1]~FF #45859 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[2]~FF #45860 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[3]~FF #45861 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[4]~FF #45862 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[5]~FF #45863 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[6]~FF #45864 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/io_ddrA_r_rData_id[7]~FF #45865 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[0]~FF #47875 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[1]~FF #47876 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[2]~FF #47877 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[3]~FF #47878 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[4]~FF #47879 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+WARNING  : logical_block u_riscv/u_EfxSapphireSoc/system_cores_0_logic_cpu/IBusCachedPlugin_cache/lineLoader_address[5]~FF #47880 has no fanout [DBMsg::NetlistLogicalBlockNoFanout]
+INFO     : Reading core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileReading]
+INFO     : Successfully read core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileLoadSuccess]
+WARNING  : Clock source "jtag_inst1_TCK" does not use a dedicated clock pad, extra clock insertion delay will been added
+WARNING  : Clock source "jtag_inst2_autodbg_TCK__" does not use a dedicated clock pad, extra clock insertion delay will been added
+INFO     : Counting 2 clocks that are not assigned to clock resources as global clocks.
+INFO     : XLR count after merging: 45669
+INFO     : Netlist has 26431 luts, 22836 ffs and 3610 adders [PackerMsg::NetlistStatistics]
+INFO     : Packed into 45669 clusters with 2.4564803(1.0239769) inputs(outputs) per cluster for a total of 112185(46764) inputs(outputs) [PackerMsg::ClusterPackingStatistics]
+INFO     : Packed into 45669 xlrs with 2.4564803(1.0239769) inputs(outputs) per xlr for a total of 112185(46764) inputs(outputs) [PackerMsg::XLRPackingStatistics]
+INFO     : Packed 0 fracturable DSPs into 0 clusters [PackerMsg::DSPPackingStatistics]
+INFO     : Packing took 2.5870878 seconds [FlowMsg::StageDuration]
+INFO     :     Packing took 3.296875 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Packing virtual memory usage: begin = 61.504 MB, end = 368.108 MB, delta = 306.604 MB [FlowMsg::VMUsage]
+INFO     :     Packing peak virtual memory usage = 368.116 MB [FlowMsg::VMUsage::Peak]
+INFO     : Packing resident set memory usage: begin = 64.928 MB, end = 375.2 MB, delta = 310.272 MB [FlowMsg::RSSUsage]
+INFO     :     Packing peak resident set memory usage = 375.2 MB [FlowMsg::RSSUsage::Peak]
+WARNING  : No ports matched 'intosc_clkout'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:18] No valid pin(s) found for clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:18] Unable to run 'create_clock' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] set_output_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] Unable to run 'set_output_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] set_output_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] Unable to run 'set_output_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_RESET'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_RESET'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_UPDATE'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_UPDATE'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_DRCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_DRCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] Unable to run 'set_input_delay' constraint due to warnings found
+INFO     : SDC file 'H:/Project/ivlab-239/constraints.sdc' parsed successfully.
+INFO     : Reading core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileReading]
+INFO     : Successfully read core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileLoadSuccess]
+INFO     : Counting 2 clocks that are not assigned to clock resources as global clocks.
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/ddrCd_logic_outputReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_data[2]~FF is driven by a non-sequential source LUT__113911:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/rd_data_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_ddr_ddrLogic_cc_fifo/io_input_cmd_queue/system_ddr_ddrLogic_cc_fifo_toplevel_systemCd_logic_outputReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_adv7391/ntscPattern/pattern/dcfifo/pattern_ntscPattern_io_reset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/ram_rst_syncronizer/active_low.efx_resetsync_active_low/async_reg[0][0]~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_error~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/calibration_block.hbram_cal_top_inst/hbram_cal_ctrl_inst/fifo_rden_block.genblk1.rd_data_fifo_2/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/wr_cntr_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/io_asyncReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_data[1]~FF is driven by a non-sequential source LUT__113912:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_adv7391/init_i2cInit/io_i2c_sda_in_buffercc/i7_2 is driven by a non-sequential source DA_SDA_IN:inpad [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_i2c_0_io_logic/i2cCtrl/io_i2c_scl_read_buffercc/buffers_0~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/addr_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_ddr_ddrLogic_cc_fifo/io_output_rsp_queue/system_ddr_ddrLogic_cc_fifo_toplevel_ddrCd_logic_outputReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/genblk2.wr_data_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/rd_counter_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/wr_response_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/ramcal_rst_syncronizer_2/active_low.efx_resetsync_active_low/async_reg[0][0]~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_zoom_config_cdc/data_meta[33]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/calibration_block.hbram_cal_top_inst/hbram_cal_ctrl_inst/fifo_rden_block.genblk1.rd_data_fifo_1/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_data[0]~FF is driven by a non-sequential source LUT__113955:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_cores_0_debugReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_i2c_0_io_logic/i2cCtrl/io_i2c_sda_read_buffercc/buffers_0~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_data[4]~FF is driven by a non-sequential source LUT__113957:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_zoom_config_cdc/data_meta[11]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/userInterruptA_buffercc/i7_2 is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/rd_data_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/addr_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_adv7391/palProgressivePattern/pattern/dcfifo/pattern_palProgressivePattern_io_reset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_hyperram_picture/u_axis_to_bt656/dcfifo/pattern_palPattern_io_reset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/wr_response_fifo/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/ramcal_rst_syncronizer/active_low.efx_resetsync_active_low/async_reg[0][0]~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_uart_0_io_logic/uartCtrl_1/rx/io_rxd_buffercc/buffers_0~FF is driven by a non-sequential source DEBUG_UART_RX:inpad [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_adv7391/palPattern/pattern/dcfifo/pattern_palPattern_io_reset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/calibration_block.hbram_cal_top_inst/hbram_cal_ctrl_inst/fifo_rden_block.genblk1.rd_data_fifo_1/genblk2.genblk1.efx_resetsync_rd_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/rst_busy_sync/async_reg[0][0]~FF is driven by a non-sequential source LUT__125014:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_valid~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/calibration_block.hbram_cal_top_inst/hbram_cal_ctrl_inst/fifo_rden_block.genblk1.rd_data_fifo_2/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/wr_cntr_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_adv7391/ntscProgressivePattern/pattern/dcfifo/pattern_ntscProgressivePattern_io_reset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/axi_rst_syncronizer/active_low.efx_resetsync_active_low/async_reg[0][0]~FF is driven by a non-sequential source VCC:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/system_hardJtag_debug_logic_jtagBridge/system_rsp_payload_data[3]~FF is driven by a non-sequential source LUT__113956:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell u_riscv/u_EfxSapphireSoc/debugCd_logic_outputReset_asyncAssertSyncDeassert_buffercc/buffers_0~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/genblk2.wr_data_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+WARNING  : Synchronizer chain starting at cell hbram_top_inst/u_hbram_top/hard_cal_block.hbram_cal_axi_top_inst/interface_block1.hbram_axi_wrapper_inst/xefx_axi_amux_top/rd_counter_fifo/genblk2.genblk1.efx_resetsync_wr_rst/active_high.efx_resetsync_active_high/async_reg[0][0]~FF is driven by a non-sequential source GND:O [FlowMsg::SyncHeadDrivenByNonSeq]
+INFO     : Starting Global Placer with 8 threads ...
+            ----------     -------  --------------     -------
+             Iteration       WHPWL Worst Slack (ps) Convergence
+            ----------     -------  --------------     -------
+INFO     :           1    14351283             867         2.2%
+INFO     :           2    11279741             867         3.5%
+INFO     :           3     8565828             867         6.5%
+INFO     :           4     5848992             872        12.7%
+INFO     :           5     4528317             867        17.5%
+INFO     :           6     4187186             862        19.2%
+INFO     :           7     3827709             861        20.1%
+INFO     :           8     3578215             862        22.1%
+INFO     :           9     3184186             885        27.4%
+INFO     :          10     3001330             842        29.1%
+INFO     :          11     2810062             569        32.6%
+INFO     :          12     2709783             672        34.4%
+INFO     :          13     2684873             728        35.3%
+INFO     :          14     2613593             579        37.9%
+INFO     :          15     2494619             223        40.9%
+INFO     :          16     2399033             417        44.1%
+INFO     :          17     2404234             363        45.0%
+INFO     :          18     2340900             238        46.3%
+INFO     :          19     2306484             174        48.0%
+INFO     :          20     2302631            -122        48.8%
+INFO     :          21     2285400              46        49.6%
+INFO     :          22     2244957              74        52.0%
+INFO     :          23     2182057              73        53.8%
+INFO     :          24     2197074             -43        54.3%
+INFO     :          25     2161576              76        55.5%
+INFO     :          26     2174862              45        55.7%
+INFO     :          27     2111614              88        58.6%
+INFO     :          28     2126563            -149        59.3%
+INFO     :          29     2076465             -25        61.5%
+INFO     :          30     2114022               7        62.0%
+INFO     :          31     2075027            -159        63.6%
+INFO     :          32     2064432             -35        64.2%
+INFO     :          33     2068606             -26        64.9%
+INFO     :          34     2066196              38        65.7%
+INFO     :          35     2033836              76        68.4%
+INFO     :          36     2057666              -1        68.4%
+INFO     :          37     2013268            -260        70.2%
+INFO     :          38     2029033             -99        71.0%
+INFO     :          39     2007290            -310        71.7%
+INFO     :          40     2022511            -360        72.8%
+INFO     :          41     2018610            -369        73.5%
+INFO     :          42     2030440            -664        73.6%
+INFO     :          43     2021208            -669        74.8%
+INFO     :          44     2011660            -554        75.6%
+INFO     :          45     2080581            -588        75.6%
+INFO     :          46     2032394            -448        78.3%
+INFO     :          47     2010686            -335        79.6%
+INFO     :          48     2006534            -467        80.0%
+INFO     :          49     2007483            -575        80.6%
+INFO     :          50     1995126            -573        81.7%
+INFO     :          51     2004015            -553        82.0%
+INFO     :          52     2026340            -493        82.0%
+INFO     :          53     2028108            -785        83.9%
+INFO     :          54     2043817            -881        84.1%
+INFO     :          55     2035246            -661        85.3%
+INFO     :          56     2034488            -808        85.7%
+INFO     :          57     2023908            -530        87.1%
+INFO     :          58     2032172            -667        87.7%
+INFO     :          59     2036038            -608        88.6%
+INFO     :          60     2041811            -663        89.5%
+INFO     :          61     2048138            -719        90.4%
+INFO     :          62     2059217            -976        91.0%
+INFO     :          63     1982294           -1468        92.0%
+INFO     :          64     2002767           -1374        94.8%
+INFO     :          65     2045605           -1167        94.8%
+INFO     :          66     2068120           -2043        96.7%
+INFO     :          67     2168712           -2024        96.7%
+INFO     :          68     2300826           -2147        96.7%
+INFO     :          69     2442836           -2014        96.7%
+INFO     : GP: best_placement: wpd: 10174.3
+INFO     : Starting Annealer
+            ----------     -------  --------------     -------
+             Iteration       WHPWL  Delay Max (ps)     R Limit
+            ----------     -------  --------------     -------
+INFO     :           0     1167736           11650        30.0
+INFO     :           1     1357238           10359        28.6
+INFO     :           2     1290966           10259        26.6
+INFO     :           3     1214131           10113        24.5
+INFO     :           4     1160235           10051        22.4
+INFO     :           5     1118715           10002        20.4
+INFO     :           6     1093792           10000        18.5
+INFO     :           7     1068524            9986        16.8
+INFO     :           8     1049110            9996        15.2
+INFO     :           9     1033837            9996        13.7
+INFO     :          10     1019311           10006        12.4
+INFO     :          11     1007169            5465        11.1
+INFO     :          12      995101            5424        10.0
+INFO     :          13      985975            5409         9.0
+INFO     :          14      977097            5399         8.1
+INFO     :          15      970470            5266         7.3
+INFO     :          16      963521            9006         6.6
+INFO     :          17      958929            9006         5.9
+INFO     :          18      953483            9006         5.3
+INFO     :          19      948182            9006         4.8
+INFO     :          20      943620            9006         4.3
+INFO     :          21      940546            9006         3.9
+INFO     :          22      936693            9006         3.5
+INFO     :          23      934222            9006         3.1
+INFO     :          24      932041            9006         2.8
+INFO     : DP: best_placement: wpd: 668.421
+INFO     : Placement successful: 46001 cells are placed
+INFO     : Peak congestion smeared over 4x4 of the chip is 1.5121 at 33,262
+INFO     : Peak congestion smeared over 1/16 of the chip is 1.16813 at 34,255
+INFO     : Peak congestion smeared over 1/4 of the chip is 0.735152 at 6,234
+INFO     : Congestion-weighted HPWL per net: 27.747
+INFO     : Post-placement cluster-level checks is successful
+INFO     : Post-placement primitive-level checks is successful
+INFO     : Placement took 36.2480068 seconds [FlowMsg::StageDuration]
+INFO     :     Placement took 88.90625 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Placement virtual memory usage: begin = 95.5 MB, end = 318.516 MB, delta = 223.016 MB [FlowMsg::VMUsage]
+INFO     :     Placement peak virtual memory usage = 450.232 MB [FlowMsg::VMUsage::Peak]
+INFO     : Placement resident set memory usage: begin = 108.756 MB, end = 336.284 MB, delta = 227.528 MB [FlowMsg::RSSUsage]
+INFO     :     Placement peak resident set memory usage = 465.208 MB [FlowMsg::RSSUsage::Peak]
+WARNING  : No ports matched 'intosc_clkout'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:18] No valid pin(s) found for clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:18] Unable to run 'create_clock' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] set_output_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:72] Unable to run 'set_output_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] set_output_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:73] Unable to run 'set_output_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:74] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:75] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_RESET'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:76] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_RESET'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:77] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:78] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:79] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_UPDATE'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:80] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_UPDATE'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:81] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:82] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:83] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_DRCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:84] Unable to run 'set_input_delay' constraint due to warnings found
+WARNING  : No ports matched 'jtag_inst1_DRCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] No clocks matched 'jtag_inst1_TCK'
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] set_input_delay: No valid clock found for -clock
+WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] Unable to run 'set_input_delay' constraint due to warnings found
+INFO     : SDC file 'H:/Project/ivlab-239/constraints.sdc' parsed successfully.
+Maximum possible analyzed clocks frequency
+  Clock Name   Period (ns)  Frequency (MHz)     Edge
+hbramClk          3.823        261.575         (R-R)
+hbramClk_cal      2.960        337.838         (R-R)
+hbramClk_cal_2    2.643        378.358         (R-R)
+clk50M            4.930        202.840         (R-R)
+clk               9.116        109.697         (R-R)
+clk_da            4.132        242.014         (R-R)
+adv_ctrl_clk      2.075        481.928         (R-R)
+bt1120_clk        3.888        257.202         (R-R)
+clk_dvp           3.453        289.603         (R-R)
+clk_scaler        5.268        189.825         (R-R)
+
+Geomean max period: 3.900
+
+Setup (Max) Clock Relationship
+  Launch Clock    Capture Clock   Constraint (ns)     Slack (ns)          Edge
+ hbramClk         hbramClk              5.000            1.177           (R-R)
+ hbramClk         hbramClk              2.500            1.097           (R-F)
+ hbramClk         hbramClk90            3.750            2.118           (R-F)
+ hbramClk_cal     hbramClk_cal          5.000            2.040           (R-R)
+ hbramClk_cal_2   hbramClk_cal_2        5.000            2.357           (R-R)
+ clk50M           clk50M               20.000           15.070           (R-R)
+ clk50M           clk                  10.000            4.867           (R-R)
+ clk              clk50M               10.000            8.453           (R-R)
+ clk              clk                  10.000            0.884           (R-R)
+ clk_da           clk_da               37.037           32.905           (R-R)
+ adv_ctrl_clk     adv_ctrl_clk         40.000           37.925           (R-R)
+ bt1120_clk       bt1120_clk           12.502            8.614           (R-R)
+ clk_dvp          clk_dvp              10.000            6.547           (R-R)
+ clk_scaler       clk_scaler            6.250            0.982           (R-R)
+
+Hold (Min) Clock Relationship
+  Launch Clock    Capture Clock   Constraint (ns)     Slack (ns)          Edge
+ hbramClk         hbramClk              0.000            0.144           (R-R)
+ hbramClk         hbramClk             -2.500            2.506           (R-F)
+ hbramClk         hbramClk90           -1.250            1.413           (R-F)
+ hbramClk_cal     hbramClk_cal          0.000            0.128           (R-R)
+ hbramClk_cal_2   hbramClk_cal_2        0.000            0.161           (R-R)
+ clk50M           clk50M                0.000            0.150           (R-R)
+ clk50M           clk                   0.000            0.175           (R-R)
+ clk              clk50M                0.000            0.175           (R-R)
+ clk              clk                   0.000           -0.119           (R-R)
+ clk_da           clk_da                0.000            0.161           (R-R)
+ adv_ctrl_clk     adv_ctrl_clk          0.000            0.161           (R-R)
+ bt1120_clk       bt1120_clk            0.000            0.146           (R-R)
+ clk_dvp          clk_dvp               0.000            0.161           (R-R)
+ clk_scaler       clk_scaler            0.000            0.057           (R-R)
+
+WARNING  : Clock domain between clk (rising) and clk (rising) may not meet (slack: -0.119 ns) the hold (min) timing requirement
+INFO     : Write Timing Report to "H:/Project/ivlab-239/outflow/ivlab239_c.place.timing.rpt" ...

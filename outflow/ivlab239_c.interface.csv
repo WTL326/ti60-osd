@@ -1,0 +1,408 @@
+
+# Efinity Interface Configuration
+# Version: 2026.1.132.4.5
+# Date: 2026-09-19 17:31
+
+# Copyright (C) 2013 - 2026 Efinix Inc. All rights reserved.
+
+# [required | optional] (input|output|clkout), x, y, z, __bypass__|[~|!]<clock>, [[~|!]<pin_name>] | __vcc__ | __gnd__
+clkout, 200, 323, -1, adv_ctrl_clk
+clkout, 22, 323, -1, bt1120_clk
+clkout, 0, 31, -1, clk50M
+clkout, 0, 54, -1, clk50M
+clkout, 0, 59, -1, clk50M
+clkout, 0, 60, -1, clk50M
+clkout, 0, 71, -1, clk50M
+clkout, 0, 72, -1, clk50M
+clkout, 122, 323, -1, clk_da
+clkout, 0, 295, -1, clk_dvp
+clkout, 202, 0, -1, hbram_ref
+clkout, 34, 323, -1, hbramClk
+clkout, 35, 323, -1, hbramClk
+clkout, 50, 323, -1, hbramClk
+clkout, 51, 323, -1, hbramClk
+clkout, 66, 323, -1, hbramClk
+clkout, 67, 323, -1, hbramClk
+clkout, 74, 323, -1, hbramClk
+clkout, 75, 323, -1, hbramClk
+clkout, 203, 0, -1, hbramClk
+clkout, 48, 323, -1, hbramClk_cal
+clkout, 49, 323, -1, hbramClk_cal
+clkout, 120, 0, -1, hbramClk_cal
+clkout, 121, 0, -1, hbramClk_cal
+clkout, 129, 0, -1, hbramClk_cal
+clkout, 130, 0, -1, hbramClk_cal
+clkout, 140, 0, -1, hbramClk_cal
+clkout, 141, 0, -1, hbramClk_cal
+clkout, 148, 0, -1, hbramClk_cal
+clkout, 149, 0, -1, hbramClk_cal
+clkout, 156, 0, -1, hbramClk_cal
+clkout, 157, 0, -1, hbramClk_cal
+clkout, 164, 0, -1, hbramClk_cal
+clkout, 165, 0, -1, hbramClk_cal
+clkout, 172, 0, -1, hbramClk_cal
+clkout, 173, 0, -1, hbramClk_cal
+clkout, 188, 0, -1, hbramClk_cal
+clkout, 189, 0, -1, hbramClk_cal
+clkout, 11, 0, -1, hbramClk_cal_2
+clkout, 12, 0, -1, hbramClk_cal_2
+clkout, 22, 0, -1, hbramClk_cal_2
+clkout, 23, 0, -1, hbramClk_cal_2
+clkout, 30, 0, -1, hbramClk_cal_2
+clkout, 31, 0, -1, hbramClk_cal_2
+clkout, 38, 0, -1, hbramClk_cal_2
+clkout, 39, 0, -1, hbramClk_cal_2
+clkout, 47, 0, -1, hbramClk_cal_2
+clkout, 48, 0, -1, hbramClk_cal_2
+clkout, 71, 0, -1, hbramClk_cal_2
+clkout, 72, 0, -1, hbramClk_cal_2
+clkout, 72, 323, -1, hbramClk_cal_2
+clkout, 73, 323, -1, hbramClk_cal_2
+clkout, 81, 0, -1, hbramClk_cal_2
+clkout, 82, 0, -1, hbramClk_cal_2
+clkout, 92, 0, -1, hbramClk_cal_2
+clkout, 93, 0, -1, hbramClk_cal_2
+clkout, 26, 323, -1, ~hbramClk90
+clkout, 27, 323, -1, ~hbramClk90
+clkout, 58, 323, -1, ~hbramClk90
+clkout, 59, 323, -1, ~hbramClk90
+clkout, 13, 0, -1, ~hbramClk
+clkout, 14, 0, -1, ~hbramClk
+clkout, 24, 0, -1, ~hbramClk
+clkout, 25, 0, -1, ~hbramClk
+clkout, 32, 0, -1, ~hbramClk
+clkout, 33, 0, -1, ~hbramClk
+clkout, 40, 0, -1, ~hbramClk
+clkout, 41, 0, -1, ~hbramClk
+clkout, 49, 0, -1, ~hbramClk
+clkout, 50, 0, -1, ~hbramClk
+clkout, 73, 0, -1, ~hbramClk
+clkout, 74, 0, -1, ~hbramClk
+clkout, 83, 0, -1, ~hbramClk
+clkout, 84, 0, -1, ~hbramClk
+clkout, 94, 0, -1, ~hbramClk
+clkout, 95, 0, -1, ~hbramClk
+clkout, 122, 0, -1, ~hbramClk
+clkout, 123, 0, -1, ~hbramClk
+clkout, 131, 0, -1, ~hbramClk
+clkout, 132, 0, -1, ~hbramClk
+clkout, 142, 0, -1, ~hbramClk
+clkout, 143, 0, -1, ~hbramClk
+clkout, 150, 0, -1, ~hbramClk
+clkout, 151, 0, -1, ~hbramClk
+clkout, 158, 0, -1, ~hbramClk
+clkout, 159, 0, -1, ~hbramClk
+clkout, 166, 0, -1, ~hbramClk
+clkout, 167, 0, -1, ~hbramClk
+clkout, 174, 0, -1, ~hbramClk
+clkout, 175, 0, -1, ~hbramClk
+clkout, 190, 0, -1, ~hbramClk
+clkout, 191, 0, -1, ~hbramClk
+input, 219, 160, 1, __bypass__, bt1120_clk
+input, 219, 260, 1, __bypass__, bt1120_data[0]
+input, 219, 213, 3, __bypass__, bt1120_data[1]
+input, 219, 272, 1, __bypass__, bt1120_data[2]
+input, 219, 199, 1, __bypass__, bt1120_data[3]
+input, 219, 271, 3, __bypass__, bt1120_data[4]
+input, 219, 213, 1, __bypass__, bt1120_data[5]
+input, 219, 260, 3, __bypass__, bt1120_data[6]
+input, 219, 198, 3, __bypass__, bt1120_data[7]
+input, 219, 298, 1, __bypass__, bt1120_data[8]
+input, 219, 249, 3, __bypass__, bt1120_data[9]
+input, 219, 298, 3, __bypass__, bt1120_data[10]
+input, 219, 228, 1, __bypass__, bt1120_data[11]
+input, 219, 284, 3, __bypass__, bt1120_data[12]
+input, 219, 249, 1, __bypass__, bt1120_data[13]
+input, 219, 284, 1, __bypass__, bt1120_data[14]
+input, 219, 227, 3, __bypass__, bt1120_data[15]
+input, 0, 64, 3, __bypass__, CFG_D0_IN
+output, 0, 63, 0, __bypass__, CFG_D0_OE
+output, 0, 60, 0, __bypass__, CFG_D0_OUT
+input, 0, 65, 1, __bypass__, CFG_D1_IN
+output, 0, 63, 2, __bypass__, CFG_D1_OE
+output, 0, 62, 2, __bypass__, CFG_D1_OUT
+input, 0, 75, 1, __bypass__, CFG_D2_IN
+output, 0, 74, 0, __bypass__, CFG_D2_OE
+output, 0, 71, 0, __bypass__, CFG_D2_OUT
+input, 0, 75, 3, __bypass__, CFG_D3_IN
+output, 0, 74, 2, __bypass__, CFG_D3_OE
+output, 0, 73, 2, __bypass__, CFG_D3_OUT
+output, 0, 32, 2, __bypass__, CFG_DCLK
+output, 0, 30, 0, __bypass__, CFG_nCSO
+output, 200, 323, 2, __bypass__, DA_HS
+output, 164, 323, 0, __bypass__, DA_P[0]
+output, 155, 323, 2, __bypass__, DA_P[1]
+output, 198, 323, 0, __bypass__, DA_P[2]
+output, 166, 323, 2, __bypass__, DA_P[3]
+output, 142, 323, 0, __bypass__, DA_P[4]
+output, 177, 323, 2, __bypass__, DA_P[5]
+output, 144, 323, 2, __bypass__, DA_P[6]
+output, 175, 323, 0, __bypass__, DA_P[7]
+output, 209, 323, 2, __bypass__, DA_RST
+input, 135, 323, 1, __bypass__, DA_SCL_IN
+output, 134, 323, 2, __bypass__, DA_SCL_OE
+output, 131, 323, 2, __bypass__, DA_SCL_OUT
+input, 135, 323, 3, __bypass__, DA_SDA_IN
+output, 135, 323, 0, __bypass__, DA_SDA_OE
+output, 134, 323, 0, __bypass__, DA_SDA_OUT
+output, 153, 323, 0, __bypass__, DA_VS
+input, 219, 3, 3, __bypass__, DEBUG_UART_RX
+output, 219, 5, 2, __bypass__, DEBUG_UART_TX
+output, 0, 192, 2, __bypass__, dvp_data[0]
+output, 0, 195, 0, __bypass__, dvp_data[1]
+output, 0, 205, 2, __bypass__, dvp_data[2]
+output, 0, 208, 0, __bypass__, dvp_data[3]
+output, 0, 183, 0, __bypass__, dvp_data[4]
+output, 0, 171, 2, __bypass__, dvp_data[5]
+output, 0, 180, 2, __bypass__, dvp_data[6]
+output, 0, 169, 0, __bypass__, dvp_data[7]
+output, 0, 292, 0, __bypass__, dvp_hs
+output, 0, 280, 2, __bypass__, dvp_vs
+output, 219, 125, 0, __bypass__, hbc_cal_pass
+output, 219, 16, 0, __bypass__, hbc_cal_SHIFT[0]
+output, 219, 16, 2, __bypass__, hbc_cal_SHIFT[1]
+output, 219, 17, 0, __bypass__, hbc_cal_SHIFT[2]
+output, 219, 20, 0, __bypass__, hbc_cal_SHIFT_ENA
+output, 219, 17, 2, __bypass__, hbc_cal_SHIFT_SEL[0]
+output, 219, 18, 0, __bypass__, hbc_cal_SHIFT_SEL[1]
+output, 219, 18, 2, __bypass__, hbc_cal_SHIFT_SEL[2]
+output, 219, 19, 0, __bypass__, hbc_cal_SHIFT_SEL[3]
+output, 219, 19, 2, __bypass__, hbc_cal_SHIFT_SEL[4]
+output, 51, 323, 2, __bypass__, hbc_ck_n_2_HI
+output, 50, 323, 2, __bypass__, hbc_ck_n_2_LO
+output, 6, 323, 2, __bypass__, hbc_ck_n_HI
+output, 5, 323, 2, __bypass__, hbc_ck_n_LO
+output, 49, 323, 0, __bypass__, hbc_ck_p_2_HI
+output, 48, 323, 2, __bypass__, hbc_ck_p_2_LO
+output, 4, 323, 0, __bypass__, hbc_ck_p_HI
+output, 3, 323, 2, __bypass__, hbc_ck_p_LO
+output, 17, 323, 2, __bypass__, hbc_cs_n
+output, 62, 323, 2, __bypass__, hbc_cs_n_2
+input, 97, 0, 3, __bypass__, hbc_dq_2_IN_HI[0]
+input, 75, 0, 3, __bypass__, hbc_dq_2_IN_HI[1]
+input, 86, 0, 1, __bypass__, hbc_dq_2_IN_HI[2]
+input, 86, 0, 3, __bypass__, hbc_dq_2_IN_HI[3]
+input, 97, 0, 1, __bypass__, hbc_dq_2_IN_HI[4]
+input, 75, 0, 1, __bypass__, hbc_dq_2_IN_HI[5]
+input, 53, 0, 3, __bypass__, hbc_dq_2_IN_HI[6]
+input, 53, 0, 1, __bypass__, hbc_dq_2_IN_HI[7]
+input, 19, 0, 1, __bypass__, hbc_dq_2_IN_HI[8]
+input, 42, 0, 1, __bypass__, hbc_dq_2_IN_HI[9]
+input, 30, 0, 3, __bypass__, hbc_dq_2_IN_HI[10]
+input, 8, 0, 3, __bypass__, hbc_dq_2_IN_HI[11]
+input, 19, 0, 3, __bypass__, hbc_dq_2_IN_HI[12]
+input, 42, 0, 3, __bypass__, hbc_dq_2_IN_HI[13]
+input, 31, 0, 1, __bypass__, hbc_dq_2_IN_HI[14]
+input, 8, 0, 1, __bypass__, hbc_dq_2_IN_HI[15]
+input, 96, 0, 3, __bypass__, hbc_dq_2_IN_LO[0]
+input, 74, 0, 3, __bypass__, hbc_dq_2_IN_LO[1]
+input, 85, 0, 1, __bypass__, hbc_dq_2_IN_LO[2]
+input, 85, 0, 3, __bypass__, hbc_dq_2_IN_LO[3]
+input, 96, 0, 1, __bypass__, hbc_dq_2_IN_LO[4]
+input, 74, 0, 1, __bypass__, hbc_dq_2_IN_LO[5]
+input, 52, 0, 3, __bypass__, hbc_dq_2_IN_LO[6]
+input, 52, 0, 1, __bypass__, hbc_dq_2_IN_LO[7]
+input, 18, 0, 1, __bypass__, hbc_dq_2_IN_LO[8]
+input, 41, 0, 1, __bypass__, hbc_dq_2_IN_LO[9]
+input, 29, 0, 3, __bypass__, hbc_dq_2_IN_LO[10]
+input, 7, 0, 3, __bypass__, hbc_dq_2_IN_LO[11]
+input, 18, 0, 3, __bypass__, hbc_dq_2_IN_LO[12]
+input, 41, 0, 3, __bypass__, hbc_dq_2_IN_LO[13]
+input, 30, 0, 1, __bypass__, hbc_dq_2_IN_LO[14]
+input, 7, 0, 1, __bypass__, hbc_dq_2_IN_LO[15]
+output, 96, 0, 0, __bypass__, hbc_dq_2_OE[0]
+output, 74, 0, 2, __bypass__, hbc_dq_2_OE[1]
+output, 85, 0, 0, __bypass__, hbc_dq_2_OE[2]
+output, 85, 0, 2, __bypass__, hbc_dq_2_OE[3]
+output, 95, 0, 2, __bypass__, hbc_dq_2_OE[4]
+output, 74, 0, 0, __bypass__, hbc_dq_2_OE[5]
+output, 52, 0, 2, __bypass__, hbc_dq_2_OE[6]
+output, 52, 0, 0, __bypass__, hbc_dq_2_OE[7]
+output, 18, 0, 0, __bypass__, hbc_dq_2_OE[8]
+output, 41, 0, 0, __bypass__, hbc_dq_2_OE[9]
+output, 29, 0, 2, __bypass__, hbc_dq_2_OE[10]
+output, 7, 0, 2, __bypass__, hbc_dq_2_OE[11]
+output, 18, 0, 2, __bypass__, hbc_dq_2_OE[12]
+output, 41, 0, 2, __bypass__, hbc_dq_2_OE[13]
+output, 30, 0, 0, __bypass__, hbc_dq_2_OE[14]
+output, 7, 0, 0, __bypass__, hbc_dq_2_OE[15]
+output, 95, 0, 0, __bypass__, hbc_dq_2_OUT_HI[0]
+output, 73, 0, 2, __bypass__, hbc_dq_2_OUT_HI[1]
+output, 82, 0, 0, __bypass__, hbc_dq_2_OUT_HI[2]
+output, 84, 0, 2, __bypass__, hbc_dq_2_OUT_HI[3]
+output, 92, 0, 2, __bypass__, hbc_dq_2_OUT_HI[4]
+output, 71, 0, 0, __bypass__, hbc_dq_2_OUT_HI[5]
+output, 51, 0, 2, __bypass__, hbc_dq_2_OUT_HI[6]
+output, 49, 0, 0, __bypass__, hbc_dq_2_OUT_HI[7]
+output, 15, 0, 0, __bypass__, hbc_dq_2_OUT_HI[8]
+output, 38, 0, 0, __bypass__, hbc_dq_2_OUT_HI[9]
+output, 26, 0, 2, __bypass__, hbc_dq_2_OUT_HI[10]
+output, 6, 0, 2, __bypass__, hbc_dq_2_OUT_HI[11]
+output, 17, 0, 2, __bypass__, hbc_dq_2_OUT_HI[12]
+output, 40, 0, 2, __bypass__, hbc_dq_2_OUT_HI[13]
+output, 29, 0, 0, __bypass__, hbc_dq_2_OUT_HI[14]
+output, 4, 0, 0, __bypass__, hbc_dq_2_OUT_HI[15]
+output, 94, 0, 0, __bypass__, hbc_dq_2_OUT_LO[0]
+output, 72, 0, 2, __bypass__, hbc_dq_2_OUT_LO[1]
+output, 81, 0, 2, __bypass__, hbc_dq_2_OUT_LO[2]
+output, 83, 0, 2, __bypass__, hbc_dq_2_OUT_LO[3]
+output, 92, 0, 0, __bypass__, hbc_dq_2_OUT_LO[4]
+output, 70, 0, 2, __bypass__, hbc_dq_2_OUT_LO[5]
+output, 50, 0, 2, __bypass__, hbc_dq_2_OUT_LO[6]
+output, 48, 0, 2, __bypass__, hbc_dq_2_OUT_LO[7]
+output, 14, 0, 2, __bypass__, hbc_dq_2_OUT_LO[8]
+output, 37, 0, 2, __bypass__, hbc_dq_2_OUT_LO[9]
+output, 26, 0, 0, __bypass__, hbc_dq_2_OUT_LO[10]
+output, 5, 0, 2, __bypass__, hbc_dq_2_OUT_LO[11]
+output, 16, 0, 2, __bypass__, hbc_dq_2_OUT_LO[12]
+output, 39, 0, 2, __bypass__, hbc_dq_2_OUT_LO[13]
+output, 28, 0, 0, __bypass__, hbc_dq_2_OUT_LO[14]
+output, 3, 0, 2, __bypass__, hbc_dq_2_OUT_LO[15]
+input, 213, 0, 3, __bypass__, hbc_dq_IN_HI[0]
+input, 179, 0, 3, __bypass__, hbc_dq_IN_HI[1]
+input, 214, 0, 1, __bypass__, hbc_dq_IN_HI[2]
+input, 191, 0, 1, __bypass__, hbc_dq_IN_HI[3]
+input, 190, 0, 3, __bypass__, hbc_dq_IN_HI[4]
+input, 179, 0, 1, __bypass__, hbc_dq_IN_HI[5]
+input, 168, 0, 3, __bypass__, hbc_dq_IN_HI[6]
+input, 168, 0, 1, __bypass__, hbc_dq_IN_HI[7]
+input, 157, 0, 3, __bypass__, hbc_dq_IN_HI[8]
+input, 146, 0, 3, __bypass__, hbc_dq_IN_HI[9]
+input, 135, 0, 3, __bypass__, hbc_dq_IN_HI[10]
+input, 125, 0, 3, __bypass__, hbc_dq_IN_HI[11]
+input, 157, 0, 1, __bypass__, hbc_dq_IN_HI[12]
+input, 146, 0, 1, __bypass__, hbc_dq_IN_HI[13]
+input, 135, 0, 1, __bypass__, hbc_dq_IN_HI[14]
+input, 125, 0, 1, __bypass__, hbc_dq_IN_HI[15]
+input, 212, 0, 3, __bypass__, hbc_dq_IN_LO[0]
+input, 178, 0, 3, __bypass__, hbc_dq_IN_LO[1]
+input, 213, 0, 1, __bypass__, hbc_dq_IN_LO[2]
+input, 190, 0, 1, __bypass__, hbc_dq_IN_LO[3]
+input, 189, 0, 3, __bypass__, hbc_dq_IN_LO[4]
+input, 178, 0, 1, __bypass__, hbc_dq_IN_LO[5]
+input, 167, 0, 3, __bypass__, hbc_dq_IN_LO[6]
+input, 167, 0, 1, __bypass__, hbc_dq_IN_LO[7]
+input, 156, 0, 3, __bypass__, hbc_dq_IN_LO[8]
+input, 145, 0, 3, __bypass__, hbc_dq_IN_LO[9]
+input, 134, 0, 3, __bypass__, hbc_dq_IN_LO[10]
+input, 124, 0, 3, __bypass__, hbc_dq_IN_LO[11]
+input, 156, 0, 1, __bypass__, hbc_dq_IN_LO[12]
+input, 145, 0, 1, __bypass__, hbc_dq_IN_LO[13]
+input, 134, 0, 1, __bypass__, hbc_dq_IN_LO[14]
+input, 124, 0, 1, __bypass__, hbc_dq_IN_LO[15]
+output, 212, 0, 2, __bypass__, hbc_dq_OE[0]
+output, 178, 0, 2, __bypass__, hbc_dq_OE[1]
+output, 213, 0, 0, __bypass__, hbc_dq_OE[2]
+output, 190, 0, 0, __bypass__, hbc_dq_OE[3]
+output, 189, 0, 2, __bypass__, hbc_dq_OE[4]
+output, 178, 0, 0, __bypass__, hbc_dq_OE[5]
+output, 167, 0, 2, __bypass__, hbc_dq_OE[6]
+output, 167, 0, 0, __bypass__, hbc_dq_OE[7]
+output, 156, 0, 2, __bypass__, hbc_dq_OE[8]
+output, 145, 0, 2, __bypass__, hbc_dq_OE[9]
+output, 135, 0, 0, __bypass__, hbc_dq_OE[10]
+output, 124, 0, 2, __bypass__, hbc_dq_OE[11]
+output, 156, 0, 0, __bypass__, hbc_dq_OE[12]
+output, 145, 0, 0, __bypass__, hbc_dq_OE[13]
+output, 134, 0, 2, __bypass__, hbc_dq_OE[14]
+output, 124, 0, 0, __bypass__, hbc_dq_OE[15]
+output, 209, 0, 2, __bypass__, hbc_dq_OUT_HI[0]
+output, 177, 0, 2, __bypass__, hbc_dq_OUT_HI[1]
+output, 212, 0, 0, __bypass__, hbc_dq_OUT_HI[2]
+output, 189, 0, 0, __bypass__, hbc_dq_OUT_HI[3]
+output, 186, 0, 2, __bypass__, hbc_dq_OUT_HI[4]
+output, 175, 0, 0, __bypass__, hbc_dq_OUT_HI[5]
+output, 166, 0, 2, __bypass__, hbc_dq_OUT_HI[6]
+output, 164, 0, 0, __bypass__, hbc_dq_OUT_HI[7]
+output, 155, 0, 2, __bypass__, hbc_dq_OUT_HI[8]
+output, 144, 0, 2, __bypass__, hbc_dq_OUT_HI[9]
+output, 134, 0, 0, __bypass__, hbc_dq_OUT_HI[10]
+output, 123, 0, 2, __bypass__, hbc_dq_OUT_HI[11]
+output, 153, 0, 0, __bypass__, hbc_dq_OUT_HI[12]
+output, 142, 0, 0, __bypass__, hbc_dq_OUT_HI[13]
+output, 131, 0, 2, __bypass__, hbc_dq_OUT_HI[14]
+output, 121, 0, 0, __bypass__, hbc_dq_OUT_HI[15]
+output, 209, 0, 0, __bypass__, hbc_dq_OUT_LO[0]
+output, 176, 0, 2, __bypass__, hbc_dq_OUT_LO[1]
+output, 211, 0, 0, __bypass__, hbc_dq_OUT_LO[2]
+output, 188, 0, 0, __bypass__, hbc_dq_OUT_LO[3]
+output, 186, 0, 0, __bypass__, hbc_dq_OUT_LO[4]
+output, 174, 0, 2, __bypass__, hbc_dq_OUT_LO[5]
+output, 165, 0, 2, __bypass__, hbc_dq_OUT_LO[6]
+output, 163, 0, 2, __bypass__, hbc_dq_OUT_LO[7]
+output, 154, 0, 2, __bypass__, hbc_dq_OUT_LO[8]
+output, 143, 0, 2, __bypass__, hbc_dq_OUT_LO[9]
+output, 133, 0, 0, __bypass__, hbc_dq_OUT_LO[10]
+output, 122, 0, 2, __bypass__, hbc_dq_OUT_LO[11]
+output, 152, 0, 2, __bypass__, hbc_dq_OUT_LO[12]
+output, 141, 0, 2, __bypass__, hbc_dq_OUT_LO[13]
+output, 131, 0, 0, __bypass__, hbc_dq_OUT_LO[14]
+output, 120, 0, 2, __bypass__, hbc_dq_OUT_LO[15]
+output, 15, 323, 0, __bypass__, hbc_rst_n
+output, 60, 323, 0, __bypass__, hbc_rst_n_2
+input, 75, 323, 1, __bypass__, hbc_rwds_2_IN_HI[0]
+input, 75, 323, 3, __bypass__, hbc_rwds_2_IN_HI[1]
+input, 74, 323, 1, __bypass__, hbc_rwds_2_IN_LO[0]
+input, 74, 323, 3, __bypass__, hbc_rwds_2_IN_LO[1]
+output, 74, 323, 0, __bypass__, hbc_rwds_2_OE[0]
+output, 74, 323, 2, __bypass__, hbc_rwds_2_OE[1]
+output, 71, 323, 0, __bypass__, hbc_rwds_2_OUT_HI[0]
+output, 73, 323, 2, __bypass__, hbc_rwds_2_OUT_HI[1]
+output, 70, 323, 2, __bypass__, hbc_rwds_2_OUT_LO[0]
+output, 72, 323, 2, __bypass__, hbc_rwds_2_OUT_LO[1]
+input, 42, 323, 1, __bypass__, hbc_rwds_IN_HI[0]
+input, 42, 323, 3, __bypass__, hbc_rwds_IN_HI[1]
+input, 41, 323, 1, __bypass__, hbc_rwds_IN_LO[0]
+input, 41, 323, 3, __bypass__, hbc_rwds_IN_LO[1]
+output, 41, 323, 0, __bypass__, hbc_rwds_OE[0]
+output, 41, 323, 2, __bypass__, hbc_rwds_OE[1]
+output, 38, 323, 0, __bypass__, hbc_rwds_OUT_HI[0]
+output, 40, 323, 2, __bypass__, hbc_rwds_OUT_HI[1]
+output, 37, 323, 2, __bypass__, hbc_rwds_OUT_LO[0]
+output, 39, 323, 2, __bypass__, hbc_rwds_OUT_LO[1]
+input, 219, 11, 1, __bypass__, hbramClk_pll_locked
+required output, 219, 15, 2, __bypass__, hbramClk_pll_rstn
+input, 108, 323, 1, __bypass__, intosc_clkout
+output, 189, 323, 0, __bypass__, intosc_en
+input, 0, 24, 3, __bypass__, jtag_inst1_CAPTURE
+input, 0, 20, 3, __bypass__, jtag_inst1_DRCK
+input, 0, 22, 3, __bypass__, jtag_inst1_RESET
+input, 0, 23, 1, __bypass__, jtag_inst1_RUNTEST
+input, 0, 20, 1, __bypass__, jtag_inst1_SEL
+input, 0, 23, 3, __bypass__, jtag_inst1_SHIFT
+input, 0, 22, 1, __bypass__, jtag_inst1_TCK
+required input, 0, 21, 1, __bypass__, jtag_inst1_TDI
+required output, 0, 23, 0, __bypass__, jtag_inst1_TDO
+input, 0, 21, 3, __bypass__, jtag_inst1_TMS
+input, 0, 24, 1, __bypass__, jtag_inst1_UPDATE
+input, 0, 40, 3, __bypass__, jtag_inst2_autodbg_CAPTURE__
+input, 0, 36, 3, __bypass__, jtag_inst2_autodbg_DRCK__
+input, 0, 38, 3, __bypass__, jtag_inst2_autodbg_RESET__
+input, 0, 39, 1, __bypass__, jtag_inst2_autodbg_RUNTEST__
+input, 0, 36, 1, __bypass__, jtag_inst2_autodbg_SEL__
+input, 0, 39, 3, __bypass__, jtag_inst2_autodbg_SHIFT__
+input, 0, 38, 1, __bypass__, jtag_inst2_autodbg_TCK__
+required input, 0, 37, 1, __bypass__, jtag_inst2_autodbg_TDI__
+required output, 0, 39, 2, __bypass__, jtag_inst2_autodbg_TDO__
+input, 0, 37, 3, __bypass__, jtag_inst2_autodbg_TMS__
+input, 0, 40, 1, __bypass__, jtag_inst2_autodbg_UPDATE__
+optional input, 0, 17, 3, __bypass__, my_pll_pin
+input, 0, 312, 1, __bypass__, pll_bt1120_locked
+required output, 0, 6, 2, __bypass__, sysClk_pll_rstn
+output, 219, 14, 2, __bypass__, UART_FPGA_RX
+input, 219, 9, 3, __bypass__, UART_FPGA_TX
+output, 219, 10, 0, __bypass__, UART_SR_FT
+input, 219, 6, 3, __bypass__, UART_ST_FR
+input, 107, 0, 1, __bypass__, ~adv_ctrl_clk
+input, 109, 0, 1, __bypass__, ~clk50M
+input, 112, 0, 1, __bypass__, ~clk
+input, 108, 0, 1, __bypass__, ~clk_da
+input, 0, 159, 1, __bypass__, ~clk_dvp
+input, 0, 163, 1, __bypass__, ~clk_scaler
+input, 107, 323, 1, __bypass__, ~hbram_ref
+input, 219, 164, 1, __bypass__, ~hbramClk90
+input, 110, 0, 1, __bypass__, ~hbramClk
+input, 111, 0, 1, __bypass__, ~hbramClk_cal
+input, 219, 159, 1, __bypass__, ~hbramClk_cal_2
+input, 0, 162, 1, __bypass__, ~pll_bt1120_fb
+input, 219, 162, 1, __bypass__, ~pll_hbram_ref_fb
