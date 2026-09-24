@@ -1,0 +1,15 @@
+# 构建产物
+build/
+
+# PC 仿真运行产物（golden 基线保留）
+test/out/
+
+# 工作区本地文件
+.workbuddy/
+
+# Python
+__pycache__/
+*.pyc
+
+# zig 本地缓存（如误落工作区内）
+.zig-cache/
