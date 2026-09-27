@@ -1,0 +1,156 @@
+INFO     : Elitestek FPGA Synthesis.
+INFO     : Version: 2026.1.132.4.5
+INFO     : Compiled: Aug 31 2026.
+INFO     : 
+INFO     : Copyright (C) 2013 - 2026 Efinix, Inc. All rights reserved.
+
+INFO     : Maximum concurrency has been set to 8 [FlowMsg::MaxThreads]
+INFO     : ***** Beginning Analysis ... *****
+INFO     : default VHDL library search path is now "H:/Efinity/2026.1/sim_models/vhdl/packages/vhdl_2008" [VHDL-1504]
+INFO     : Restoring all Verilog modules from file 'H:/Efinity/2026.1/sim_models/maplib/perilib_efxlib_parsetree.vdb' [VERI-2484]
+INFO     : Restoring all Verilog modules from file 'H:/Efinity/2026.1/sim_models/maplib/maplib_efxlib_parsetree.vdb' [VERI-2484]
+INFO     : Analyzing Verilog file 'H:/Efinity/2026.1/sim_models/maplib/efinix_maplib.v' [VERI-1482]
+INFO     : Analyzing Verilog file 'H:/Efinity/2026.1/sim_models/maplib/efinix_peri_lib.v' [VERI-1482]
+INFO     : Analyzing Verilog file 'H:/Project/ivlab-239/work_dbg/debug_top.v' [VERI-1482]
+INFO     : Analysis took 0.0260639 seconds [FlowMsg::StageDuration]
+INFO     :     Analysis took 0 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Analysis virtual memory usage: begin = 60.496 MB, end = 60.516 MB, delta = 0.02 MB [FlowMsg::VMUsage]
+INFO     :     Analysis peak virtual memory usage = 60.524 MB [FlowMsg::VMUsage::Peak]
+INFO     : Analysis resident set memory usage: begin = 64.308 MB, end = 67.548 MB, delta = 3.24 MB [FlowMsg::RSSUsage]
+INFO     :     Analysis peak resident set memory usage = 67.548 MB [FlowMsg::RSSUsage::Peak]
+INFO     : ***** Ending Analysis ... *****
+INFO     : ***** Beginning Elaboration ... *****
+WARNING  : H:/Project/ivlab-239/work_dbg/debug_top.v(118): port 'probe2' remains unconnected for this instance [VERI-1927]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(14): compiling module 'edb_top' [VERI-1018]
+INFO     : ../../vdb/src/efinix_maplib.v(48): compiling module 'EFX_GBUFCE(CE_POLARITY=1'b1)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(504): compiling module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(193): compiling module 'edb_adbg_crc32_53d203d0e71143b69bde59f5c5a0887b' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(5514): compiling module 'compare_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=11'b01,PIPE=1)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(5719): compiling module 'trigger_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=32'b010,PIPE=1)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(5844): compiling module 'trigger_skipper_53d203d0e71143b69bde59f5c5a0887b' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(4858): compiling module 'la_biu_53d203d0e71143b69bde59f5c5a0887b(CAPTURE_WIDTH=32'b010)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(4598): compiling module 'fifo_with_read_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,PIPE=0)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(4548): compiling module 'fifo_address_trancode_unit_53d203d0e71143b69bde59f5c5a0887b(PIPE=0)' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(414): compiling module 'edb_simple_dual_port_ram_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,ADDR_WIDTH=10,RAM_INIT_FILE="")' [VERI-1018]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(429): extracting RAM for identifier 'ram' [VERI-2571]
+INFO     : H:/Project/ivlab-239/work_dbg/debug_top.v(271): compiling module 'debug_hub_53d203d0e71143b69bde59f5c5a0887b' [VERI-1018]
+WARNING  : H:/Project/ivlab-239/work_dbg/debug_top.v(95): input port 'probe2[0]' remains unconnected for this instance [VDB-1053]
+INFO     : Elaboration took 0.0706864 seconds [FlowMsg::StageDuration]
+INFO     :     Elaboration took 0.078125 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Elaboration virtual memory usage: begin = 60.516 MB, end = 71.804 MB, delta = 11.288 MB [FlowMsg::VMUsage]
+INFO     :     Elaboration peak virtual memory usage = 71.804 MB [FlowMsg::VMUsage::Peak]
+INFO     : Elaboration resident set memory usage: begin = 67.592 MB, end = 80.076 MB, delta = 12.484 MB [FlowMsg::RSSUsage]
+INFO     :     Elaboration peak resident set memory usage = 80.076 MB [FlowMsg::RSSUsage::Peak]
+INFO     : ***** Ending Elaboration ... *****
+INFO     : ... Setting Synthesis Option: mode=speed
+INFO     : ***** Beginning Reading Mapping Library ... *****
+INFO     : Reading Mapping Library took 0.0020867 seconds [FlowMsg::StageDuration]
+INFO     :     Reading Mapping Library took 0 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Reading Mapping Library virtual memory usage: begin = 71.804 MB, end = 71.804 MB, delta = 0 MB [FlowMsg::VMUsage]
+INFO     :     Reading Mapping Library peak virtual memory usage = 71.804 MB [FlowMsg::VMUsage::Peak]
+INFO     : Reading Mapping Library resident set memory usage: begin = 81.204 MB, end = 81.216 MB, delta = 0.012 MB [FlowMsg::RSSUsage]
+INFO     :     Reading Mapping Library peak resident set memory usage = 81.216 MB [FlowMsg::RSSUsage::Peak]
+INFO     : ***** Ending Reading Mapping Library ... *****
+INFO     : ... Pre-synthesis checks begin
+WARNING  : Removing redundant signal : compared_in[0]. (H:/Project/ivlab-239/work_dbg/debug_top.v:5520) [EFX-0200]
+WARNING  : Removing redundant signal : mask_in[0]. (H:/Project/ivlab-239/work_dbg/debug_top.v:5521) [EFX-0200]
+WARNING  : Removing redundant signal : trigger_in. (H:/Project/ivlab-239/work_dbg/debug_top.v:5731) [EFX-0200]
+WARNING  : Removing redundant signal : clk. (H:/Project/ivlab-239/work_dbg/debug_top.v:4554) [EFX-0200]
+INFO     : ... Memory 'ram' is not initialized, assuming empty initial contents. (H:/Project/ivlab-239/work_dbg/debug_top.v:429) [EFX-0677]
+WARNING  : Removing redundant signal : full. (H:/Project/ivlab-239/work_dbg/debug_top.v:4608) [EFX-0200]
+WARNING  : Removing redundant signal : shift_i. (H:/Project/ivlab-239/work_dbg/debug_top.v:4878) [EFX-0200]
+WARNING  : Removing redundant signal : trig_out. (H:/Project/ivlab-239/work_dbg/debug_top.v:4895) [EFX-0200]
+WARNING  : Removing redundant signal : trig_out_ack. (H:/Project/ivlab-239/work_dbg/debug_top.v:4896) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_DRCK. (H:/Project/ivlab-239/work_dbg/debug_top.v:1037) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_RESET. (H:/Project/ivlab-239/work_dbg/debug_top.v:1038) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_RUNTEST. (H:/Project/ivlab-239/work_dbg/debug_top.v:1039) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_SEL. (H:/Project/ivlab-239/work_dbg/debug_top.v:1040) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_TMS. (H:/Project/ivlab-239/work_dbg/debug_top.v:1044) [EFX-0200]
+WARNING  : Removing redundant signal : trig_in_ack. (H:/Project/ivlab-239/work_dbg/debug_top.v:1056) [EFX-0200]
+WARNING  : Removing redundant signal : mux_capture_cmp[1:0]. (H:/Project/ivlab-239/work_dbg/debug_top.v:3475) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_CAPTURE. (H:/Project/ivlab-239/work_dbg/debug_top.v:276) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_DRCK. (H:/Project/ivlab-239/work_dbg/debug_top.v:277) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_RUNTEST. (H:/Project/ivlab-239/work_dbg/debug_top.v:279) [EFX-0200]
+WARNING  : Removing redundant signal : bscan_TMS. (H:/Project/ivlab-239/work_dbg/debug_top.v:284) [EFX-0200]
+INFO     : Module Instance 'la0' input pin 'trig_in' is tied to constant (=0). [EFX-0266]
+INFO     : Module Instance 'la0' input pin 'trig_out_ack' is tied to constant (=0). [EFX-0266]
+WARNING  : Re-wiring to GND non-driven net/port 'probe2[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe3[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe4[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe5[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe6[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe7[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe8[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe9[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe10[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : Re-wiring to GND non-driven net/port 'probe11[0]' in module 'edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)'. (H:/Project/ivlab-239/work_dbg/debug_top.v:95) [EFX-0201]
+WARNING  : (The above message was generated too many times, subsequent similar messages will be muted.) [EFX-0201]
+INFO     : ... Pre-synthesis checks end (Real time : 0s)
+INFO     : ... NameSpace init begin
+INFO     : ... NameSpace init end (Real time : 0s)
+INFO     : ... Mapping design "edb_top"
+INFO     : ... Hierarchical pre-synthesis "edb_adbg_crc32_53d203d0e71143b69bde59f5c5a0887b" begin
+INFO     : ... Hierarchical pre-synthesis "edb_adbg_crc32_53d203d0e71143b69bde59f5c5a0887b" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "compare_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=11'b01,PIPE=1)" begin
+INFO     : ... Hierarchical pre-synthesis "compare_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=11'b01,PIPE=1)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "trigger_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=32'b010,PIPE=1)" begin
+INFO     : ... Hierarchical pre-synthesis "trigger_unit_53d203d0e71143b69bde59f5c5a0887b(WIDTH=32'b010,PIPE=1)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "trigger_skipper_53d203d0e71143b69bde59f5c5a0887b" begin
+INFO     : ... Hierarchical pre-synthesis "trigger_skipper_53d203d0e71143b69bde59f5c5a0887b" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "fifo_address_trancode_unit_53d203d0e71143b69bde59f5c5a0887b(PIPE=0)" begin
+INFO     : ... Hierarchical pre-synthesis "fifo_address_trancode_unit_53d203d0e71143b69bde59f5c5a0887b(PIPE=0)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "edb_simple_dual_port_ram_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,ADDR_WIDTH=10,RAM_INIT_FILE="")" begin
+INFO     : ... Hierarchical pre-synthesis "edb_simple_dual_port_ram_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,ADDR_WIDTH=10,RAM_INIT_FILE="")" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "fifo_with_read_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,PIPE=0)" begin
+INFO     : ... Hierarchical pre-synthesis "fifo_with_read_53d203d0e71143b69bde59f5c5a0887b(DATA_WIDTH=32'b011,PIPE=0)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "la_biu_53d203d0e71143b69bde59f5c5a0887b(CAPTURE_WIDTH=32'b010)" begin
+INFO     : ... Hierarchical pre-synthesis "la_biu_53d203d0e71143b69bde59f5c5a0887b(CAPTURE_WIDTH=32'b010)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)" begin
+INFO     : ... Hierarchical pre-synthesis "edb_la_top_53d203d0e71143b69bde59f5c5a0887b(NUM_PROBES=2,INPUT_PIPE_STAGES=1,UUID=128'b01100011001100111000010001110110000111001011110001000010110101001001010111111011110100110001011011000001001000001001101100010010,PROBE0_TYPE=1,PROBE1_TYPE=1)" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "debug_hub_53d203d0e71143b69bde59f5c5a0887b" begin
+INFO     : ... Hierarchical pre-synthesis "debug_hub_53d203d0e71143b69bde59f5c5a0887b" end (Real time : 0s)
+INFO     : ... Hierarchical pre-synthesis "edb_top" begin
+INFO     : ... Clock Enable Synthesis Performed on 129 flops.
+INFO     : ... Hierarchical pre-synthesis "edb_top" end (Real time : 0s)
+INFO     : ... Flat optimizations begin
+INFO     : ... Flat optimizations end (Real time : 0s)
+INFO     : ... Flat synthesis begin
+INFO     : ... Flat synthesis end (Real time : 0s)
+INFO     : ... Flat optimizations begin
+INFO     : ... Flat optimizations end (Real time : 0s)
+INFO     : ... Check and break combinational loops begin
+INFO     : ... Check and break combinational loops end (Real time : 0s)
+INFO     : ... Setup for logic synthesis begin
+INFO     : ... Setup for logic synthesis end (Real time : 0s)
+INFO     : ... LUT mapping begin
+INFO     : ... LS, strategy: 3, nd: 961, ed: 3262, lv: 7, pw: 1464.18
+INFO     : ... LUT mapping end (Real time : 3s)
+INFO     : ... Post-synthesis Verific netlist creation begin
+INFO     : ... Post-synthesis Verific netlist creation end (Real time : 0s)
+INFO     : ***** Beginning VDB Netlist Checker ... *****
+INFO     : Input/inout port bscan_DRCK and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port bscan_RUNTEST and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : Input/inout port bscan_TMS and it's periphery connections have been extracted from the core netlist to the periphery netlist.
+INFO     : VDB Netlist Checker took 0.0014316 seconds [FlowMsg::StageDuration]
+INFO     :     VDB Netlist Checker took 0 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : VDB Netlist Checker virtual memory usage: begin = 88.42 MB, end = 88.496 MB, delta = 0.076 MB [FlowMsg::VMUsage]
+INFO     :     VDB Netlist Checker peak virtual memory usage = 151.204 MB [FlowMsg::VMUsage::Peak]
+INFO     : VDB Netlist Checker resident set memory usage: begin = 101.808 MB, end = 101.952 MB, delta = 0.144 MB [FlowMsg::RSSUsage]
+INFO     :     VDB Netlist Checker peak resident set memory usage = 145.652 MB [FlowMsg::RSSUsage::Peak]
+INFO     : ***** Ending VDB Netlist Checker ... *****
+INFO     : Resource Summary 
+INFO     : ======================================= 
+INFO     : EFX_ADD                 : 	149
+INFO     : EFX_LUT4                : 	948
+INFO     : EFX_FF                  : 	601
+INFO     : EFX_SRL8                : 	2
+INFO     : EFX_RAM10               : 	1
+INFO     : EFX_GBUFCE              : 	1
+INFO     : ======================================= 
+INFO     : Writing netlist 'edb_top' to Verilog file 'H:/Project/ivlab-239/work_dbg/debug_top.stub.v' [VDB-1030]
+INFO     : The entire flow of EFX_MAP took 3.1422634 seconds [FlowMsg::StageDuration]
+INFO     :     The entire flow of EFX_MAP took 3.015625 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : The entire flow of EFX_MAP virtual memory usage: begin = 18.928 MB, end = 97.208 MB, delta = 78.28 MB [FlowMsg::VMUsage]
+INFO     :     The entire flow of EFX_MAP peak virtual memory usage = 151.204 MB [FlowMsg::VMUsage::Peak]
+INFO     : The entire flow of EFX_MAP resident set memory usage: begin = 18.536 MB, end = 110.084 MB, delta = 91.548 MB [FlowMsg::RSSUsage]
+INFO     :     The entire flow of EFX_MAP peak resident set memory usage = 145.652 MB [FlowMsg::RSSUsage::Peak]

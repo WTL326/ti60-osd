@@ -41,7 +41,7 @@ BT.1120 输入 (80 MHz)
       ↓ BicubicScaler640x512 (640×512 → 720×576)
       ↓ VideoAsyncFifo (CDC: 160→100 MHz)
       ↓ VideoHorizontalFlipYuv422
-      ↓ HyperRamMaskOverlayYuv422 (掩膜叠加)
+      ↓ HyperRamMaskOverlayYuv422 (掩膜叠加：8-bit 掩膜，纯替换无 alpha)
       ↓ HyperRamVideoBt656 (三缓冲 + PAL 格式化)
       ↓ Adv7391Top → CVBS 输出 (27 MHz)
 ```
@@ -117,7 +117,7 @@ BT.1120 输入 (80 MHz)
 - `src/overlay/` — 视频叠加层
   - `VideoHorizontalFlipYuv422.v` — 水平翻转
   - `VideoCrosshairYuv422.v` — 固定十字丝（遗留，通常禁用）
-  - `HyperRamMaskOverlayYuv422.v` — 掩膜叠加
+  - `HyperRamMaskOverlayYuv422.v` — 掩膜叠加（8-bit 掩膜，非零 → 纯白 `16'h80EB`）
 - `src/memory/` — AXI 仲裁和 HyperRAM 帧缓冲
   - `AxiSharedFlatFabric.v` — AXI 总线顶层（3主机仲裁 + 路由）
   - `AxiShared3Arbiter.v` — 加权轮询仲裁器
@@ -285,11 +285,19 @@ H:\questasim64_10.6c\win64\vsim -do modelsim_hot_focus.do  # ~1 分钟
 ## HyperRAM 内存映射
 
 - `0x00000000–0x003FFFFF`: RISC-V 固件 (4 MiB)
-- `0x00400000–0x007FFFFF`: RISC-V 工作区 (4 MiB)
-- `0x00A00000–0x00BFFFFF`: RTL 掩膜 A/B (2 MiB)
+- `0x00400000–0x007FFFFF`: RISC-V 工作区 (4 MiB)，**含 legacy 掩膜画布 A/B**
+  @ `0x00400000`/`0x00500000`（各 414,720 字节，8-bit/像素）
+- `0x00800000–0x009FFFFF`: 保留 (2 MiB)，无 RTL 访问者（软件约定，非硬件禁访）
+- `0x00A00000–0x00BFFFFF`: RTL **raw 模式**掩膜 A/B (2 MiB)；当前位流因
+  `rtl_mask_mode=1'b0` 不可达
 - `0x00C00000–0x00EFFFFF`: CVBS 显示缓冲 0/1/2 (3 MiB)
 - `0x01000000–0x0177FFFF`: 电子变倍源帧 A/B/C (7.5 MiB)
 - `0x01800000–0x01F7FFFF`: 电子变倍结果帧 A/B/C (7.5 MiB)
+
+**数据路径是 6 主控加权轮询**（`AxiSharedFlatFabric`），权重
+`{cpu:1, zr:4, ze:4, rtl:1, mask_rd:1, vid:2}` —— 变倍源/栅格权重最高，视频 2，
+掩膜与 CPU 最低。**没有**固定优先级、饥饿检测或 PAL 欠载短路径；
+`AxiShared3Arbiter.v` 是未被实例化的死代码。
 
 详见 [docs/memory_axi.md](docs/memory_axi.md)。
 

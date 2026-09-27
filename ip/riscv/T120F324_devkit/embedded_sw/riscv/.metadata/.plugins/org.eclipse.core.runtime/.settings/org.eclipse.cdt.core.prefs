@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
 environment/workspace/BSP/delimiter=;
-environment/workspace/BSP/operation=prepend
+environment/workspace/BSP/operation=replace
 environment/workspace/BSP/value=efinix/EfxSapphireSoc
 environment/workspace/FREERTOS_KERNEL_VERSION/delimiter=;
 environment/workspace/FREERTOS_KERNEL_VERSION/operation=prepend

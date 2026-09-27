@@ -6,77 +6,81 @@ INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 INFO     : Route Circuit with 8 threads
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 INFO     : Beneficial skew enabled! Optimizing clock skews ... 
-INFO     : Non-legalized beneficial skew improved geomean CPD by 0.17% (from 3496ps to 3490ps)
-INFO     : CSS improved CPD of clock hbramClk by 0.00% (from 1430ps to 1430ps)
-INFO     : CSS improved CPD of clock hbramClk_cal by 0.00% (from 3034ps to 3034ps)
-INFO     : CSS improved CPD of clock hbramClk_cal_2 by 1.68% (from 2620ps to 2576ps)
-INFO     : CSS improved CPD of clock clk50M by 0.00% (from 5000ps to 5000ps)
-INFO     : CSS improved CPD of clock clk by 0.00% (from 9588ps to 9588ps)
-INFO     : CSS improved CPD of clock clk_da by 0.00% (from 3859ps to 3859ps)
-INFO     : CSS improved CPD of clock adv_ctrl_clk by 0.00% (from 1926ps to 1926ps)
-INFO     : CSS improved CPD of clock bt1120_clk by 0.00% (from 3735ps to 3735ps)
-INFO     : CSS improved CPD of clock clk_dvp by 0.00% (from 3409ps to 3409ps)
-INFO     : CSS improved CPD of clock clk_scaler by 0.00% (from 5303ps to 5303ps)
-INFO     : Discretized beneficial skew improved geomean CPD by 0.14% (from 3496ps to 3491ps in 5 iterations and 0.9 sec)
+INFO     : Non-legalized beneficial skew improved geomean CPD by 0.34% (from 3504ps to 3492ps)
+INFO     : CSS improved CPD of clock hbramClk by 0.00% (from 1439ps to 1439ps)
+INFO     : CSS improved CPD of clock hbramClk_cal by 0.64% (from 2811ps to 2793ps)
+INFO     : CSS improved CPD of clock hbramClk_cal_2 by 0.00% (from 2635ps to 2635ps)
+INFO     : CSS improved CPD of clock clk50M by 0.00% (from 4733ps to 4733ps)
+INFO     : CSS improved CPD of clock clk by 2.57% (from 9863ps to 9610ps)
+INFO     : CSS improved CPD of clock clk_da by 0.00% (from 4006ps to 4006ps)
+INFO     : CSS improved CPD of clock adv_ctrl_clk by 0.00% (from 1871ps to 1871ps)
+INFO     : CSS improved CPD of clock bt1120_clk by 0.00% (from 3530ps to 3530ps)
+INFO     : CSS improved CPD of clock clk_dvp by 0.00% (from 3905ps to 3905ps)
+INFO     : CSS improved CPD of clock clk_scaler by 0.92% (from 5429ps to 5379ps)
+INFO     : Discretized beneficial skew improved geomean CPD by 0.43% (from 3504ps to 3489ps in 5 iterations and 0.8 sec)
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Overridding delay budgets for 1069 synchronizer-related pins
-INFO     : Iter  1: overlap=127890  heapops=17367337   (0%) cpd=9588  frr=1.00  msec=4377
-INFO     : [Setup Delay Budgets | 782.3 ms]
+INFO     : Overridding delay budgets for 1065 synchronizer-related pins
+INFO     : Iter  1: overlap=126451  heapops=16100794   (0%) cpd=9610  frr=1.00  msec=3862
+INFO     : [Setup Delay Budgets | 718.1 ms]
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 INFO     : Hold Fixing
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Total min wire delay:  15489656
-INFO     : Hold fix wire delay:         49
+INFO     : Total min wire delay:  15744846
+INFO     : Hold fix wire delay:         58
 INFO     : Hold fix delay ratio:     0.00%
 INFO     : Pins requiring hold fix:  0.00%
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Iter  2: overlap=60565   heapops=12651479   (20%) cpd=9586  frr=1.00  msec=2089
-INFO     : Iter  3: overlap=37577   heapops=12075672   (32%) cpd=9594  frr=1.00  msec=1819
-INFO     : Iter  4: overlap=20872   heapops=10930027   (46%) cpd=9594  frr=1.00  msec=1476
-INFO     : Iter  5: overlap=9509    heapops=8590908    (63%) cpd=9587  frr=1.00  msec=1183
-INFO     : Iter  6: overlap=3387    heapops=5499345    (76%) cpd=9587  frr=1.00  msec=833
-INFO     : Iter  7: overlap=980     heapops=2741200    (85%) cpd=9587  frr=1.00  msec=532
-INFO     : Iter  8: overlap=281     heapops=1152711    (89%) cpd=9702  frr=1.01  msec=317
+INFO     : Iter  2: overlap=60038   heapops=12029081   (19%) cpd=9612  frr=1.00  msec=1470
+INFO     : Iter  3: overlap=37392   heapops=11541175   (32%) cpd=9610  frr=1.00  msec=1406
+INFO     : Iter  4: overlap=20904   heapops=10578943   (46%) cpd=9597  frr=1.00  msec=1350
+INFO     : Iter  5: overlap=9427    heapops=8317986    (61%) cpd=9615  frr=1.00  msec=1129
+INFO     : Iter  6: overlap=3482    heapops=5534522    (76%) cpd=9610  frr=1.00  msec=852
+INFO     : Iter  7: overlap=1085    heapops=3436956    (84%) cpd=9607  frr=1.00  msec=665
+INFO     : Iter  8: overlap=316     heapops=1620243    (89%) cpd=9597  frr=1.00  msec=404
 INFO     : [Rebuild Parallel Routing Scheduler]
-INFO     : Iter  9: overlap=87      heapops=771667     (89%) cpd=9611  frr=1.00  msec=394
-INFO     : Iter 10: overlap=24      heapops=275835     (90%) cpd=9702  frr=1.01  msec=181
-INFO     : Iter 11: overlap=18      heapops=190248     (90%) cpd=9744  frr=1.02  msec=168
-INFO     : Iter 12: overlap=9       heapops=188787     (90%) cpd=9695  frr=1.01  msec=173
-INFO     : Iter 13: overlap=2       heapops=186360     (90%) cpd=9744  frr=1.02  msec=158
-INFO     : Iter 14: overlap=3       heapops=169742     (90%) cpd=9744  frr=1.02  msec=155
-INFO     : Iter 15: overlap=2       heapops=169673     (90%) cpd=9744  frr=1.02  msec=155
+INFO     : Iter  9: overlap=81      heapops=1172047    (90%) cpd=9627  frr=1.00  msec=456
+INFO     : Iter 10: overlap=19      heapops=333551     (90%) cpd=9635  frr=1.00  msec=185
+INFO     : Iter 11: overlap=6       heapops=184237     (90%) cpd=9635  frr=1.00  msec=162
+INFO     : Iter 12: overlap=4       heapops=220694     (90%) cpd=9625  frr=1.00  msec=165
+INFO     : Iter 13: overlap=3       heapops=178319     (90%) cpd=9635  frr=1.00  msec=153
+INFO     : Iter 14: overlap=1       heapops=177146     (90%) cpd=9679  frr=1.01  msec=157
+INFO     : Iter 15: overlap=1       heapops=173730     (90%) cpd=9679  frr=1.01  msec=158
+INFO     : Iter 16: overlap=1       heapops=173680     (90%) cpd=9679  frr=1.01  msec=153
+INFO     : Iter 17: overlap=1       heapops=173637     (90%) cpd=9679  frr=1.01  msec=154
+INFO     : Iter 18: overlap=1       heapops=173629     (90%) cpd=9679  frr=1.01  msec=154
+INFO     : Iter 19: overlap=1       heapops=173608     (90%) cpd=9679  frr=1.01  msec=151
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 INFO     : Beneficial skew enabled! Optimizing clock skews ... 
-INFO     : Non-legalized beneficial skew improved geomean CPD by 0.00% (from 4199ps to 4199ps)
-INFO     : CSS improved CPD of clock hbramClk by 0.00% (from 1447ps to 1447ps)
-INFO     : CSS improved CPD of clock hbramClk_cal by 0.00% (from 3241ps to 3241ps)
-INFO     : CSS improved CPD of clock hbramClk_cal_2 by 0.00% (from 3214ps to 3214ps)
-INFO     : CSS improved CPD of clock clk50M by 0.00% (from 7162ps to 7162ps)
-INFO     : CSS improved CPD of clock clk by 2.29% (from 9790ps to 9566ps)
-INFO     : CSS improved CPD of clock clk_da by 0.00% (from 4831ps to 4831ps)
-INFO     : CSS improved CPD of clock adv_ctrl_clk by 0.00% (from 2861ps to 2861ps)
-INFO     : CSS improved CPD of clock bt1120_clk by 0.00% (from 5136ps to 5136ps)
-INFO     : CSS improved CPD of clock clk_dvp by 0.00% (from 4118ps to 4118ps)
-INFO     : CSS improved CPD of clock clk_scaler by 0.00% (from 5517ps to 5517ps)
-INFO     : Discretized beneficial skew improved geomean CPD by 0.24% (from 4199ps to 4189ps in 1 iterations and 0.9 sec)
+INFO     : Non-legalized beneficial skew improved geomean CPD by 0.00% (from 4119ps to 4119ps)
+INFO     : CSS improved CPD of clock hbramClk by 0.00% (from 1528ps to 1528ps)
+INFO     : CSS improved CPD of clock hbramClk_cal by -1.65% (from 3032ps to 3082ps)
+INFO     : CSS improved CPD of clock hbramClk_cal_2 by 0.00% (from 2939ps to 2939ps)
+INFO     : CSS improved CPD of clock clk50M by 0.00% (from 7653ps to 7653ps)
+INFO     : CSS improved CPD of clock clk by 1.04% (from 9714ps to 9613ps)
+INFO     : CSS improved CPD of clock clk_da by 0.00% (from 5250ps to 5250ps)
+INFO     : CSS improved CPD of clock adv_ctrl_clk by 0.00% (from 2246ps to 2246ps)
+INFO     : CSS improved CPD of clock bt1120_clk by 0.00% (from 4946ps to 4946ps)
+INFO     : CSS improved CPD of clock clk_dvp by 0.00% (from 4404ps to 4404ps)
+INFO     : CSS improved CPD of clock clk_scaler by -0.92% (from 5419ps to 5469ps)
+INFO     : Discretized beneficial skew improved geomean CPD by -0.17% (from 4119ps to 4126ps in 1 iterations and 0.9 sec)
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Iter 16: overlap=0       heapops=170366     (90%) cpd=9566  frr=1.00  msec=1105
+INFO     : Iter 20: overlap=0       heapops=173333     (90%) cpd=9613  frr=1.00  msec=1021
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 INFO     : Routing Result
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Routing Succeeded in 16.21 seconds taking 16 iterations! 
+INFO     : Routing Succeeded in 15.26 seconds taking 20 iterations! 
 INFO     : 
-INFO     : First iteration critical path delay = 9.588 ns 
-INFO     : Last iteration critical path delay  = 9.566 ns (ratio = 1.00)
-INFO     : Max Routing Heap Size = 27,051
+INFO     : First iteration critical path delay = 9.610 ns 
+INFO     : Last iteration critical path delay  = 9.613 ns (ratio = 1.00)
+INFO     : Max Routing Heap Size = 41,740
 INFO     : Routing trace written to file 'H:/Project/ivlab-239/outflow/ivlab239_c.troutingtraces' 
 INFO     : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-INFO     : Routing took 20.7028578 seconds [FlowMsg::StageDuration]
-INFO     :     Routing took 10.359375 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
-INFO     : Routing virtual memory usage: begin = 186.964 MB, end = 524.9 MB, delta = 337.936 MB [FlowMsg::VMUsage]
-INFO     :     Routing peak virtual memory usage = 577.564 MB [FlowMsg::VMUsage::Peak]
-INFO     : Routing resident set memory usage: begin = 205.88 MB, end = 535.772 MB, delta = 329.892 MB [FlowMsg::RSSUsage]
-INFO     :     Routing peak resident set memory usage = 572.42 MB [FlowMsg::RSSUsage::Peak]
+INFO     : Routing took 19.6773213 seconds [FlowMsg::StageDuration]
+INFO     :     Routing took 17.296875 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Routing virtual memory usage: begin = 187.072 MB, end = 521.868 MB, delta = 334.796 MB [FlowMsg::VMUsage]
+INFO     :     Routing peak virtual memory usage = 587.436 MB [FlowMsg::VMUsage::Peak]
+INFO     : Routing resident set memory usage: begin = 205 MB, end = 532.308 MB, delta = 327.308 MB [FlowMsg::RSSUsage]
+INFO     :     Routing peak resident set memory usage = 582.04 MB [FlowMsg::RSSUsage::Peak]
            ***** Beginning stage final timing analysis ... *****
 WARNING  : No ports matched 'intosc_clkout'
 WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:18] No valid pin(s) found for clock
@@ -132,75 +136,75 @@ WARNING  : [SDC H:/Project/ivlab-239/constraints.sdc:85] Unable to run 'set_inpu
 INFO     : SDC file 'H:/Project/ivlab-239/constraints.sdc' parsed successfully.
 Maximum possible analyzed clocks frequency
   Clock Name   Period (ns)  Frequency (MHz)     Edge
-hbramClk          3.984        251.004         (R-R)
-hbramClk_cal      3.351        298.418         (R-R)
-hbramClk_cal_2    3.324        300.842         (R-R)
-clk50M            7.272        137.514         (R-R)
-clk               9.676        103.348         (R-R)
-clk_da            4.941        202.388         (R-R)
-adv_ctrl_clk      2.971        336.587         (R-R)
-bt1120_clk        5.246        190.621         (R-R)
-clk_dvp           4.228        236.518         (R-R)
-clk_scaler        5.627        177.715         (R-R)
+hbramClk          3.997        250.188         (R-R)
+hbramClk_cal      3.192        313.283         (R-R)
+hbramClk_cal_2    3.049        327.976         (R-R)
+clk50M            7.763        128.816         (R-R)
+clk               9.723        102.849         (R-R)
+clk_da            5.360        186.567         (R-R)
+adv_ctrl_clk      2.356        424.448         (R-R)
+bt1120_clk        5.056        197.785         (R-R)
+clk_dvp           4.514        221.533         (R-R)
+clk_scaler        5.579        179.244         (R-R)
 
-Geomean max period: 4.740
+Geomean max period: 4.649
 
 Setup (Max) Clock Relationship
   Launch Clock    Capture Clock   Constraint (ns)     Slack (ns)          Edge
- hbramClk         hbramClk              5.000            1.016           (R-R)
- hbramClk         hbramClk              2.500            0.943           (R-F)
- hbramClk         hbramClk90            3.750            1.874           (R-F)
- hbramClk_cal     hbramClk_cal          5.000            1.649           (R-R)
- hbramClk_cal_2   hbramClk_cal_2        5.000            1.676           (R-R)
- clk50M           clk50M               20.000           12.728           (R-R)
- clk50M           clk                  10.000            3.416           (R-R)
- clk              clk50M               10.000            7.084           (R-R)
- clk              clk                  10.000            0.324           (R-R)
- clk_da           clk_da               37.037           32.096           (R-R)
- adv_ctrl_clk     adv_ctrl_clk         40.000           37.029           (R-R)
- bt1120_clk       bt1120_clk           12.502            7.256           (R-R)
- clk_dvp          clk_dvp              10.000            5.772           (R-R)
- clk_scaler       clk_scaler            6.250            0.623           (R-R)
+ hbramClk         hbramClk              5.000            1.003           (R-R)
+ hbramClk         hbramClk              2.500            0.862           (R-F)
+ hbramClk         hbramClk90            3.750            1.546           (R-F)
+ hbramClk_cal     hbramClk_cal          5.000            1.808           (R-R)
+ hbramClk_cal_2   hbramClk_cal_2        5.000            1.951           (R-R)
+ clk50M           clk50M               20.000           12.237           (R-R)
+ clk50M           clk                  10.000            3.937           (R-R)
+ clk              clk50M               10.000            7.324           (R-R)
+ clk              clk                  10.000            0.277           (R-R)
+ clk_da           clk_da               37.037           31.677           (R-R)
+ adv_ctrl_clk     adv_ctrl_clk         40.000           37.644           (R-R)
+ bt1120_clk       bt1120_clk           12.502            7.446           (R-R)
+ clk_dvp          clk_dvp              10.000            5.486           (R-R)
+ clk_scaler       clk_scaler            6.250            0.671           (R-R)
 
 Hold (Min) Clock Relationship
   Launch Clock    Capture Clock   Constraint (ns)     Slack (ns)          Edge
- hbramClk         hbramClk              0.000           0.047            (R-R)
- hbramClk         hbramClk             -2.500           2.537            (R-F)
- hbramClk         hbramClk90           -1.250           1.451            (R-F)
- hbramClk_cal     hbramClk_cal          0.000           0.027            (R-R)
- hbramClk_cal_2   hbramClk_cal_2        0.000           0.026            (R-R)
+ hbramClk         hbramClk              0.000           0.089            (R-R)
+ hbramClk         hbramClk             -2.500           2.538            (R-F)
+ hbramClk         hbramClk90           -1.250           1.585            (R-F)
+ hbramClk_cal     hbramClk_cal          0.000           0.026            (R-R)
+ hbramClk_cal_2   hbramClk_cal_2        0.000           0.029            (R-R)
  clk50M           clk50M                0.000           0.026            (R-R)
- clk50M           clk                   0.000           0.147            (R-R)
- clk              clk50M                0.000           0.080            (R-R)
- clk              clk                   0.000           0.026            (R-R)
- clk_da           clk_da                0.000           0.026            (R-R)
+ clk50M           clk                   0.000           0.146            (R-R)
+ clk              clk50M                0.000           0.061            (R-R)
+ clk              clk                   0.000           0.023            (R-R)
+ clk_da           clk_da                0.000           0.034            (R-R)
  adv_ctrl_clk     adv_ctrl_clk          0.000           0.098            (R-R)
- bt1120_clk       bt1120_clk            0.000           0.047            (R-R)
- clk_dvp          clk_dvp               0.000           0.096            (R-R)
- clk_scaler       clk_scaler            0.000           0.044            (R-R)
+ bt1120_clk       bt1120_clk            0.000           0.064            (R-R)
+ clk_dvp          clk_dvp               0.000           0.098            (R-R)
+ clk_scaler       clk_scaler            0.000           0.074            (R-R)
 
 INFO     : Write Timing Report to "H:/Project/ivlab-239/outflow\ivlab239_c.timing.rpt" ...
-INFO     : final timing analysis took 4.4378097 seconds [FlowMsg::StageDuration]
-INFO     :     final timing analysis took 2.734375 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
-INFO     : final timing analysis virtual memory usage: begin = 460.108 MB, end = 685.292 MB, delta = 225.184 MB [FlowMsg::VMUsage]
-INFO     :     final timing analysis peak virtual memory usage = 685.292 MB [FlowMsg::VMUsage::Peak]
-INFO     : final timing analysis resident set memory usage: begin = 467.148 MB, end = 691.728 MB, delta = 224.58 MB [FlowMsg::RSSUsage]
-INFO     :     final timing analysis peak resident set memory usage = 691.728 MB [FlowMsg::RSSUsage::Peak]
+INFO     : final timing analysis took 4.3182431 seconds [FlowMsg::StageDuration]
+INFO     :     final timing analysis took 4.359375 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : final timing analysis virtual memory usage: begin = 460.828 MB, end = 682.54 MB, delta = 221.712 MB [FlowMsg::VMUsage]
+INFO     :     final timing analysis peak virtual memory usage = 684.188 MB [FlowMsg::VMUsage::Peak]
+INFO     : final timing analysis resident set memory usage: begin = 467.452 MB, end = 688.596 MB, delta = 221.144 MB [FlowMsg::RSSUsage]
+INFO     :     final timing analysis peak resident set memory usage = 690.22 MB [FlowMsg::RSSUsage::Peak]
            ***** Ending stage final timing analysis *****
            
            ***** Beginning stage bitstream generation ... *****
 INFO     : Reading core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileReading]
 INFO     : Successfully read core interface constraints file "H:/Project/ivlab-239/outflow/ivlab239_c.interface.csv" [DBMsg::CoreInterfaceConstraintsFileLoadSuccess]
 INFO     : Finished writing bitstream file H:/Project/ivlab-239/work_pnr\ivlab239_c.lbf.
-INFO     : Bitstream generation took 1.4617824 seconds [FlowMsg::StageDuration]
-INFO     :     Bitstream generation took 0.703125 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
-INFO     : Bitstream generation virtual memory usage: begin = 398.868 MB, end = 578.036 MB, delta = 179.168 MB [FlowMsg::VMUsage]
-INFO     :     Bitstream generation peak virtual memory usage = 685.292 MB [FlowMsg::VMUsage::Peak]
-INFO     : Bitstream generation resident set memory usage: begin = 410.632 MB, end = 591.1 MB, delta = 180.468 MB [FlowMsg::RSSUsage]
-INFO     :     Bitstream generation peak resident set memory usage = 691.768 MB [FlowMsg::RSSUsage::Peak]
-INFO     : The entire flow of EFX_PNR took 70.1188484 seconds [FlowMsg::StageDuration]
-INFO     :     The entire flow of EFX_PNR took 108.640625 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
-INFO     : The entire flow of EFX_PNR virtual memory usage: begin = 19.988 MB, end = 577.916 MB, delta = 557.928 MB [FlowMsg::VMUsage]
-INFO     :     The entire flow of EFX_PNR peak virtual memory usage = 685.292 MB [FlowMsg::VMUsage::Peak]
-INFO     : The entire flow of EFX_PNR resident set memory usage: begin = 21.844 MB, end = 591.02 MB, delta = 569.176 MB [FlowMsg::RSSUsage]
-INFO     :     The entire flow of EFX_PNR peak resident set memory usage = 691.768 MB [FlowMsg::RSSUsage::Peak]
+INFO     : Bitstream generation took 1.4261854 seconds [FlowMsg::StageDuration]
+INFO     :     Bitstream generation took 1.21875 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Bitstream generation virtual memory usage: begin = 401.452 MB, end = 578.156 MB, delta = 176.704 MB [FlowMsg::VMUsage]
+INFO     :     Bitstream generation peak virtual memory usage = 684.188 MB [FlowMsg::VMUsage::Peak]
+INFO     : Bitstream generation resident set memory usage: begin = 412.844 MB, end = 590.848 MB, delta = 178.004 MB [FlowMsg::RSSUsage]
+INFO     :     Bitstream generation peak resident set memory usage = 690.22 MB [FlowMsg::RSSUsage::Peak]
+INFO     : The entire flow of EFX_PNR took 65.941867 seconds [FlowMsg::StageDuration]
+INFO     :     The entire flow of EFX_PNR took 135.6875 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : The entire flow of EFX_PNR virtual memory usage: begin = 19.976 MB, end = 577.564 MB, delta = 557.588 MB [FlowMsg::VMUsage]
+INFO     :     The entire flow of EFX_PNR peak virtual memory usage = 684.188 MB [FlowMsg::VMUsage::Peak]
+INFO     : The entire flow of EFX_PNR resident set memory usage: begin = 21.476 MB, end = 590.296 MB, delta = 568.82 MB [FlowMsg::RSSUsage]
+INFO     :     The entire flow of EFX_PNR peak resident set memory usage = 690.22 MB [FlowMsg::RSSUsage::Peak]

@@ -1776,3 +1776,180 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64
 
 !ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:44:13.454
 !MESSAGE Indexed 'axi4Demo' (1 sources, 0 headers) in 0.002 sec: 18 declarations; 29 references; 4 unresolved inclusions; 0 syntax errors; 19 unresolved names (29%)
+!SESSION 2026-09-16 21:50:23.262 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=18.0.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY org.eclipse.ui 4 4 2026-09-16 21:50:42.218
+!MESSAGE MenuAdditionCacheEntry.mergeIntoModel: Invalid menu URI: com.ashling.riscfree.efinix.newproject.wizard.CreateNewEfinixProject
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:52.118
+!MESSAGE Indexed 'nestedInterruptDemo' (3 sources, 131 headers) in 0.848 sec: 5,053 declarations; 8,642 references; 0 unresolved inclusions; 10 syntax errors; 1,121 unresolved names (7.6%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:52.456
+!MESSAGE Indexed 'semihostingDemo' (3 sources, 130 headers) in 0.335 sec: 5,052 declarations; 8,623 references; 0 unresolved inclusions; 11 syntax errors; 1,138 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:52.722
+!MESSAGE Indexed 'watchdogDemo' (3 sources, 132 headers) in 0.264 sec: 5,078 declarations; 8,662 references; 0 unresolved inclusions; 11 syntax errors; 1,120 unresolved names (7.5%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:52.993
+!MESSAGE Indexed 'memTest' (3 sources, 131 headers) in 0.266 sec: 5,054 declarations; 8,641 references; 0 unresolved inclusions; 10 syntax errors; 1,138 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:53.245
+!MESSAGE Indexed 'fpuDemo' (3 sources, 130 headers) in 0.251 sec: 5,066 declarations; 8,724 references; 0 unresolved inclusions; 10 syntax errors; 1,142 unresolved names (7.6%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:53.473
+!MESSAGE Indexed 'uartEchoDemo' (3 sources, 130 headers) in 0.227 sec: 5,053 declarations; 8,634 references; 0 unresolved inclusions; 10 syntax errors; 1,139 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:53.683
+!MESSAGE Indexed 'smpIntrDemo' (3 sources, 130 headers) in 0.208 sec: 5,055 declarations; 8,630 references; 0 unresolved inclusions; 10 syntax errors; 1,138 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:53.880
+!MESSAGE Indexed 'spiDemo' (3 sources, 131 headers) in 0.196 sec: 5,060 declarations; 8,931 references; 0 unresolved inclusions; 10 syntax errors; 942 unresolved names (6.3%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:54.077
+!MESSAGE Indexed 'clintTimerInterruptDemo' (3 sources, 131 headers) in 0.197 sec: 5,076 declarations; 8,683 references; 0 unresolved inclusions; 10 syntax errors; 1,129 unresolved names (7.6%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:54.280
+!MESSAGE Indexed 'dCacheFlushDemo' (3 sources, 130 headers) in 0.202 sec: 5,053 declarations; 8,633 references; 0 unresolved inclusions; 10 syntax errors; 1,138 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:54.481
+!MESSAGE Indexed 'smpDemo' (3 sources, 131 headers) in 0.2 sec: 5,088 declarations; 8,710 references; 0 unresolved inclusions; 10 syntax errors; 1,139 unresolved names (7.6%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:54.669
+!MESSAGE Indexed 'userTimerDemo' (3 sources, 131 headers) in 0.187 sec: 5,053 declarations; 8,641 references; 0 unresolved inclusions; 10 syntax errors; 1,121 unresolved names (7.6%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:54.858
+!MESSAGE Indexed 'iCacheFlushDemo' (3 sources, 130 headers) in 0.188 sec: 5,055 declarations; 8,609 references; 0 unresolved inclusions; 11 syntax errors; 1,138 unresolved names (7.7%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-09-16 21:51:55.041
+!MESSAGE Indexed 'axi4Demo' (3 sources, 130 headers) in 0.182 sec: 5,076 declarations; 8,727 references; 0 unresolved inclusions; 10 syntax errors; 1,128 unresolved names (7.6%)
+
+!ENTRY org.eclipse.embedcdt.debug.gdbjtag.openocd.core 4 1 2026-09-16 21:55:32.137
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.debug.gdbjtag.core 4 0 2026-09-16 21:55:32.198
+!MESSAGE OpenOCD failed with code (1).
+
+For more details, see the openocd.exe console.
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 21:57:18.123
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.debug.gdbjtag.core 4 0 2026-09-16 21:57:18.191
+!MESSAGE OpenOCD failed with code (1).
+
+For more details, see the openocd.exe console.
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 21:57:51.695
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 21:57:52.602
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:01:00.419
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:01:01.273
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:01:42.227
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:01:43.095
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:02:42.615
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:02:43.485
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:08:51.682
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.debug.gdbjtag.core 4 0 2026-09-16 22:08:57.532
+!MESSAGE OpenOCD failed with code (1).
+
+For more details, see the openocd.exe console.
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:09:38.327
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:09:39.180
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:10:05.098
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:10:05.957
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:10:27.898
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:10:28.752
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:11:02.756
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:11:03.612
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:12:05.960
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:12:06.819
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:16:20.518
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:16:21.359
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:17:44.194
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:17:45.046
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:21:56.260
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:21:57.124
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:25:20.966
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:25:21.813
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:26:13.610
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:26:14.441
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:30:24.631
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:30:25.450
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:32:19.152
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:32:19.948
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:33:12.548
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../openocd/bin/openocd.exe -c gdb_port 3333 -c telnet_port 4444 -c tcl_port 6666 -c set bsp_loc {H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv} -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg -f H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg -c echo "Started by GNU MCU Eclipse"
+
+!ENTRY org.eclipse.embedcdt.managedbuild.cross.riscv.core 4 1 2026-09-16 22:33:13.440
+!MESSAGE H:\Efinity\efinity-riscv-ide-2026.1\Efinity-RISCV-IDE\/../toolchain/bin/riscv-none-elf-gdb.exe --interpreter=mi2 --nx

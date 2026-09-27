@@ -18,6 +18,14 @@
 `timescale 1ns / 1ps
 
 module top_soc (
+input		jtag_inst1_TCK,
+input		jtag_inst1_TDI,
+output		jtag_inst1_TDO,
+input		jtag_inst1_SEL,
+input		jtag_inst1_CAPTURE,
+input		jtag_inst1_SHIFT,
+input		jtag_inst1_UPDATE,
+input		jtag_inst1_RESET,
 output		system_spi_0_io_sclk_write,
 output		system_spi_0_io_data_0_writeEnable,
 input		system_spi_0_io_data_0_read,
@@ -26,12 +34,8 @@ output		system_spi_0_io_data_1_writeEnable,
 input		system_spi_0_io_data_1_read,
 output		system_spi_0_io_data_1_write,
 output		system_spi_0_io_ss,
-output		system_i2c_0_io_sda_writeEnable,
-output		system_i2c_0_io_sda_write,
-input		system_i2c_0_io_sda_read,
-output		system_i2c_0_io_scl_writeEnable,
-output		system_i2c_0_io_scl_write,
-input		system_i2c_0_io_scl_read,
+output		system_uart_0_io_txd,
+input		system_uart_0_io_rxd,
 input		hbramClk,
 input		hbramClk_cal,
 output		hbc_rst_n,
@@ -54,20 +58,16 @@ output [2:0] hbc_cal_SHIFT,
 output [4:0] hbc_cal_SHIFT_SEL,
 output		hbc_cal_SHIFT_ENA,
 output		hbc_cal_pass,
-output		system_uart_0_io_txd,
-input		system_uart_0_io_rxd,
+input		io_memoryClk,
+output		system_i2c_0_io_sda_writeEnable,
+output		system_i2c_0_io_sda_write,
+input		system_i2c_0_io_sda_read,
+output		system_i2c_0_io_scl_writeEnable,
+output		system_i2c_0_io_scl_write,
+input		system_i2c_0_io_scl_read,
 input [3:0] system_gpio_0_io_read,
 output [3:0] system_gpio_0_io_write,
 output [3:0] system_gpio_0_io_writeEnable,
-input		jtag_inst1_TCK,
-input		jtag_inst1_TDI,
-output		jtag_inst1_TDO,
-input		jtag_inst1_SEL,
-input		jtag_inst1_CAPTURE,
-input		jtag_inst1_SHIFT,
-input		jtag_inst1_UPDATE,
-input		jtag_inst1_RESET,
-input		io_memoryClk,
 
 output      memoryCheckerPass,
 output      systemClk_rstn,
@@ -85,19 +85,11 @@ wire        synchronized_gpio_asyncResetn;
 wire		io_systemReset;
 wire 	    io_memoryReset;				
 wire [1:0]  io_ddrA_b_payload_resp=2'b00;
-wire [15:0] io_apbSlave_0_PADDR;
-wire		io_apbSlave_0_PSEL;
-wire		io_apbSlave_0_PENABLE;
-wire		io_apbSlave_0_PREADY;
-wire		io_apbSlave_0_PWRITE;
-wire [31:0] io_apbSlave_0_PWDATA;
-wire [31:0] io_apbSlave_0_PRDATA;
-wire		io_apbSlave_0_PSLVERROR;
-wire		start;
-wire [31:0] iaddr;
-wire [31:0] idata;
-wire [7:0]  ilen;
-wire [1:0]  status;
+wire [7:0] soc_ddrA_arw_payload_id;
+wire [7:0] soc_ddrA_w_payload_id;
+wire [7:0] soc_ddrA_b_payload_id;
+wire [7:0] soc_ddrA_r_payload_id;
+wire [0:0] wire_system_spi_0_io_ss;
 wire		io_ddrA_arw_valid;
 wire		io_ddrA_arw_ready;
 wire [31:0] io_ddrA_arw_payload_addr;
@@ -124,7 +116,19 @@ wire [1:0] io_ddrA_r_payload_resp;
 wire		io_ddrA_r_payload_last;
 wire		dyn_pll_phase_en;
 wire [2:0] dyn_pll_phase_sel;
-wire userInterrupt_0;
+wire [15:0] io_apbSlave_0_PADDR;
+wire		io_apbSlave_0_PSEL;
+wire		io_apbSlave_0_PENABLE;
+wire		io_apbSlave_0_PREADY;
+wire		io_apbSlave_0_PWRITE;
+wire [31:0] io_apbSlave_0_PWDATA;
+wire [31:0] io_apbSlave_0_PRDATA;
+wire		io_apbSlave_0_PSLVERROR;
+wire		start;
+wire [31:0] iaddr;
+wire [31:0] idata;
+wire [7:0]  ilen;
+wire [1:0]  status;
 wire axi4Interrupt;
 wire [7:0] axi_awid;
 wire [31:0]	axi_awaddr;
@@ -165,11 +169,7 @@ wire [1:0]	axi_rresp;
 wire		axi_rlast;
 wire		axi_rvalid;
 wire		axi_rready;
-wire [0:0] wire_system_spi_0_io_ss;
-wire [7:0] soc_ddrA_arw_payload_id;
-wire [7:0] soc_ddrA_w_payload_id;
-wire [7:0] soc_ddrA_b_payload_id;
-wire [7:0] soc_ddrA_r_payload_id;
+wire userInterrupt_0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -178,16 +178,16 @@ wire [7:0] soc_ddrA_r_payload_id;
 assign reset 	= ~(synchronized_gpio_asyncResetn & systemClk_locked);
 assign systemClk_rstn 	= 1'b1;
 assign baseClk_pll_rstn = 1'b1;
-assign system_spi_0_io_ss = wire_system_spi_0_io_ss[0];
-assign memoryCheckerPass=1'b0;
+assign system_i2c_0_io_sda_writeEnable = !system_i2c_0_io_sda_write;
+assign system_i2c_0_io_scl_writeEnable = !system_i2c_0_io_scl_write;
 assign io_ddrA_arw_payload_id = soc_ddrA_arw_payload_id;
 assign io_ddrA_w_payload_id   = soc_ddrA_w_payload_id;
 assign soc_ddrA_b_payload_id  = io_ddrA_b_payload_id;
 assign soc_ddrA_r_payload_id  = io_ddrA_r_payload_id;
+assign memoryCheckerPass=1'b0;
+assign system_spi_0_io_ss = wire_system_spi_0_io_ss[0];
 assign dyn_pll_phase_en=1'b1;
 assign dyn_pll_phase_sel=3'b010;
-assign system_i2c_0_io_sda_writeEnable = !system_i2c_0_io_sda_write;
-assign system_i2c_0_io_scl_writeEnable = !system_i2c_0_io_scl_write;
 assign w_io_asyncReset = reset ;
 
 
@@ -372,8 +372,39 @@ hbram_top#(
 
 riscv soc_inst
 (
-.system_uart_0_io_txd(system_uart_0_io_txd),
-.system_uart_0_io_rxd(system_uart_0_io_rxd),
+.system_spi_0_io_sclk_write(system_spi_0_io_sclk_write),
+.system_spi_0_io_data_0_writeEnable(system_spi_0_io_data_0_writeEnable),
+.system_spi_0_io_data_0_read(system_spi_0_io_data_0_read),
+.system_spi_0_io_data_0_write(system_spi_0_io_data_0_write),
+.system_spi_0_io_data_1_writeEnable(system_spi_0_io_data_1_writeEnable),
+.system_spi_0_io_data_1_read(system_spi_0_io_data_1_read),
+.system_spi_0_io_data_1_write(system_spi_0_io_data_1_write),
+.system_spi_0_io_data_2_writeEnable(),
+.system_spi_0_io_data_2_read(),
+.system_spi_0_io_data_2_write(),
+.system_spi_0_io_data_3_writeEnable(),
+.system_spi_0_io_data_3_read(),
+.system_spi_0_io_data_3_write(),
+.system_spi_0_io_ss(wire_system_spi_0_io_ss),
+.jtagCtrl_tck(jtag_inst1_TCK),
+.jtagCtrl_tdi(jtag_inst1_TDI),
+.jtagCtrl_tdo(jtag_inst1_TDO),
+.jtagCtrl_enable(jtag_inst1_SEL),
+.jtagCtrl_capture(jtag_inst1_CAPTURE),
+.jtagCtrl_shift(jtag_inst1_SHIFT),
+.jtagCtrl_update(jtag_inst1_UPDATE),
+.jtagCtrl_reset(jtag_inst1_RESET),
+.system_uart_1_io_txd(),
+.system_uart_1_io_rxd(),
+.userInterruptA(userInterrupt_0),
+.io_apbSlave_0_PADDR(io_apbSlave_0_PADDR),
+.io_apbSlave_0_PSEL(io_apbSlave_0_PSEL),
+.io_apbSlave_0_PENABLE(io_apbSlave_0_PENABLE),
+.io_apbSlave_0_PREADY(io_apbSlave_0_PREADY),
+.io_apbSlave_0_PWRITE(io_apbSlave_0_PWRITE),
+.io_apbSlave_0_PWDATA(io_apbSlave_0_PWDATA),
+.io_apbSlave_0_PRDATA(io_apbSlave_0_PRDATA),
+.io_apbSlave_0_PSLVERROR(io_apbSlave_0_PSLVERROR),
 .io_ddrA_arw_valid(io_ddrA_arw_valid),
 .io_ddrA_arw_ready(io_ddrA_arw_ready),
 .io_ddrA_arw_payload_addr(io_ddrA_arw_payload_addr),
@@ -403,6 +434,8 @@ riscv soc_inst
 .io_ddrA_r_payload_id(soc_ddrA_r_payload_id),
 .io_ddrA_r_payload_resp(io_ddrA_r_payload_resp),
 .io_ddrA_r_payload_last(io_ddrA_r_payload_last),
+.system_uart_0_io_txd(system_uart_0_io_txd),
+.system_uart_0_io_rxd(system_uart_0_io_rxd),
 .system_i2c_0_io_sda_write(system_i2c_0_io_sda_write),
 .system_i2c_0_io_sda_read(system_i2c_0_io_sda_read),
 .system_i2c_0_io_scl_write(system_i2c_0_io_scl_write),
@@ -410,39 +443,6 @@ riscv soc_inst
 .system_gpio_0_io_read(system_gpio_0_io_read),
 .system_gpio_0_io_write(system_gpio_0_io_write),
 .system_gpio_0_io_writeEnable(system_gpio_0_io_writeEnable),
-.userInterruptA(userInterrupt_0),
-.system_spi_0_io_sclk_write(system_spi_0_io_sclk_write),
-.system_spi_0_io_data_0_writeEnable(system_spi_0_io_data_0_writeEnable),
-.system_spi_0_io_data_0_read(system_spi_0_io_data_0_read),
-.system_spi_0_io_data_0_write(system_spi_0_io_data_0_write),
-.system_spi_0_io_data_1_writeEnable(system_spi_0_io_data_1_writeEnable),
-.system_spi_0_io_data_1_read(system_spi_0_io_data_1_read),
-.system_spi_0_io_data_1_write(system_spi_0_io_data_1_write),
-.system_spi_0_io_data_2_writeEnable(),
-.system_spi_0_io_data_2_read(),
-.system_spi_0_io_data_2_write(),
-.system_spi_0_io_data_3_writeEnable(),
-.system_spi_0_io_data_3_read(),
-.system_spi_0_io_data_3_write(),
-.system_spi_0_io_ss(wire_system_spi_0_io_ss),
-.jtagCtrl_tck(jtag_inst1_TCK),
-.jtagCtrl_tdi(jtag_inst1_TDI),
-.jtagCtrl_tdo(jtag_inst1_TDO),
-.jtagCtrl_enable(jtag_inst1_SEL),
-.jtagCtrl_capture(jtag_inst1_CAPTURE),
-.jtagCtrl_shift(jtag_inst1_SHIFT),
-.jtagCtrl_update(jtag_inst1_UPDATE),
-.jtagCtrl_reset(jtag_inst1_RESET),
-.io_memoryClk(io_memoryClk),
-.io_memoryReset(io_memoryReset),
-.io_apbSlave_0_PADDR(io_apbSlave_0_PADDR),
-.io_apbSlave_0_PSEL(io_apbSlave_0_PSEL),
-.io_apbSlave_0_PENABLE(io_apbSlave_0_PENABLE),
-.io_apbSlave_0_PREADY(io_apbSlave_0_PREADY),
-.io_apbSlave_0_PWRITE(io_apbSlave_0_PWRITE),
-.io_apbSlave_0_PWDATA(io_apbSlave_0_PWDATA),
-.io_apbSlave_0_PRDATA(io_apbSlave_0_PRDATA),
-.io_apbSlave_0_PSLVERROR(io_apbSlave_0_PSLVERROR),
 .axiA_awvalid(axi_awvalid),
 .axiA_awready(axi_awready),
 .axiA_awaddr(axi_awaddr),
@@ -483,6 +483,8 @@ riscv soc_inst
 .axiA_rresp(axi_rresp),
 .axiA_rlast(axi_rlast),
 .axiAInterrupt(axi4Interrupt),
+.io_memoryClk(io_memoryClk),
+.io_memoryReset(io_memoryReset),
 
 .io_systemClk(io_systemClk),
 .io_asyncReset(w_io_asyncReset),

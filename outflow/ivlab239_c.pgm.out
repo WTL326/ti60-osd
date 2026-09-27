@@ -21,9 +21,9 @@ INFO     : 	seu_wait_interval                        = 0xFFFFFF
 INFO     : 	jtag_usercode                            = 0xFFFFFFFF
 INFO     : 	io_weak_pullup                           = on
 INFO     : Finished generating "H:/Project/ivlab-239/outflow/ivlab239_c.hex"
-INFO     : Elitestek Bitstream Generator took 0.9312512 seconds [FlowMsg::StageDuration]
-INFO     :     Elitestek Bitstream Generator took 0.5625 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
-INFO     : Elitestek Bitstream Generator virtual memory usage: begin = 2.548 MB, end = 12.856 MB, delta = 10.308 MB [FlowMsg::VMUsage]
-INFO     :     Elitestek Bitstream Generator peak virtual memory usage = 151.228 MB [FlowMsg::VMUsage::Peak]
-INFO     : Elitestek Bitstream Generator resident set memory usage: begin = 8.38 MB, end = 21.296 MB, delta = 12.916 MB [FlowMsg::RSSUsage]
-INFO     :     Elitestek Bitstream Generator peak resident set memory usage = 157.248 MB [FlowMsg::RSSUsage::Peak]
+INFO     : Elitestek Bitstream Generator took 0.9928088 seconds [FlowMsg::StageDuration]
+INFO     :     Elitestek Bitstream Generator took 0.71875 seconds (approximately) in total CPU time [FlowMsg::StageDuration::CPUTime]
+INFO     : Elitestek Bitstream Generator virtual memory usage: begin = 2.54 MB, end = 13.156 MB, delta = 10.616 MB [FlowMsg::VMUsage]
+INFO     :     Elitestek Bitstream Generator peak virtual memory usage = 151.864 MB [FlowMsg::VMUsage::Peak]
+INFO     : Elitestek Bitstream Generator resident set memory usage: begin = 8.376 MB, end = 21.26 MB, delta = 12.884 MB [FlowMsg::RSSUsage]
+INFO     :     Elitestek Bitstream Generator peak resident set memory usage = 157.764 MB [FlowMsg::RSSUsage::Peak]

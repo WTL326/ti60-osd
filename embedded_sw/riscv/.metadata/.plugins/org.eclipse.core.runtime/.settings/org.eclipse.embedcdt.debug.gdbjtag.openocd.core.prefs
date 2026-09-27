@@ -13,4 +13,4 @@ gdb.openocd.preRun.other=monitor arm semihosting_redirect tcp 50051 all
 gdb.openocd.preRunReset.type=halt
 gdb.server.doStart=true
 gdb.server.executable=${eclipse_home}/../openocd/bin/openocd.exe
-gdb.server.other=-c 'set bsp_loc {H\:\\Project\\ivlab-fpga-239-ti60f225+200MHz_reconstruction\\embedded_sw\\riscv}'\r\n-f 'H\:\\Project\\ivlab-fpga-239-ti60f225+200MHz_reconstruction\\embedded_sw\\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg'\r\n-f 'H\:\\Project\\ivlab-fpga-239-ti60f225+200MHz_reconstruction\\embedded_sw\\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg'
+gdb.server.other=-c 'set bsp_loc {H\:\\Project\\ivlab-239\\embedded_sw\\riscv}'\r\n-f 'H\:\\Project\\ivlab-239\\embedded_sw\\riscv/bsp/efinix/EfxSapphireSoc/openocd/ftdi_ti.cfg'\r\n-f 'H\:\\Project\\ivlab-239\\embedded_sw\\riscv/bsp/efinix/EfxSapphireSoc/openocd/debug_ti.cfg'

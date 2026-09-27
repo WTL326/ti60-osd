@@ -1,6 +1,6 @@
-21:40:24 **** Incremental Build of configuration Default for project uartEchoDemo ****
+22:10:04 **** Incremental Build of configuration Default for project uartEchoDemo ****
 make all 
 make: Nothing to be done for 'all'.
 
-21:40:24 Build Finished. 0 errors, 0 warnings. (took 92ms)
+22:10:05 Build Finished. 0 errors, 0 warnings. (took 93ms)
 

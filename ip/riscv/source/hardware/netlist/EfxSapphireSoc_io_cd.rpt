@@ -81,6 +81,8 @@ axiA_bready clocked by io_systemClk
 axiA_bid sampled by 
 axiA_bresp sampled by io_systemClk
 axiAInterrupt sampled by io_systemClk
+system_uart_1_io_txd clocked by io_systemClk
+system_uart_1_io_rxd sampled by 
 system_uart_0_io_txd clocked by io_systemClk
 system_uart_0_io_rxd sampled by 
 system_i2c_0_io_sda_write clocked by io_systemClk

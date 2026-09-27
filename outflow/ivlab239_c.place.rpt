@@ -1,7 +1,7 @@
 
 Elitestek FPGA Placement and Routing.
 Version: 2026.1.132.4.5 
-Date: Sat Sep 19 17:31:10 2026
+Date: Tue Sep 22 21:58:03 2026
 
 Copyright (C) 2013 - 2026 Efinix, Inc. All rights reserved.
  
@@ -25,11 +25,22 @@ Top-level Entity Name: ivlab239_c
 |        pll_bt1120_fb         |    Input     |
 |        intosc_clkout         |    Input     |
 |          DA_SCL_IN           |    Input     |
-|         hbc_cal_pass         |    Output    |
 |       pll_hbram_ref_fb       |    Input     |
 +------------------------------+--------------+
 
 ----------- IO Interface Summary (end) ----------
+
+
+---------- IO Placement Summary (begin) ----------
+
++----------------------+--------------+
+| Unassigned Core Pins | Input/Output |
++----------------------+--------------+
+|      test_fail       |    Output    |
+|      test_good       |    Output    |
++----------------------+--------------+
+
+----------- IO Placement Summary (end) ----------
 
 
 ---------- Module Resource Usage Distribution Estimates (begin) ----------
@@ -41,25 +52,25 @@ Top-level Entity Name: ivlab239_c
 Elapsed time for packing: 0 hours 0 minutes 2 seconds
 ---------- Resource Summary (begin) ----------
 Inputs: 122 / 1703 (7.16%)
-Outputs: 264 / 2267 (11.65%)
+Outputs: 267 / 2267 (11.78%)
 Global Clocks (GBUF): 14 / 32 (43.75%)
 Regional Clocks (RBUF): 0 / 32 (0.00%)
 	RBUF: Core: 0 / 16 (0.00%)
 	RBUF: Periphery: 0 / 8 (0.00%)
 	RBUF: Multi-Region: 0 / 8 (0.00%)
-XLRs: 45669 / 60800 (75.11%)
-	XLRs needed for LUT4: 20074 / 60800 (33.02%)
-	XLRs needed for LUT4 + FF: 6357 / 60800 (10.46%)
+XLRs: 45523 / 60800 (74.87%)
+	XLRs needed for LUT4: 19624 / 60800 (32.28%)
+	XLRs needed for LUT4 + FF: 6434 / 60800 (10.58%)
 	XLRs needed for COMB4: 0 / 60800 (0.00%)
 	XLRs needed for COMB4 + FF: 0 / 60800 (0.00%)
-	XLRs needed for Adder: 2753 / 60800 (4.53%)
-	XLRs needed for Adder + FF: 857 / 60800 (1.41%)
+	XLRs needed for Adder: 2801 / 60800 (4.61%)
+	XLRs needed for Adder + FF: 891 / 60800 (1.47%)
 	XLRs needed for SRL8: 6 / 14720 (0.04%)
 	XLRs needed for SRL8 + FF: 0 / 14720 (0.00%)
-	XLRs needed for FF: 15622 / 60800 (25.69%)
+	XLRs needed for FF: 15767 / 60800 (25.93%)
 	XLRs needed for Routing: 0 / 60800 (0.00%)
-Memory Blocks: 180 / 256 (70.31%)
+Memory Blocks: 182 / 256 (71.09%)
 DSP Blocks: 152 / 160 (95.00%)
 ---------- Resource Summary (end) ----------
 
-Elapsed time for placement: 0 hours 0 minutes 36 seconds
+Elapsed time for placement: 0 hours 0 minutes 33 seconds

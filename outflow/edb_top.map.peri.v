@@ -1,5 +1,5 @@
 // Efinix verilog description of module edb_top
-// Date : Sep 19 2026  17:29
+// Date : Sep 22 2026  21:56
 // Copyright (C) 2013-2026 Efinix Inc. All rights reserved.
 
 module edb_top (bscan_CAPTURE, bscan_DRCK, bscan_RESET, bscan_RUNTEST, bscan_SEL, bscan_SHIFT, bscan_TCK, bscan_TDI, bscan_TMS, bscan_UPDATE, bscan_TDO, la0_clk, la0_probe0, la0_probe1);

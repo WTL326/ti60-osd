@@ -756,7 +756,7 @@ python tools/send_mask_via_adb.py --disable
 ```
 
 **验证**：
-- CVBS 显示半透明掩膜叠加
+- CVBS 显示掩膜叠加（非零字节替换为纯白 `16'h80EB`，**无 alpha 混合**）
 - 掩膜位置和颜色正确
 - 切换缓冲无撕裂
 
@@ -865,13 +865,13 @@ python tools/send_mask_via_adb.py --disable
 - 插值器读取正在写入的缓冲
 
 **诊断**：
-- 观察 `writer_index`, `committed_index`, `reader_index`
+- 观察 `write_buffer`, `committed_buffer`, `read_buffer`（及 `committed_valid`）
 - 检查是否有两个索引相同的情况
 
 **解决**：
-- 确保 EOF 时正确更新 `committed_index`
-- 确保 SOF 时 `reader_index = committed_index`
-- 损坏帧不更新 `committed_index`
+- 确保帧完成（计数器判定）时正确更新 `committed_buffer` 并置 `committed_valid`
+- 确保 Z_WAIT 且 SOF 时 `read_buffer = committed_buffer`
+- 损坏帧不更新 `committed_buffer`（且会立即中止本帧）
 
 ## 性能基准
 

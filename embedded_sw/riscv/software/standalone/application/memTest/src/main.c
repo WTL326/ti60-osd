@@ -31,11 +31,9 @@ void main() {
     for(int i=0; i<MAX_WORDS; i++) MEM_LOC[i] = i;
 
     for(int i=0; i<MAX_WORDS; i++) {
-       // bsp_printf("0x%x \r\n", i);
         if (MEM_LOC[i] != i) {
-            bsp_printf("Data mismatched at address 0x%x with value of 0x%x \r\n", i, MEM_LOC[i]);
-            while(1) {
-                // Halt on error
+        bsp_printf("Data mismatched at address 0x%x with value of 0x%x \r\n", i, MEM_LOC[i]);
+        while(1){
             }
         }
     }

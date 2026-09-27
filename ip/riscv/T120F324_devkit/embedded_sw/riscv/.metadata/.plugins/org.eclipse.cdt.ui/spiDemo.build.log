@@ -1,0 +1,6 @@
+22:33:12 **** Incremental Build of configuration Default for project spiDemo ****
+make all 
+make: Nothing to be done for 'all'.
+
+22:33:12 Build Finished. 0 errors, 0 warnings. (took 92ms)
+

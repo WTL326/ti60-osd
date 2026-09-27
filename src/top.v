@@ -9,7 +9,6 @@
 // mask endpoint.  DEBUG_UART_DIRECT_CONNECT bypasses the X2000 routing so the
 // soft-core UART reaches a dedicated debug pin instead.
 `include "dual_hyperram_ctrl_define.svh"
-//`define DEBUG_UART_DIRECT_CONNECT
 
 module top #(
     parameter AWR_LEN = 63,
@@ -404,8 +403,11 @@ module top #(
     wire               riscv_uart_monitor_x2000;
     wire               riscv_diag_clear;
 
-    wire               riscv_uart_tx;
-    wire               riscv_uart_rx;
+    wire               riscv_uart_tx_0;
+    wire               riscv_uart_rx_0;
+    wire               riscv_uart_tx_1;
+    wire               riscv_uart_rx_1;
+
     wire               mask_reply_tx;
 
     wire               riscv_system_reset;
@@ -493,19 +495,15 @@ module top #(
     assign rtl_mask_mode = 1'b0;
     assign riscv_diag_clear = 1'b0;
 
-    // In RTL-mask mode the BB stream belongs exclusively to the RTL endpoint.
-    // Holding the soft-core RX idle prevents two endpoints from executing and
-    // replying to the same mask command.
-`ifdef DEBUG_UART_DIRECT_CONNECT
     // Debug mode: bypass all routing logic, direct connection to SoC UART
-    assign riscv_uart_rx = DEBUG_UART_RX;
-`else
+    assign riscv_uart_rx_0 = DEBUG_UART_RX;
+
     // Normal mode: use existing X2000 routing
-    assign riscv_uart_rx = rtl_mask_mode ? 1'b1 : UART_ST_FR;
-`endif
+    assign riscv_uart_rx_1 = rtl_mask_mode ? 1'b1 : UART_ST_FR;
+
 
     assign riscv_hbc_cal_ready_50 = riscv_hbc_cal_sync_50[1];
-    assign riscv_diag_uart_rx     = riscv_uart_monitor_x2000 ? riscv_uart_rx :
+    assign riscv_diag_uart_rx     = riscv_uart_monitor_x2000 ? riscv_uart_rx_1 :
                                     UART_FPGA_TX;
     assign riscv_cpu_bus_enable   = riscv_boot_release & uart_softcore_enable;
     assign riscv_cpu_reset_active = ~riscv_boot_release;
@@ -1415,16 +1413,14 @@ module top #(
     // AA machine replies and BB soft-core replies share the X2000 RX wire.
     // The removed 0xCC RTL zoom parser has no third UART reply path.
     assign mask_reply_tx = rtl_mask_mode ? rtl_mask_uart_tx :
-                           riscv_uart_reply_enable ? riscv_uart_tx : 1'b1;
-`ifdef DEBUG_UART_DIRECT_CONNECT
+                           riscv_uart_reply_enable ? riscv_uart_tx_1 : 1'b1;
+
     // Debug mode: direct SoC UART TX to dedicated debug pin
-    assign DEBUG_UART_TX = riscv_uart_tx;
-    assign UART_SR_FT = UART_FPGA_TX & mask_reply_tx;  // Keep X2000 path unchanged
-`else
+    assign DEBUG_UART_TX = riscv_uart_tx_0;
+
     // Normal mode: SoC UART TX goes to X2000
     assign UART_SR_FT = UART_FPGA_TX & mask_reply_tx;
-    assign DEBUG_UART_TX = 1'b1;  // Idle state when not in debug mode
-`endif
+
 
     // Normal operation uses the AXI snapshot. The pure-RTL writer is
     // retained only as explicit commissioning fallback until board validation.
@@ -1445,7 +1441,7 @@ module top #(
             x2000_uart_tx_count   <= 16'd0;
         end else begin
             riscv_uart_rx_sync <= {riscv_uart_rx_sync[0], UART_FPGA_TX};
-            riscv_uart_tx_sync <= {riscv_uart_tx_sync[0], riscv_uart_tx};
+            riscv_uart_tx_sync <= {riscv_uart_tx_sync[0], riscv_uart_tx_1};
             machine_uart_tx_sync <= {machine_uart_tx_sync[0], UART_FPGA_RX};
             x2000_uart_tx_sync <= {x2000_uart_tx_sync[0], UART_SR_FT};
             if (riscv_uart_rx_sync == 2'b10)
@@ -1487,7 +1483,7 @@ module top #(
                               riscv_memory_reset),
         .gpio_activity       (|(riscv_gpio_write_enable & riscv_gpio_write)),
         .uart_rx             (riscv_diag_uart_rx),
-        .uart_tx             (riscv_uart_tx),
+        .uart_tx             (riscv_uart_tx_1),
         .axi_arw_valid       (cpu_arw_valid),
         .axi_arw_ready       (cpu_arw_ready),
         .axi_arw_write       (cpu_arw_write),
@@ -1595,8 +1591,11 @@ module top #(
         .io_memoryClk                       (clk),
         .io_systemReset                     (riscv_system_reset),
         .io_memoryReset                     (riscv_memory_reset),
-        .system_uart_0_io_txd               (riscv_uart_tx),
-        .system_uart_0_io_rxd               (riscv_uart_rx),
+        .system_uart_0_io_txd               (riscv_uart_tx_0),
+        .system_uart_0_io_rxd               (riscv_uart_rx_0),
+        .system_uart_1_io_rxd               (riscv_uart_rx_1),
+        .system_uart_1_io_txd               (riscv_uart_tx_1),
+
         .system_gpio_0_io_write             (riscv_gpio_write),
         .system_gpio_0_io_writeEnable       (riscv_gpio_write_enable),
         .system_gpio_0_io_read              (4'b0000),

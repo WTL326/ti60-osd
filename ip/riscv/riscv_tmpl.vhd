@@ -144,6 +144,8 @@ port (
     io_systemReset : out std_logic;
     system_uart_0_io_txd : out std_logic;
     io_memoryReset : out std_logic;
+    system_uart_1_io_rxd : in std_logic;
+    system_uart_1_io_txd : out std_logic;
     system_uart_0_io_rxd : in std_logic;
     system_i2c_0_io_scl_read : in std_logic;
     system_i2c_0_io_scl_write : out std_logic;
@@ -265,6 +267,8 @@ port map (
     io_systemReset => io_systemReset,
     system_uart_0_io_txd => system_uart_0_io_txd,
     io_memoryReset => io_memoryReset,
+    system_uart_1_io_rxd => system_uart_1_io_rxd,
+    system_uart_1_io_txd => system_uart_1_io_txd,
     system_uart_0_io_rxd => system_uart_0_io_rxd,
     system_i2c_0_io_scl_read => system_i2c_0_io_scl_read,
     system_i2c_0_io_scl_write => system_i2c_0_io_scl_write,
