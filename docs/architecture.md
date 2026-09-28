@@ -77,9 +77,9 @@ native_* 信号 (1280×1024 @ 100 MHz, clk 域) ━━━━━ 分叉点 ━━
            - 遗留调试十字丝（通常禁用）
            ↓
         HyperRamMaskOverlayYuv422 (clk 域)
-           - 从 HyperRAM 读取 8-bit/像素掩膜
+           - 从 HyperRAM 读取 4 路 1 bit/像素 OSD 位图（行跨距 width/8）
            - 预取缓存（2 bank × 256 字节，命中时预取扫描序下一块）
-           - 纯替换：掩膜字节非零 → 纯白 16'h80EB；为零 → 透传
+           - 二值键控：bit=1 → 纯白 16'h80EB；bit=0 → 透传
            ↓
         HyperRamVideoBt656 (clk 域 → clk_da CDC)
            - AXI 写三缓冲 (100 MHz)
@@ -278,27 +278,40 @@ Ti60F225 专用的同步读 RAM 封装。
 - 固定位置的白色十字丝（720×576 坐标系）
 - 生产环境通常禁用（热点十字丝已在变倍前绘制）
 
-#### HyperRamMaskOverlayYuv422 — 掩膜叠加
+#### HyperRamMaskOverlayYuv422 — 四区域 OSD 叠加
 
-从 HyperRAM 读取掩膜并叠加到视频流。掩膜为 **8-bit/像素**（非 YUV422），
-混合语义是**纯替换**：字节非零 → 纯白 `16'h80EB`（Y=235, Cb=Cr=128），
-字节为零 → 原像素透传。**没有 alpha 混合通路。**
+从 HyperRAM 读取最多 **4 块互不重叠**的 OSD 位图，叠加到视频流上。
 
-**模式**（基地址由 `raw_mode` 与 `active_buffer` 两个维度共同选择）：
-- 遗留模式：720×576 全屏画布，行跨距 720 字节 @ `0x00400000`/`0x00500000`
-- 原始模式：420×220 小图，行跨距 420 字节，支持有符号偏移和裁剪
-  @ `0x00A00000`/`0x00B00000`
+**位图格式**：**1 bit/像素**。每行按 `width/8` 字节**紧凑打包**（行跨距 = 行字节数，
+不再是固定 512 字节），行内 **bit 7 对应最左像素**。bit = `1` → 纯白
+`16'h80EB`（Y=235, Cb=Cr=128）；bit = `0` → 原像素透传。
+**没有 alpha 混合通路**——语义是二值键控，不是半透明。
 
-> 当前位流中 `rtl_mask_mode` 被硬接为 `1'b0`，因此只有遗留模式生效，
-> 原始模式的地址与分支不可达。
+**8 个固定基址**（`base(i, buf) = (buf ? 0x00B0_0000 : 0x00A0_0000) + i * 0x0004_0000`）：
+
+| 路 | Buffer A | Buffer B | 位流中的尺寸 |
+|---|---|---|---|
+| OSD0 | `0x00A0_0000` | `0x00B0_0000` | 544×288 |
+| OSD1 | `0x00A4_0000` | `0x00B4_0000` | 544×208 |
+| OSD2 | `0x00A8_0000` | `0x00B8_0000` | 544×288 |
+| OSD3 | `0x00AC_0000` | `0x00BC_0000` | 544×288 |
+
+**几何分工**：尺寸与基址是**编译期参数**（`OSD0..3_WIDTH/HEIGHT/BASE_A/BASE_B`，
+改尺寸要重新综合），位置/使能/缓冲选择是**运行时寄存器**（`MaskControlRegs`
+的 `OSD[i].POS` / `OSD[i].CTRL`）。不提供运行时尺寸或基址寄存器。
+
+**窗口位置**：`left`/`top` 为**有符号 12 bit**，允许负值把窗口部分移出画面，
+越界部分自动裁剪（该处视频透传）。
 
 **特性**：
-- 双缓冲（A/B 切换，在 SOF 边界锁存，整帧不切换）
-- 预取缓存：2 bank × 256 字节，命中时把扫描序上的**下一个 256 字节块**
-  预取到另一 bank，避免单拍读阻塞视频流
-- 可选垂直坐标翻转
+- 每路**独立** A/B 双缓冲（`OSD[i].CTRL.buffer_select`），在 SOF 边界锁存，整帧不切换
+- 单次提交：一次 `COMMAND` 写把 4 路的位置与使能**原子地**一起推出去
+- 预取缓存：2 bank × 256 字节，命中时把**扫描序上的下一个 256 字节块**预取到另一 bank。
+  预取目标按优先级选取：本窗口后续块 → 本行更靠右的窗口 → 下一显示行的首个窗口。
+  1 bpp 下一个 256 字节块覆盖 2048 像素（544 宽时约 3.8 行），因此绝大多数预取走第一条
+- 可选垂直坐标翻转（`FLIP_VERTICAL_COORDS`）
 
-**诊断**：`frame_count`, `read_error_count`, `active`
+**诊断**：`frame_count`, `read_error_count`, `stall_count`（等待位图而阻塞视频流的累计周期数）, `active`
 
 ### 内存层（memory/）
 
@@ -421,15 +434,27 @@ RISC-V 软核 `axiA` 外设主控的唯一从端。
 - 通过 `hot_cfg_toggle` 提交
 - `hot_applied_toggle` 反馈生效
 
-#### MaskControlRegs — 掩膜控制寄存器
+#### MaskControlRegs — OSD 控制寄存器（12 字映射）
 
-**寄存器**：
-- `COMMAND`：enable, buffer_select (A/B), commit
-- `STATUS`：active, pending
-- 统计：commit_count
+**寄存器**（偏移 → 内容）：
+
+| 偏移 | 名称 | R/W | 内容 |
+|---|---|---|---|
+| `+0x00` | `COMMAND` | W | bit31 commit，bit0 global_enable |
+| `+0x04` | `STATUS` | R | `{commit_count[15:0], 13'd0, pending, 1'b0, applied_global_enable}` |
+| `+0x08` | `CANVAS` | R | `{16'd720, 16'd576}` |
+| `+0x0C` | `ACTIVE` | R | `{24'd0, applied_enable[3:0], applied_buffer_select[3:0]}` |
+| `+0x10 + 8*i + 0x0` | `OSD[i].POS` | W | `{8'd0, top[11:0], left[11:0]}`，均有符号 |
+| `+0x10 + 8*i + 0x4` | `OSD[i].CTRL` | W | `{30'd0, buffer_select, enable}` |
+
+`+0x30` 及以上读 0。**没有 SIZE 与基址寄存器**——窗口尺寸与 8 个基址是综合期参数，
+不进寄存器；需要回读时读 `ACTIVE`（给的是**实际生效**的值）。
+
+**暂存与提交**：写 `OSD[i].POS`/`CTRL` 只改暂存区，写 `COMMAND` 的 bit31 才把 4 路
+**一起**推到 `cfg_*` 输出（原子提交）；`pending`（两个 toggle 不一致）未清时拒绝二次提交。
 
 **配置协议**：
-- 通过 `mask_cfg_toggle` 提交
+- 通过 `mask_cfg_toggle` 提交（105 bit 快照直连叠加模块，叠加模块内**不再自带同步器**）
 - `mask_applied_toggle` 反馈生效
 
 #### ConfigSnapshotCdc — 跨时钟域配置同步
@@ -443,10 +468,17 @@ RISC-V 软核 `axiA` 外设主控的唯一从端。
 - 将 X2000 的 UART 指令路由到 RISC-V 软核
 - RISC-V TX 可选接管返回 X2000 的串口（`s13_RiscvReplyEnable`）
 
-#### RtlMaskUartAxiWriter — 掩膜上传状态机
+#### RtlMaskUartAxiWriter — 位图上传状态机
 
-- 接收 UART 字节流并通过 AXI 写入 HyperRAM 掩膜区
+- 接收 UART 字节流并通过 AXI 写入 HyperRAM 的 OSD 位图区
+- 尺寸固定为 **544×288 @ 1 bit/像素**，即 `544*288/8 = 19,584` 字节；
+  **位打包在上位机侧完成**（`tools/send_mask_via_adb.py`），RTL 只按字节透传，
+  不解析位序。1 bpp 下链路时间由 8 bpp 的约 13.6 s 降到约 1.7 s
+- 目标固定为 D3 表的**第 1 行**（OSD0，`0x00A0_0000`/`0x00B0_0000`）——
+  上传路与软核的菜单承载路（OSD1）必须不同，否则上传会覆盖菜单画布
 - 支持分包传输和 CRC 校验
+- 由 `rtl_mask_mode` 选择作为上传者；该信号已收窄为"控制权/上传者选择"，
+  不再是寻址模式选择
 
 ### 通用模块（common/）
 

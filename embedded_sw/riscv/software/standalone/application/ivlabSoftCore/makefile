@@ -21,14 +21,23 @@ STANDALONE=../..
 # SYSTEM_CORES_0），所以这个宏实际不起作用；保留它是为了与新建工程的习惯一致。
 CFLAGS+=-DSMP
 
+# src/osd/osd_engine.h 同时依赖协议层（frame.h / protocol.h，在 src/ 下）
+# 与 OSD 层（ui.h / canvas.h 等，在 src/osd/ 下）。编译器找 "x.h" 时只会看
+# "包含它的那个文件所在目录" 与 -I 列表，所以要把 src/ 也加进来 ——
+# 少了这一行，报错是 src/osd/osd_engine.h 找不到 frame.h。
+CFLAGS+=-Isrc
+
 # 参与编译的源文件：
 #   src/ 下的全部 .c / .cpp / .S —— 本项目自己的代码
 #   common/start.S              —— 启动代码（设置栈、拷贝数据段、调用 main）
 #   common/trap.S               —— 异常/中断入口，会调用 main.c 里的 trap()
 # 这里用 wildcard 而不是逐个列文件名：往 src/ 里加一个新 .c 文件不必改 makefile。
+# src/osd/ 是 OSD 构图层（从 ti60-osd-main 移植），单独列一行 —— wildcard 不递归，
+# 少了这一行那批文件不会被编进来，症状是一堆 undefined reference。
 # 代价是编译顺序不确定，所以文件之间不能依赖"谁先初始化"——本项目的初始化
 # 顺序由 main() 显式控制，不依赖编译顺序。
 SRCS = 	$(wildcard src/*.c) \
+		$(wildcard src/osd/*.c) \
 		$(wildcard src/*.cpp) \
 		$(wildcard src/*.S) \
         ${STANDALONE}/common/start.S \

@@ -12,10 +12,10 @@
 | 地址范围 | 大小 | 用途 | 访问者 |
 |---------|------|------|--------|
 | `0x00000000–0x003FFFFF` | 4 MiB | RISC-V 固件 | RISC-V axiM |
-| `0x00400000–0x007FFFFF` | 4 MiB | RISC-V 软核工作区，**含 legacy 掩膜画布 A/B** | RISC-V axiM + HyperRamMaskOverlay (读) |
+| `0x00400000–0x007FFFFF` | 4 MiB | RISC-V 软核工作区 | RISC-V axiM |
 | `0x00800000–0x009FFFFF` | 2 MiB | 保留 | — |
-| `0x00A00000–0x00AFFFFF` | 1 MiB | RTL **raw 模式**掩膜 A | HyperRamMaskOverlay (读)、RtlMaskUartAxiWriter (写) |
-| `0x00B00000–0x00BFFFFF` | 1 MiB | RTL **raw 模式**掩膜 B | HyperRamMaskOverlay (读)、RtlMaskUartAxiWriter (写) |
+| `0x00A00000–0x00AFFFFF` | 1 MiB | **OSD 位图 A 缓冲**：路 0..3 各占 256 KB 槽位（`0xA0`/`0xA4`/`0xA8`/`0xAC`） | HyperRamMaskOverlay (读)、RtlMaskUartAxiWriter (写，仅路 0) |
+| `0x00B00000–0x00BFFFFF` | 1 MiB | **OSD 位图 B 缓冲**：路 0..3 各占 256 KB 槽位（`0xB0`/`0xB4`/`0xB8`/`0xBC`） | HyperRamMaskOverlay (读)、RtlMaskUartAxiWriter (写，仅路 0) |
 | `0x00C00000–0x00CFFFFF` | 1 MiB | CVBS 显示缓冲 0 | HyperRamVideoBt656 (读写) |
 | `0x00D00000–0x00DFFFFF` | 1 MiB | CVBS 显示缓冲 1 | HyperRamVideoBt656 (读写) |
 | `0x00E00000–0x00EFFFFF` | 1 MiB | CVBS 显示缓冲 2 | HyperRamVideoBt656 (读写) |
@@ -30,28 +30,42 @@
 
 | 参数 | 值 | 参数 | 值 |
 |------|-----|------|-----|
-| `MASK0_BASE` | `0x0040_0000` | `RTL_MASK0_BASE` | `0x00A0_0000` |
-| `MASK1_BASE` | `0x0050_0000` | `RTL_MASK1_BASE` | `0x00B0_0000` |
 | `FRAME0_BASE` | `0x00C0_0000` | `FRAME_A/B/C`（源帧） | `0x0100_0000` / `0x0128_0000` / `0x0150_0000` |
 | `FRAME1_BASE` | `0x00D0_0000` | `FRAME_A/B/C`（栅格） | `0x0180_0000` / `0x01A8_0000` / `0x01D0_0000` |
-| `FRAME2_BASE` | `0x00E0_0000` | `MASK_A/MASK_B_BASE` | `0x00A0_0000` / `0x00B0_0000` |
+| `FRAME2_BASE` | `0x00E0_0000` | `RTL_MASK0/1_BASE`（上传路 = OSD0） | `0x00A0_0000` / `0x00B0_0000` |
+
+**OSD 位图参数**（`HyperRamMaskOverlayYuv422` 例化处，全部为编译期字面量，D3/D6）：
+
+| 参数 | 值 | 参数 | 值 |
+|------|-----|------|-----|
+| `OSD0_WIDTH/HEIGHT` | `544` / `288` | `OSD0_BASE_A/B` | `0x00A0_0000` / `0x00B0_0000` |
+| `OSD1_WIDTH/HEIGHT` | `544` / `208` | `OSD1_BASE_A/B` | `0x00A4_0000` / `0x00B4_0000` |
+| `OSD2_WIDTH/HEIGHT` | `544` / `288` | `OSD2_BASE_A/B` | `0x00A8_0000` / `0x00B8_0000` |
+| `OSD3_WIDTH/HEIGHT` | `544` / `288` | `OSD3_BASE_A/B` | `0x00AC_0000` / `0x00BC_0000` |
+
+> `MASK0_BASE`/`MASK1_BASE`/`RTL_MASK0_BASE`/`RTL_MASK1_BASE`/`RAW_MASK_*` 这批参数
+> 已随 D2/D3 删除（`RtlMaskUartAxiWriter` 仍用 `RTL_MASK0/1_BASE` 指向 OSD0 槽位）。
 
 ### 软核工作区内部划分（`0x0040_0000–0x007F_FFFF`）
 
-该 4 MiB 段由软核与掩膜叠加器**共用**，legacy 掩膜画布占据其起始两个 1 MiB 窗口：
+该 4 MiB 段**只作软核工作区**，上层划分由固件决定，RTL 侧不做任何划分：
 
 | 地址范围 | 大小 | 用途 |
 |---------|------|------|
-| `0x0040_0000–0x0046_53FF` | 414,720 B | legacy 掩膜画布 A（`MASK0_BASE`） |
-| `0x0046_5400–0x004F_FFFF` | 619 KiB | 未使用（画布 A 之后的窗口填充） |
-| `0x0050_0000–0x0056_53FF` | 414,720 B | legacy 掩膜画布 B（`MASK1_BASE`） |
-| `0x0056_5400–0x005F_FFFF` | 619 KiB | 未使用（画布 B 之后的窗口填充） |
+| `0x0040_0000–0x005F_FFFF` | 2 MiB | 固件工作区（见下方"遗留画布"说明） |
 | `0x0060_0000–0x007F_FFFF` | 2 MiB | 工作区其余部分 |
 
-> **待核实**：画布 A/B 之外的区域由软核如何使用，**无法从本仓库确认** ——
+> **遗留画布（本次改造后已无 RTL 读取方）**：改造前 `MASK0_BASE`/`MASK1_BASE`
+> 指在本段起始处（`0x0040_0000`/`0x0050_0000`，各 414,720 B 的 720×576 8-bit 画布），
+> 叠加模块经 legacy 分支读取它。D2 删除 legacy 寻址后，**RTL 不再从本段读任何画布**；
+> 位图区整体迁到 `0x00A0_0000–0x00BF_FFFF`（D3）。固件若仍在本段写画布，
+> 那些数据已无人读取。固件应改为写 D3 表的 OSD 位图区；**菜单画布**这一具体用途
+> 对应的是**菜单承载路 = OSD1**（`0x00A4_0000` / `0x00B4_0000`），画布切换由
+> `OSD[1].CTRL.buffer_select` 完成。
+
+> **待核实**：本段由软核如何使用，**无法从本仓库确认** ——
 > 软核应用源码不在检出内（`embedded_sw/riscv/software/standalone/application/` 下只有
 > BSP 与 coremark/dhrystone/memTest 等 demo），实际固件为预编译镜像 `outflow/ivlab239_c.hex`。
-> "软核写入完整 8-bit 掩膜画布" 这一结论目前仅来自 `src/top.v:1774` 的 RTL 注释。
 
 > **注意**：`0x00800000–0x009FFFFF` 标为"保留"仅是**软件约定**。
 > `AxiSharedFlatFabric` 只做仲裁，不做地址过滤，硬件不会拒绝任何主控访问该区间；
@@ -67,23 +81,33 @@
 **电子变倍源帧 / 栅格结果帧（1280×1024 YUV422）**：
 - 1280 × 1024 × 2 字节 = 2,621,440 字节 = 2.5 MiB（精确对齐）
 
-**掩膜（8-bit/像素，非 YUV422）**：
+**OSD 位图（1 bit/像素，非 YUV422）**：
 
-掩膜画布每像素仅 **1 字节**（`HyperRamMaskOverlayYuv422.v:134` 的 `mask_byte` 为 `[7:0]`），
-行跨距即行像素数：
+每像素 **1 bit**，行内按字节打包，**行跨距 = `width/8` 字节**（紧凑；改造前是按固定跨距分配的）。
+`bit 7` 对应行内最左像素。D1 位图格式：
 
-| 模式 | 分辨率 | 行跨距 | 大小 | 占用范围 |
-|------|--------|--------|------|---------|
-| legacy 全屏 | 720×576 | 720 B | 414,720 B ≈ 405 KiB | 见上「软核工作区内部划分」 |
-| raw 小图 | 420×220 | 420 B | 92,400 B ≈ 90 KiB | `0x00A0_0000–0x00A1_68EF` / `0x00B0_0000–0x00B1_68EF` |
+```
+byte_addr(x, y) = base(i, buf) + y * (width_i / 8) + (x >> 3)
+bit_index       = 7 - (x & 7)
+```
 
-两种模式都按 1 MiB 对齐分配基地址（留有大量裕量）。
+按位流实际参数（`src/top.v` 例化处的字面量）：
 
-> **当前位流状态**：`src/top.v:493` 把 `rtl_mask_mode` 硬接为 `1'b0`，该信号同时驱动
-> 叠加器的 `raw_mode`（`top.v:1792`）与 `RtlMaskUartAxiWriter` 的 `enable`（`top.v:742`）。
-> 因此 **legacy 分支生效、raw 分支完全不可达**：`0x00A0_0000`/`0x00B0_0000` 在当前位流中
-> **既无写入方也无读取方**（`RtlMaskUartAxiWriter` 在 `!enable` 时 parser 复位、不解析任何包），
-> 这 2 MiB 实际处于闲置状态。
+| 路 | 分辨率 | 行跨距 | 一缓冲大小 | 槽位（A / B） |
+|---|---|---|---|---|
+| OSD0 | 544×288 | 68 B | 19,584 B ≈ 19.1 KiB | `0x00A0_0000` / `0x00B0_0000` |
+| OSD1 | 544×208 | 68 B | 14,144 B ≈ 13.8 KiB | `0x00A4_0000` / `0x00B4_0000` |
+| OSD2 | 544×288 | 68 B | 19,584 B | `0x00A8_0000` / `0x00B8_0000` |
+| OSD3 | 544×288 | 68 B | 19,584 B | `0x00AC_0000` / `0x00BC_0000` |
+| **合计** | | | **72,896 B** | 2 MiB 区内余量极大 |
+
+分辨率上限为 **544×288**、宽度须能被 8 整除，均由展开期参数检查保证（D6）。
+每个槽位固定 256 KB，实际只用 19 KB 量级，**利用率约 7.5% 是刻意的**：
+换取基址表长期稳定、不随尺寸参数变动（D3）。
+
+> **`rtl_mask_mode` 已收窄语义（D7）**：它不再选寻址模式，只选**位图上传者**——
+> `1'b0`（当前位流）= 软核 AXI 路径，`1'b1` = RTL UART 状态机。
+> 两条路径写的是同一批槽位，寻址逻辑只有一套。
 
 ## AXI 总线拓扑
 
@@ -123,9 +147,9 @@ AxiSharedFlatFabric (100 MHz, PORTS=6, 加权轮询)
     │           - 写：CVBS 显示帧（720×576）
     │           - 读：完整性校验读回
     ├─ 槽 1: HyperRamMaskOverlayYuv422     (aid 8'hA1, 只读)
-    │           - 读：掩膜数据（256 字节突发）
+    │           - 读：4 路 OSD 位图（1 bit/像素，256 字节突发）
     ├─ 槽 2: RtlMaskUartAxiWriter          (aid 8'hB2, 只写)
-    │           - 写：UART 上传的掩膜字节（单拍单字节）
+    │           - 写：UART 上传的位图字节（单拍单字节）
     ├─ 槽 3: ElectronicZoomFrameBuffer     (aid 写 8'hD0 / 读 8'hD1)
     │           - 写：源帧捕获（1280×1024 → HyperRAM）
     │           - 读：ROI 区域（插值器使用）
@@ -277,43 +301,46 @@ ST_RUN 且 read_frame_complete && pal_boundary_pending：
 - 三缓冲下 PAL 可继续显示旧帧，同时接收两个新帧，`rejected_sof_count` 显著降低
 - 注：这属于设计意图叙述，**旧双缓冲版本已不在本检出中**，无法从当前 RTL 直接验证
 
-### 双缓冲（掩膜）
+### 双缓冲（OSD 位图，每路独立）
 
-掩膜基地址由 `raw_mode` 与 `active_buffer` 两个维度共同选择
-（`HyperRamMaskOverlayYuv422.v:106-108`）：
+每路有**自己的** A/B 选择（`OSD[i].CTRL.buffer_select`），基址由固定的 8 个参数给出
+（D3，**无运行时基址寄存器**）：
 
 ```verilog
-wire [31:0] selected_base = pixel_raw ?
-    (pixel_buffer ? RTL_MASK1_BASE : RTL_MASK0_BASE) :   // 0x00B0_0000 / 0x00A0_0000
-    (pixel_buffer ? MASK1_BASE    : MASK0_BASE);         // 0x0050_0000 / 0x0040_0000
+// base(i, buf) = (buf ? 0x00B0_0000 : 0x00A0_0000) + i * 0x0004_0000
+OSD0: A=0x00A0_0000 B=0x00B0_0000     OSD2: A=0x00A8_0000 B=0x00B8_0000
+OSD1: A=0x00A4_0000 B=0x00B4_0000     OSD3: A=0x00AC_0000 B=0x00BC_0000
 ```
 
-- `pixel_raw`（`raw_mode`）：legacy 全屏画布 vs raw 小图
-- `pixel_buffer`（`mask_buffer_select`）：A/B 双缓冲
-
-**状态变量**：
+**状态变量**（每路各一份，帧锁存值）：
 ```verilog
-reg active_buffer_select;   // 整帧锁定的读取缓冲（0=A, 1=B）
+reg [3:0] active_buffer_select;   // 整帧锁定的读取缓冲，bit i 对应第 i 路（0=A, 1=B）
+reg [3:0] applied_enable;         // 已含全局使能
 ```
 
 **读端（叠加器）**：
 ```
 SOF 到达那一拍：
-    - active_buffer_select <= cfg_buffer（同时锁存 enable/raw/left/top）
+    - active_buffer_select <= cfg_buffer（同时锁存 enable/left/top）
     - SOF 像素本身即用新配置
 
 SOF 之后：
     - 整帧使用已锁存的 active_buffer_select，配置不再可变
 
 每块：
-    - 命中时预取扫描序上的下一个 256 字节块到另一个 bank
+    - 命中时预取"扫描序上的下一个 256 字节块"到另一个 bank（规则见「OSD 位图读取」）
 ```
 
-**写端（UART 上传，当前位流未使能）**：
+**写端（软核 AXI 路径，当前位流生效）**：
+软核经 `MaskControlRegs`（`0xE1043000`）写暂存区，再写 `COMMAND.bit31` 一次性提交 4 路
+配置；提交后由 `mask_cfg_toggle` 经 105 bit 快照跨到视频域，在 SOF 边界整体生效。
+寄存器映射见 [架构文档](architecture.md) 的 `MaskControlRegs` 段。
+
+**写端（UART 上传路径，由 `rtl_mask_mode` 选择，当前位流未使能）**：
 ```
-Python 工具 → ADB → X2000 UART → FPGA UART
+Python 工具（已完成 1 bpp 位打包）→ ADB → X2000 UART → FPGA UART
     ↓
-RtlMaskUartAxiWriter 状态机：
+RtlMaskUartAxiWriter 状态机（固定 544×288 @ 1bpp，即 19,584 字节；目标固定为 OSD0 槽位）：
     - 命令 0x86 (begin)：校验 width/height/total，upload_buffer <= ~active_buffer
     - 命令 0x87 (chunk)：单字节窄写（AWLEN=0、WSTRB 单比特），写入非活动缓冲
     - 命令 0x88 (position)：写 left/top；若字节数已收齐则
@@ -326,13 +353,12 @@ RtlMaskUartAxiWriter 状态机：
 
 **无撕裂保证**：SOF 边界切换，整帧使用同一缓冲。
 
-> **当前位流说明**：上述纯 RTL 上传与寻址路径由 `rtl_mask_mode` 使能，而它被硬接为
-> `1'b0`（`src/top.v:493`）。因此实际生效的是 RISC-V AXI 路径：
-> `mask_enable = mask_cfg_video[1]`、`mask_buffer_select = mask_cfg_video[0]`
-> （`src/top.v:1431-1432`），且 `raw_mode` 恒为 0（走 legacy 分支）。
-> `RtlMaskUartAxiWriter` 在 `!enable` 时 parser 复位、不解析任何包
-> （`RtlMaskUartAxiWriter.v:257-261`），`top.v:1429-1430` 的注释称其为板级验证前的
-> commissioning fallback。
+> **两条路径的关系（D7）**：`rtl_mask_mode` 已由"寻址模式选择"收窄为
+> "**控制权 / 位图上传者选择**"——`1'b0`（`src/top.v:504`）走软核 AXI 路径，
+> `1'b1` 走 RTL UART 状态机。**寻址只有一套**（D2/D3），两条路径写的是同一批槽位；
+> 选择哪条不影响 `selected_base` 的计算。
+> `RtlMaskUartAxiWriter` 在 `!enable` 时 parser 复位、不解析任何包，
+> 因此当前位流下 UART 上传分支不工作，`0x00A0_0000` 槽位由软核写入。
 
 ## AXI 仲裁策略
 
@@ -377,7 +403,7 @@ else
 | ze（源帧捕获写 + ROI 读） | 78.6 + 78.6 = 157.2 MB/s | 30.8% |
 | zr（栅格写 + 读） | 与 ze 同量级 | 30.8% |
 | vid（显示帧写 + 回读校验） | 24.9 + 24.9 = 49.8 MB/s | 15.4% |
-| mask_rd | 2.8 MB/s（raw）/ 12.4 MB/s（legacy） | 7.7% |
+| mask_rd（4 路 OSD 位图读） | 2.35 MB/s（1 bpp） | 7.7% |
 
 观察：在总需求接近 HyperRAM 可用带宽时，配额按权重成比例分配意味着
 **视频 DMA 只能拿到约 15%**。若要让视频路径（PAL FIFO 欠载最敏感）获得更高保障，
@@ -495,43 +521,58 @@ line0..line3，每个 160 × 128-bit 条目
 - `FLIP_LIVE_VIDEO_VERTICAL=1` 时反向行序
 - 用于 180 度旋转（配合水平翻转）
 
-### 掩膜读取
+### OSD 位图读取
 
-**预取机制**（`HyperRamMaskOverlayYuv422.v:45-50,115-119,208-218`）：
+**预取机制**：
 ```
 两个 bank，各 16 拍 × 128-bit = 256 字节
 
 命中（cache_hit）时：
     - 服务当前像素的 bank 不动
-    - 把"扫描序上的下一个 256 字节块"（block_addr + 256）预取进另一个 bank
+    - 把"扫描序上的下一个 256 字节块"预取进另一个 bank
 
 缺失（cache miss）时：
     - 必须停下等读，用 replace_bank 轮换选择被替换的 bank
+    - stall_count 累加阻塞周期数（D6 诊断）
 
-块地址按 256 字节对齐：block_addr = {pixel_addr[31:8], 8'b0}
+块地址按 256 字节对齐：block_addr = {byte_addr[31:8], 8'b0}
 ```
 
-注意预取目标是**扫描序下一块**（不区分该块来自哪一行），不是"A 缓存 / B 缓存"这种
-按缓存编号的乒乓；粒度也是**每块 256 字节**而非"每行 256 字节"
-（一条 420 字节的 raw 行会跨越两块，一条 720 字节的 legacy 行会跨越三块）。
+**预取目标的优先级**（`HyperRamMaskOverlayYuv422.v:366-410`，D4）——不再是
+简单的 `block_addr + 256`：
+
+```
+1. 当前窗口位图在扫描序上还有后续字节  → block_addr + 256
+2. 否则本行存在更靠右的使能窗口        → 该窗口本行起始字节所在的块
+3. 否则下一显示行中首个使能窗口        → 其起始字节所在的块
+4. 否则不预取（保持当前块）
+```
+
+规则 2/3 由窗口几何现场算出，取"最靠左的使能窗口"（链式比较，见 RTL 的
+`cand0..3` / `pick1..3`）。**1 bpp 让规则 2/3 很少触发**：一个 256 字节块覆盖
+**2048 个像素**，544 宽时约 3.8 行，因此绝大多数预取走规则 1。
+若不做这件事（即只做规则 1），多窗口场景下会反复取错块 —— 实测四路并排布局的
+AXI 突发数会从 64 涨到 1024（见 design.md D10 第 13 项的实测表）。
 
 **避免阻塞**：
 - 单拍读会每像素停顿等待 HyperRAM 延迟
-- 预取突发读一次取 256 字节，把延迟分摊到 256 个像素上
+- 预取突发读一次取 256 字节，把延迟分摊到 **2048 个像素**（1 bpp）上
 - 缺失时仍会阻塞视频流，因此缓存命中率直接决定有无 FIFO 溢出风险
 
-### 掩膜混合语义
+### 叠加语义
 
-**纯替换，无 alpha 混合**（`HyperRamMaskOverlayYuv422.v:160-162`）：
+**二值键控，无 alpha 混合**（`HyperRamMaskOverlayYuv422.v:758,764`）：
 
 ```verilog
-m_data = (use_mask_pixel && cache_hit && (mask_byte != 8'h00)) ?
-         16'h80EB : s_data;
+s9_maskbit <= phit[8] && s8_byte[pbitsel[8]];     // 取位：bit 7 对应最左像素
+m_data     <= s9_maskbit ? 16'h80EB : pdata[8];   // 1 -> 纯白；0 -> 透传
 ```
 
-- 掩膜字节**非零** → 替换为纯白（`16'h80EB`，即 studio-range 的 Y=235, Cb=Cr=128）
-- 掩膜字节**为零** → 原像素透传
+- 位为 **1** → 替换为纯白（`16'h80EB`，即 studio-range 的 Y=235, Cb=Cr=128）
+- 位为 **0** → 原像素透传
 - **不存在**半透明/透明度/alpha 混合的任何通路
+- 采样的是**单个 bit**，不是"字节非零"——D1 把位宽从 8 bit 降到 1 bit 后，
+  原先的"字节零/非零"判定自然退化成"位 0/1"
 
 ## 性能分析
 
@@ -547,11 +588,15 @@ m_data = (use_mask_pixel && cache_hit && (mask_byte != 8'h00)) ?
 | 电子变倍 ROI 读（1x） | 1024 行 × 2560 B × 30 | 78.64 MB/s |
 | CVBS 显示帧写 | 720×576×2×30 | 24.88 MB/s |
 | CVBS 完整性读回 | 同显示帧数据量 | 24.88 MB/s |
-| 掩膜读（legacy，当前不可达） | 720×576×**1**×30 | 12.44 MB/s |
-| 掩膜读（raw） | 420×220×**1**×30 | 2.77 MB/s |
+| OSD 位图读（4 路全开，1 bit/像素） | (4×544×288)/8 ×30 | 2.35 MB/s |
+| OSD 位图写（上传，一次性） | 544×288/8 | 19,584 B（非持续流量） |
 
-**视频四客户端合计**（1x 变倍、raw 掩膜）：
-- 78.64 + 78.64 + 24.88 + 24.88 + 2.77 ≈ **210 MB/s**
+**视频四客户端合计**（1x 变倍、4 路 OSD 全开）：
+- 78.64 + 78.64 + 24.88 + 24.88 + 2.35 ≈ **209 MB/s**
+
+> 1 bpp 后 OSD 读流量比改造前的 legacy 8 bpp 全屏（12.44 MB/s）低 5 倍余，
+> 也比 D3 之前的 raw 小图（2.77 MB/s）更低——位宽降 8 倍而窗口数量增 4 倍，
+> 净流量仍在下降。上传是**一次性**的 19,584 B，不构成持续带宽项。
 
 **外加上**：
 - `ElectronicZoomRasterBuffer` 的栅格写 + 读（栅格结果帧同样 1280×1024，量级与源帧同级）
@@ -581,7 +626,8 @@ m_data = (use_mask_pixel && cache_hit && (mask_byte != 8'h00)) ?
    后者在 RTL 中并不存在。
 2. **缩短 ROI 读的过取**：每条源行按整条 1280 像素读取（2560 字节），
    而 ROI 可能只用到其中一小段。按 ROI 边界收窄读取可显著降低该路径流量。
-3. **掩膜预取深度**：预取已是"下一顺序块"，若要进一步抗缺失，需增加 bank 数或块大小，
-   但这会挤占 BRAM；当前 2×256 字节在 legacy 720 字节行跨三块时余量有限。
+3. **位图预取深度**：预取已是"扫描序下一块"（含跨窗口的规则 2/3），若要进一步抗缺失，
+   需增加 bank 数或块大小，但这会挤占 BRAM。当前 2×256 字节在 1 bpp 下已覆盖 2048 像素，
+   余量比 8 bpp 时代宽得多（544 宽的位图每行仅 68 字节）。
 4. **突发长度**：16 拍已把初始延迟摊到 256 字节；加大到 32 拍可再降低延迟占比，
    但会拉长单主控占用时间，与加权轮询的公平性存在权衡。

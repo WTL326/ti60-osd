@@ -41,7 +41,7 @@ BT.1120 输入 (80 MHz)
       ↓ BicubicScaler640x512 (640×512 → 720×576)
       ↓ VideoAsyncFifo (CDC: 160→100 MHz)
       ↓ VideoHorizontalFlipYuv422
-      ↓ HyperRamMaskOverlayYuv422 (掩膜叠加：8-bit 掩膜，纯替换无 alpha)
+      ↓ HyperRamMaskOverlayYuv422 (四区域 OSD 叠加：1 bit/像素位图，二值键控无 alpha)
       ↓ HyperRamVideoBt656 (三缓冲 + PAL 格式化)
       ↓ Adv7391Top → CVBS 输出 (27 MHz)
 ```
@@ -68,7 +68,7 @@ BT.1120 输入 (80 MHz)
   ↓ 功能模块配置
       ├→ ElectronicZoomControlRegs (变倍 ROI)
       ├→ HotFocusControlRegs (热点启用/极性)
-      ├→ MaskControlRegs (掩膜启用/选择)
+      ├→ MaskControlRegs (OSD 4 路使能/位置/缓冲选择，原子提交)
       └→ Ti60SystemControlRegs (系统状态)
   ↓ 反馈路径 (状态/结果回读)
   ↓ ConfigSnapshotCdc (CDC: 100 MHz → 50 MHz)
@@ -77,10 +77,10 @@ BT.1120 输入 (80 MHz)
 ```
 
 **RISC-V 职责**：
-- 解析外部 UART 命令（变倍、热点、掩膜）
+- 解析外部 UART 命令（变倍、热点、UI/掩膜）
 - 通过 AXI 写入 RTL 控制寄存器
 - 读取 RTL 状态和诊断计数器
-- 处理掩膜 UART 上传（直接写 HyperRAM）
+- 位图上传：经 `MaskControlRegs` 提交后写入 OSD 位图区（1 bit/像素、紧凑跨距）
 - 管理配置提交协议（toggle 同步）
 - 格式化 UART 响应返回外部
 
@@ -117,7 +117,9 @@ BT.1120 输入 (80 MHz)
 - `src/overlay/` — 视频叠加层
   - `VideoHorizontalFlipYuv422.v` — 水平翻转
   - `VideoCrosshairYuv422.v` — 固定十字丝（遗留，通常禁用）
-  - `HyperRamMaskOverlayYuv422.v` — 掩膜叠加（8-bit 掩膜，非零 → 纯白 `16'h80EB`）
+  - `HyperRamMaskOverlayYuv422.v` — 四区域 OSD 叠加（1 bit/像素位图，
+    行跨距 `width/8`、bit 7 最左、bit=1 → 纯白 `16'h80EB`；4 路互不重叠，
+    每路独立 A/B 双缓冲）
 - `src/memory/` — AXI 仲裁和 HyperRAM 帧缓冲
   - `AxiSharedFlatFabric.v` — AXI 总线顶层（3主机仲裁 + 路由）
   - `AxiShared3Arbiter.v` — 加权轮询仲裁器
@@ -132,9 +134,10 @@ BT.1120 输入 (80 MHz)
   - `Ti60SystemControlRegs.v` — 系统/能力寄存器
   - `ElectronicZoomControlRegs.v` — 电子变倍控制
   - `HotFocusControlRegs.v` — 热点追踪控制
-  - `MaskControlRegs.v` — 掩膜控制
+  - `MaskControlRegs.v` — OSD 控制寄存器（12 字映射，暂存 + 原子提交）
   - `UartMachineForwarder.v` — UART 路由（X2000 ↔ RISC-V）
-  - `RtlMaskUartAxiWriter.v` — 掩膜 UART 上传状态机
+  - `RtlMaskUartAxiWriter.v` — 位图 UART 上传状态机（544×288 @ 1bpp，
+    位打包在上位机侧完成，目标固定为 OSD0 槽位）
   - `axi/` — AXI 互连原语
     - `arbiter.v`, `axi_interconnect.v`, `priority_encoder.v`
     - `AxiSingleBeatEndpoint.v` — 单拍 AXI 寄存器端点
@@ -250,7 +253,7 @@ H:\questasim64_10.6c\win64\vsim -do modelsim_hot_focus.do  # ~1 分钟
 2. 连接 BT.1120 源（LGCS123, 1280×1024@30Hz）
 3. 通过 Efinity EDB 检查 VIO 探针
 4. 验证 CVBS 输出
-5. 测试 Python 工具（变倍/热点/掩膜）
+5. 测试 Python 工具（变倍/热点/位图上传/UI 命令）
 
 ### 回归测试清单
 
@@ -275,28 +278,30 @@ H:\questasim64_10.6c\win64\vsim -do modelsim_hot_focus.do  # ~1 分钟
 - `0xE1000000` — 系统/能力寄存器
 - `0xE1013000` — 电子变倍控制
 - `0xE1040000` — 热点追踪控制
-- `0xE1043000` — 掩膜控制
+- `0xE1043000` — OSD 控制（12 字映射：COMMAND/STATUS/CANVAS/ACTIVE + 4 路 POS/CTRL）
 
 **Python 工具**（via ADB → X2000 UART → FPGA）：
 - `tools/send_zoom_via_adb.py` — 电子变倍 ROI
 - `tools/send_hot_focus_via_adb.py` — 热点追踪启用/禁用
-- `tools/send_mask_via_adb.py` — 上传掩膜
+- `tools/send_mask_via_adb.py` — 上传位图（1 bit/像素，打包在工具侧完成）
 
 ## HyperRAM 内存映射
 
 - `0x00000000–0x003FFFFF`: RISC-V 固件 (4 MiB)
-- `0x00400000–0x007FFFFF`: RISC-V 工作区 (4 MiB)，**含 legacy 掩膜画布 A/B**
-  @ `0x00400000`/`0x00500000`（各 414,720 字节，8-bit/像素）
+- `0x00400000–0x007FFFFF`: RISC-V 工作区 (4 MiB)。改造前起始处放过 720×576 8-bit
+  掩膜画布（`0x00400000`/`0x00500000`），**本次改造后 RTL 不再从本段读画布**
 - `0x00800000–0x009FFFFF`: 保留 (2 MiB)，无 RTL 访问者（软件约定，非硬件禁访）
-- `0x00A00000–0x00BFFFFF`: RTL **raw 模式**掩膜 A/B (2 MiB)；当前位流因
-  `rtl_mask_mode=1'b0` 不可达
+- `0x00A00000–0x00BFFFFF`: **OSD 位图区** (2 MiB)：`0xA0` 段装 4 路的 A 缓冲、
+  `0xB0` 段装 4 路的 B 缓冲，各 256 KB 槽位（`0xA0`/`0xA4`/`0xA8`/`0xAC`
+  与 `0xB0`/`0xB4`/`0xB8`/`0xBC`）。1 bit/像素、行跨距 `width/8`，
+  位流实际尺寸 544×288 与 544×208，一缓冲仅 19 KB 量级
 - `0x00C00000–0x00EFFFFF`: CVBS 显示缓冲 0/1/2 (3 MiB)
 - `0x01000000–0x0177FFFF`: 电子变倍源帧 A/B/C (7.5 MiB)
 - `0x01800000–0x01F7FFFF`: 电子变倍结果帧 A/B/C (7.5 MiB)
 
 **数据路径是 6 主控加权轮询**（`AxiSharedFlatFabric`），权重
 `{cpu:1, zr:4, ze:4, rtl:1, mask_rd:1, vid:2}` —— 变倍源/栅格权重最高，视频 2，
-掩膜与 CPU 最低。**没有**固定优先级、饥饿检测或 PAL 欠载短路径；
+位图读与 CPU 最低。**没有**固定优先级、饥饿检测或 PAL 欠载短路径；
 `AxiShared3Arbiter.v` 是未被实例化的死代码。
 
 详见 [docs/memory_axi.md](docs/memory_axi.md)。

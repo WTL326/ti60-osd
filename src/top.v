@@ -195,17 +195,19 @@ module top #(
     wire [7:0]         vid_r_id;
     wire [1:0]         vid_r_resp;
 
-    // Full-screen 8-bit mask reader. Software renders the inactive canvas and
-    // publishes it atomically by changing mask_buffer_select.
-    wire mask_enable;
-    wire mask_buffer_select;
+    // 四路 OSD 叠加的配置快照与"实际生效"回读。
+    // 掩膜配置不再是 2 根线：4 路各有位置/使能/缓冲，打包成一条 105 位快照。
+    wire [104:0]       mask_cfg_eff;      // 经 rtl_mask_mode 选择后的生效配置
+    wire [104:0]       mask_cfg_rtl;      // RTL 上传者一路的配置（当前该路关闭）
 
     wire               mask_input_ready, mask_output_valid;
     wire [15:0]        mask_output_pixel;
     wire               mask_output_sof, mask_output_eol;
     wire [15:0]        mask_frame_count, mask_read_error_count;
     wire               mask_reader_active;
-    wire               mask_active_buffer_select;
+    wire [3:0]         mask_active_buffer_select;   // D6: 每路各 1 bit
+    wire [3:0]         mask_applied_enable_out;
+    wire [31:0]        mask_stall_count;
     // Local mask-bus clients: display reader plus the pure-RTL UART writer.
     wire               mask_rd_arw_valid, mask_rd_arw_ready, mask_rd_arw_write;
     wire [31:0]        mask_rd_arw_addr;
@@ -252,13 +254,20 @@ module top #(
     wire [44:0]        zoom_cfg_video;
     wire               zoom_cfg_pending, zoom_cfg_apply;
     wire               zoom_cfg_apply_pulse;
-    wire               mask_cfg_enable_axi, mask_cfg_buffer_axi;
+    wire [104:0]       mask_cfg_data_axi;
     wire               mask_cfg_toggle_axi, mask_cfg_ack_axi;
     wire [15:0]        mask_commit_count;
-    wire [1:0]         mask_cfg_video;
+    wire [104:0]       mask_cfg_video;
     wire               mask_cfg_pending, mask_cfg_apply;
     wire               mask_cfg_apply_pulse;
-    reg  [1:0]         mask_cfg_settle;
+    // 实际生效的使能/缓冲选择：在视频域锁存，再用一个反向快照同步回寄存器域
+    // 供 ACTIVE 回读（D6）。这三组值每帧才变一次，用快照 CDC 而不是裸线跨域。
+    wire [3:0]         mask_applied_enable, mask_applied_buffer;
+    wire               mask_applied_global_enable;
+    reg                mask_applied_toggle;   // 在 always 里翻转，故为 reg
+    reg                mask_apply_pulse_d;
+    wire [8:0]         mask_applied_data, mask_applied_sync;
+    wire               mask_applied_sync_pending;
     wire               hot_cfg_enable_axi, hot_cfg_black_hot_axi;
     wire               hot_cfg_toggle_axi, hot_cfg_ack_axi;
     wire [15:0]        hot_commit_count;
@@ -732,8 +741,10 @@ module top #(
         .BAUD        (115200),
         .MASK_A_BASE (32'h00A0_0000),
         .MASK_B_BASE (32'h00B0_0000),
-        .MASK_WIDTH  (420),
-        .MASK_HEIGHT (220)
+        // 上传固定路 = 路 0（D3 表第 1 行），尺寸须与叠加模块的 OSD0_* 一致。
+        // 协议载荷是 1 bit/像素打包字节，故 MASK_BYTES = 544*288/8 = 19 584。
+        .MASK_WIDTH  (544),
+        .MASK_HEIGHT (288)
     ) u_rtl_mask_uart_writer (
         .clk               (clk),
         .reset             (reset),
@@ -1048,10 +1059,11 @@ module top #(
                             (zoom_active_width == zoom_roi_width_command) &&
                             (zoom_active_height == zoom_roi_height_command)));
 
-    ConfigSnapshotCdc #(.WIDTH(2)) u_mask_config_cdc (
+    // 105 位配置快照。位宽较大但该模块本就是为多位原子快照设计的（见 D5）。
+    ConfigSnapshotCdc #(.WIDTH(105)) u_mask_config_cdc (
         .src_clk         (clk50M),
         .src_reset       (riscv_cpu_reset_active),
-        .src_data        ({mask_cfg_enable_axi, mask_cfg_buffer_axi}),
+        .src_data        (mask_cfg_data_axi),
         .src_toggle      (mask_cfg_toggle_axi),
         .src_ack_toggle  (mask_cfg_ack_axi),
         .dst_clk         (clk),
@@ -1081,19 +1093,44 @@ module top #(
     assign hot_cfg_apply = hot_cfg_pending && prezoom_valid && prezoom_sof &&
                            prezoom_ready;
 
-    // The existing overlay contains two synchronizer stages on these controls.
-    // Wait three clk cycles after receipt, then acknowledge only when its SOF
-    // pixel is accepted.  This guarantees STATUS.pending never clears before
-    // the new canvas selection can have become frame-active.
-    always @(posedge clk or posedge reset) begin
-        if (reset || !mask_cfg_pending)
-            mask_cfg_settle <= 2'd0;
-        else if (mask_cfg_settle != 2'd3)
-            mask_cfg_settle <= mask_cfg_settle + 1'b1;
-    end
-    assign mask_cfg_apply = mask_cfg_pending && (mask_cfg_settle == 2'd3) &&
+    // 配置在帧边界**单点**生效。
+    //
+    // 这里原来还有一段"3 拍 settle"，它的存在理由是"叠加模块内部自带两级同步器"，
+    // 所以要等 3 拍再去采样 SOF。那两级同步器已按 D5 删除、配置由上面的快照直连，
+    // settle 因此失去依据，一并取消 —— 生效点从"延迟 3 拍后的 SOF"变成
+    // "快照到达后的第一个 SOF"，语义更直接，top.v 也少一条补偿逻辑。
+    assign mask_cfg_apply = mask_cfg_pending &&
                             flip_output_valid && flip_output_sof &&
                             mask_input_ready;
+
+    // 帧边界生效后**一拍**，把实际生效的使能/缓冲选择送回寄存器域供 ACTIVE 回读。
+    // 用延迟一拍的脉冲而非 apply 本身：apply 当拍帧锁存值刚更新，晚一拍采样才稳。
+    always @(posedge clk or posedge reset) begin
+        if (reset) mask_apply_pulse_d <= 1'b0;
+        else       mask_apply_pulse_d <= mask_cfg_apply;
+    end
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) mask_applied_toggle <= 1'b0;
+        else if (mask_apply_pulse_d) mask_applied_toggle <= ~mask_applied_toggle;
+    end
+
+    assign mask_applied_data = {mask_applied_enable, mask_applied_buffer,
+                                mask_applied_global_enable};
+
+    ConfigSnapshotCdc #(.WIDTH(9)) u_mask_applied_cdc (
+        .src_clk         (clk),
+        .src_reset       (reset),
+        .src_data        (mask_applied_data),
+        .src_toggle      (mask_applied_toggle),
+        .src_ack_toggle  (),
+        .dst_clk         (clk50M),
+        .dst_reset       (riscv_cpu_reset_active),
+        .dst_data        (mask_applied_sync),
+        .dst_pending     (mask_applied_sync_pending),
+        .dst_apply       (mask_applied_sync_pending),
+        .dst_apply_pulse ()
+    );
 
     // Publish one coherent result packet whenever a complete result is added,
     // a damaged frame is counted, or validity changes.  The tracker holds the
@@ -1424,8 +1461,21 @@ module top #(
 
     // Normal operation uses the AXI snapshot. The pure-RTL writer is
     // retained only as explicit commissioning fallback until board validation.
-    assign mask_enable = rtl_mask_mode ? rtl_mask_enable : mask_cfg_video[1];
-    assign mask_buffer_select = rtl_mask_mode ? rtl_mask_buffer : mask_cfg_video[0];
+    // rtl_mask_mode 的语义已收窄为"控制权/上传者选择"（D7），不再是寻址模式选择。
+    // 该位当前硬接 1'b0（见上方 assign），所以生效的是软核/寄存器这一路。
+    // 保留 RTL 分支只为不改动既有结构：RTL 模式下只有第 0 路（掩膜上传固定路）
+    // 按上传状态机的使能/缓冲工作，其余三路关闭、位置归零。
+    //
+    // 105 位快照的字段布局（每路 26 位 = {top[11:0], left[11:0], buffer, enable}）：
+    //   [104]     global_enable
+    //   [103:78]  路 3    [77:52] 路 2    [51:26] 路 1    [25:0] 路 0
+    assign mask_cfg_eff = rtl_mask_mode ? mask_cfg_rtl : mask_cfg_video;
+
+    assign mask_cfg_rtl = {1'b1,                                          // [104]
+                           {12'sd0, 12'sd0, 2'b00},                       // 路 3
+                           {12'sd0, 12'sd0, 2'b00},                       // 路 2
+                           {12'sd0, 12'sd0, 2'b00},                       // 路 1
+                           {12'sd0, 12'sd0, rtl_mask_buffer, rtl_mask_enable}};  // 路 0
 
     // Count UART start edges for board-level bring-up.  These counters prove
     // pin activity; firmware-controlled GPIO below is the execution proof.
@@ -1567,8 +1617,10 @@ module top #(
         .zoom_applied_toggle      (zoom_cfg_ack_axi),
         .zoom_accepted_count      (zoom_accepted_count),
         .zoom_rejected_count      (zoom_rejected_count),
-        .mask_cfg_enable          (mask_cfg_enable_axi),
-        .mask_cfg_buffer_select   (mask_cfg_buffer_axi),
+        .mask_cfg_data            (mask_cfg_data_axi),
+        .mask_applied_enable      (mask_applied_sync[8:5]),
+        .mask_applied_buffer      (mask_applied_sync[4:1]),
+        .mask_applied_global_enable(mask_applied_sync[0]),
         .mask_cfg_toggle          (mask_cfg_toggle_axi),
         .mask_applied_toggle      (mask_cfg_ack_axi),
         .mask_commit_count        (mask_commit_count),
@@ -1770,27 +1822,51 @@ module top #(
         .m_ready (mask_input_ready)
     );
 
-    // Soft-core software writes a complete 8-bit mask canvas to 0x0040_0000.
-    // The image-generation command performs placement and edge clipping; this
-    // block only consumes the resulting full-screen canvas in pixel order.
+    // 四路 OSD 叠加（D1/D3/D10）。与旧版的区别：
+    //   * 位图是 **1 bit/像素**、行按 width/8 字节紧凑打包（不再是 8 bit/像素的
+    //     全屏画布），bit7 对应行内最左像素；
+    //   * 窗口几何是**编译期参数**（尺寸）加**运行时寄存器**（位置/使能/缓冲），
+    //     不再是"软核往 0x0040_0000 写一幅全屏画布"；
+    //   * 8 个基址固定，见下方参数与 design.md D3 表。
+    // 窗口分工（design.md D11 的"窗口划分"）：
+    //   路 0 = 掩膜上传固定路，取 D3 表第 1 行（沿用旧 RTL_MASK0/1_BASE，
+    //          上传状态机的基址一行都不用改）
+    //   路 1 = 菜单承载路，取第 2 行（与上传路必须不同，否则上传会覆盖菜单画布）
+    //   路 2/3 暂未分配，按 D6 上限取尺寸
+    // 尺寸为**编译期参数**（D6）：改尺寸要重新综合。菜单的 544x208 是菜单框本身，
+    // 其余路取上限 544x288 作为掩膜的默认画布。
     HyperRamMaskOverlayYuv422 #(
-        .MASK0_BASE           (32'h0040_0000),
-        .MASK1_BASE           (32'h0050_0000),
-        .RTL_MASK0_BASE       (32'h00A0_0000),
-        .RTL_MASK1_BASE       (32'h00B0_0000),
+        .OSD0_WIDTH           (544),  .OSD0_HEIGHT          (288),
+        .OSD0_BASE_A          (32'h00A0_0000),
+        .OSD0_BASE_B          (32'h00B0_0000),
+        .OSD1_WIDTH           (544),  .OSD1_HEIGHT          (208),
+        .OSD1_BASE_A          (32'h00A4_0000),
+        .OSD1_BASE_B          (32'h00B4_0000),
+        .OSD2_WIDTH           (544),  .OSD2_HEIGHT          (288),
+        .OSD2_BASE_A          (32'h00A8_0000),
+        .OSD2_BASE_B          (32'h00B8_0000),
+        .OSD3_WIDTH           (544),  .OSD3_HEIGHT          (288),
+        .OSD3_BASE_A          (32'h00AC_0000),
+        .OSD3_BASE_B          (32'h00BC_0000),
         .FRAME_WIDTH          (720),
         .FRAME_HEIGHT         (576),
-        .RAW_MASK_WIDTH       (420),
-        .RAW_MASK_HEIGHT      (220),
         .FLIP_VERTICAL_COORDS (1)
     ) u_hyperram_mask_overlay (
         .clk                  (clk),
         .reset                (reset),
-        .mask_enable          (mask_enable),
-        .mask_buffer_select   (mask_buffer_select),
-        .raw_mode             (rtl_mask_mode),
-        .mask_left            (rtl_mask_left),
-        .mask_top             (rtl_mask_top),
+        .cfg_global_enable    (mask_cfg_eff[104]),
+        .cfg_enable           ({mask_cfg_eff[78], mask_cfg_eff[52],
+                                mask_cfg_eff[26], mask_cfg_eff[0]}),
+        .cfg_buffer           ({mask_cfg_eff[79], mask_cfg_eff[53],
+                                mask_cfg_eff[27], mask_cfg_eff[1]}),
+        .cfg_left0            (mask_cfg_eff[13:2]),
+        .cfg_top0             (mask_cfg_eff[25:14]),
+        .cfg_left1            (mask_cfg_eff[39:28]),
+        .cfg_top1             (mask_cfg_eff[51:40]),
+        .cfg_left2            (mask_cfg_eff[65:54]),
+        .cfg_top2             (mask_cfg_eff[77:66]),
+        .cfg_left3            (mask_cfg_eff[91:80]),
+        .cfg_top3             (mask_cfg_eff[103:92]),
         .s_data               (flip_output_pixel),
         .s_valid              (flip_output_valid),
         .s_sof                (flip_output_sof),
@@ -1819,13 +1895,21 @@ module top #(
         .frame_count          (mask_frame_count),
         .read_error_count     (mask_read_error_count),
         .active               (mask_reader_active),
-        .active_buffer_select (mask_active_buffer_select)
+        .active_buffer_select (mask_active_buffer_select),
+        .applied_enable       (mask_applied_enable_out),
+        .stall_count          (mask_stall_count)
     );
 
+    // ACTIVE 回读用的三组值：使能取自叠加模块（已含全局使能），缓冲选择同理
+    assign mask_applied_enable = mask_applied_enable_out;
+    assign mask_applied_buffer = mask_active_buffer_select;
+    assign mask_applied_global_enable = mask_cfg_eff[104];
+
     HyperRamVideoBt656 #(
-        // Keep the CPU image (0x0000_1000..0x0040_0FFF), soft-core mask
-        // workspace (0x0040_0000..0x007F_FFFF), reserved 0x0080_0000 and
-        // raw RTL mask buffers (0x00A0_0000/0x00B0_0000) away from video.
+        // Keep the CPU image (0x0000_1000..0x0040_0FFF), the soft-core
+        // workspace (0x0040_0000..0x007F_FFFF), reserved 0x0080_0000 and the
+        // 4 x A/B OSD bitmaps (0x00A0_0000..0x00BF_FFFF, 256 KB slots per
+        // design.md D3) away from video.
         .FRAME0_BASE              (32'h00C0_0000),
         .FRAME1_BASE              (32'h00D0_0000),
         .FRAME2_BASE              (32'h00E0_0000),

@@ -10,29 +10,62 @@ BT.656 输出前目前只有**一路**掩膜叠加（`src/overlay/HyperRamMaskOv
 （例如多个目标框、多个状态角标）。现场需要在同一路 CVBS 视频上并行显示
 **4 个可独立配置位置与大小的 OSD**。
 
+同时，仓库里已经躺着三样与这件事直接相关、但互相不一致的东西，本次一并收敛：
+
+1. **一份写成的 4 窗口实现**：`src/overlay/HyperRamMaskOverlayYuv422_4OSD.v`（655 行，
+   已随 `8c6b192` 入库）—— 但**未登记在 `ivlab239.xml`**，因此从未参与综合；
+   且它的叠加色是演播室黑 `16'h8010`、4 路共用一个 `buffer_select`、模块内自带配置同步器
+   而无帧边界锁存，与本工程既有的"提交 + 帧边界原子生效"协议不一致。
+2. **一份菜单类 OSD 的 MCU 固件**（`ti60-osd-main.zip`，仓库外）：它要往 HyperRAM 里渲染
+   一块 720×208 的菜单画布，并期待一套 `OsdControlRegs` —— 而该寄存器块的偏移在它自己的
+   代码里仍标注 `TODO(C-9)`，即**至今没有对应的硬件**。
+3. **两处文档失真**：`docs/architecture.md:283` 称"半透明掩膜"（RTL 从无 alpha）、
+   `:286` 把掩膜地址写成 `0x00A00000`（RTL 实际读 `0x0040_0000`）。
+
+因此本次把四件事合成一个变更：**4 路窗口化**、**把位图格式定为 1 bit/像素**（容量与取数压力
+各降 8 倍，也正好是菜单的自然形态）、**采纳那份现成实现并按本工程的协议改造它**、
+以及**把菜单类 OSD 的协议归属确定下来**。
+
 ## What Changes
 
-- **BREAKING** 删除 legacy 全屏 720×576 掩膜模式与 `raw_mode` 双寻址分支，叠加逻辑统一为 4 窗口。
-- 新增 4 路互相独立的 OSD 叠加，位置与大小**运行时可调**，单路最大 **512×288**；
-  "互不重叠"由软件保证，硬件不做重叠检查。
+- **BREAKING** 删除 legacy 全屏 720×576 掩膜模式与 `raw_mode` 双寻址分支，
+  叠加逻辑统一为 4 窗口。
+- 新增 4 路互相独立的 OSD 叠加：**位置、使能、缓冲运行时可配**，
+  **尺寸由编译期参数定型**（改尺寸需重新综合），单路最大 **544×288**；
+  "互不重叠"由软件保证，硬件不做重叠检查（内部按编号优先仲裁仅作兜底，不入契约）。
 - 每路**独立 enable**、每路**独立 A/B 双缓冲选择**。
-- 混合行为**保持现状不变**：位图字节非零 → 替换为纯白 `16'h80EB`，零 → 原像素透传。
-  不引入 alpha 混合（当前 RTL 本就没有 alpha，"半透明掩膜"仅为文档失真表述，见 design.md）。
-- 扩展 `MaskControlRegs`（`0xE1043000`）：新增 4 组 `{left, top, width, height}` 与
-  `CTRL{enable, buffer_select}` 寄存器，沿用既有 commit/toggle 提交与帧边界生效协议。
-- 位图内存布局移至 `0x00A0_0000–0x00BF_FFFF`：4 路 × A/B × 256 KB，**行跨距固定 512 字节**。
-- 两条位图上传路径都扩展到 4 区域：RTL 侧 `RtlMaskUartAxiWriter` 与软核 AXI 路径，
-  由 `rtl_mask_mode` 选择（该信号语义收窄为"控制权/上传者选择"，不再是寻址模式选择）。
+- **位图格式定为 1 bit/像素**：行按 `width/8` 字节紧凑打包，bit 7 对应最左像素；
+  位为 1 → 替换为纯白 `16'h80EB`，位为 0 → 原像素透传。不引入 alpha。
+- 位图内存布局：4 路 × A/B，共 **8 个固定基址**占用 `0x00A0_0000–0x00BF_FFFF`，
+  **行跨距紧凑取 `width/8`**（不再固定 512 字节）；不提供运行时基址寄存器。
 - 缓存架构**保持 2 bank × 256 字节不变**：仅把预取地址由写死的 `block_addr + 256`
   推广为"扫描序上的下一块"，避免 4 窗口跳转导致逐像素阻塞视频流。
-- 修正与 RTL 不符的文档表述（掩膜地址、alpha 描述），避免后人继续被误导。
+  1 bpp 使一个 256 字节块覆盖 2048 像素，块缺失频率比 8 bpp 下降约 15 倍。
+- **采纳 `HyperRamMaskOverlayYuv422_4OSD.v` 为实现基线**，把它的内容并入
+  `HyperRamMaskOverlayYuv422.v`（模块名与文件名不变），删除该文件。
+- **删除模块内的配置同步器**，配置由**一套 105 bit `ConfigSnapshotCdc`** 承载、
+  在帧边界**单点原子生效**；连带删除 `src/top.v:1085-1089` 的 3 拍 settle
+  （它本是用来补偿模块内那两级同步器的）。
+- 扩展 `MaskControlRegs`（`0xE1043000`）为 **12 个字**：全局命令 + 每路 `{POS, CTRL}`。
+  尺寸与基址不进寄存器，改由参数给出。
+- **把 `0x04` UI 大类协议的显示状态语义并入本变更范围**（线上应答契约归
+  `add-softcore-uart-app` 的 `softcore-uart-protocol`）：菜单承载在 D3 表第 2 行
+  那一路（`0x00A4_0000`/`0x00B4_0000`，参数 544×208），
+  RTL 侧对"菜单"与"掩膜"不作区分；协议解析与字形合成在软核侧，
+  **尽量复用 `ti60-osd-main` 的现有 C 代码**，不重写。
+- 两条位图上传路径都改为 **1 bit/像素位打包**：RTL 侧 `RtlMaskUartAxiWriter` 与软核 AXI 路径，
+  由 `rtl_mask_mode` 选择（该信号语义收窄为"控制权/上传者选择"，不再是寻址模式选择）。
+  **上传目标为固定的一路**：上传协议不增加区域索引字段、也不以目标地址表达区域选择，
+  RTL 上传状态机只写这一路且不触碰其余路。
+- 修正与 RTL 不符的文档表述（掩膜地址、alpha 描述、内存表按 1 bpp 重写）。
 
 ## Capabilities
 
 ### New Capabilities
 
-- `video-osd-overlay`: BT.656 输出前的多路 OSD 叠加能力。覆盖 4 路独立窗口的几何/使能/
-  双缓冲配置契约、位图在 HyperRAM 中的内存与寻址契约、上位机上传与寄存器提交协议、
+- `video-osd-overlay`: BT.656 输出前的多路 OSD 叠加能力。覆盖 4 路独立窗口的
+  位置/使能/双缓冲配置契约、编译期几何参数与上限约束、1 bit/像素位图格式、
+  位图在 HyperRAM 中的内存与寻址契约、上传与寄存器提交协议、菜单类 OSD 的承载中立性、
   与视频流的握手及阻塞预算约束、以及该模块的诊断可观测性。
 
 ### Modified Capabilities
@@ -43,29 +76,50 @@ BT.656 输出前目前只有**一路**掩膜叠加（`src/overlay/HyperRamMaskOv
 ## Impact
 
 **RTL 代码**
-- `src/overlay/HyperRamMaskOverlayYuv422.v` — 核心改写（4 窗口 + 扫描序预取）
-- `src/control/MaskControlRegs.v` — 寄存器扩展
-- `src/control/RtlMaskUartAxiWriter.v` — 上传目标由 1 区域扩到 4 区域
-- `src/top.v` — 例化改写、`ConfigSnapshotCdc` 位宽 2 → 193、控制源 mux 与注释
+- `src/overlay/HyperRamMaskOverlayYuv422.v` — **整体替换**为 `_4OSD.v` 的内容并按下表改造
+- `src/overlay/HyperRamMaskOverlayYuv422_4OSD.v` — **删除**（内容并入上一条）
+- `src/control/MaskControlRegs.v` — 寄存器表改写为 12 字，删除尺寸寄存器
+- `src/control/RtlMaskUartAxiWriter.v` — 改为 1 bpp 位打包，上传目标为固定的一路
+- `src/top.v` — 例化改写、`ConfigSnapshotCdc` 位宽 2 → 105、删除 3 拍 settle 逻辑、
+  控制源 mux 与注释
 
 **接口 / 契约**
-- AXI 寄存器映射 `0xE1043000` 由 4 个字扩展到 20 个字
-- HyperRAM 布局：`0x00A0_0000–0x00BF_FFFF` 由"1 区域 × A/B"改为"4 区域 × A/B"
-- 上位机 UART 上传协议需新增区域索引/偏移字段
+- AXI 寄存器映射 `0xE1043000` 由 4 个字扩展到 **12 个字**（`+0x00..+0x2F`）
+- 编译期参数：8 个尺寸 + 8 个基址，约束为 `width % 8 == 0`、`width ≤ 544`、`height ≤ 288`
+- HyperRAM 布局：`0x00A0_0000–0x00BF_FFFF` 由"1 区域 × A/B"改为"4 区域 × A/B"，
+  行跨距由 512 字节改为紧凑 `width/8`
+- 位图格式：**1 bit/像素**（原为 8 bit/像素）
+- 上位机 UART 上传协议**帧格式不变**（不加区域索引字段），仅需改为位打包
 
 **文档**
 - `docs/architecture.md`（`:283` alpha 表述、`:286` 地址、模块描述段）
-- `docs/memory_axi.md`（`:11-18` 内存表、`:211` Buffer A/B 段）
+- `docs/memory_axi.md`（`:11-18` 内存表、`:211` Buffer A/B 段）—— 需按 1 bpp 与紧凑跨距重写
 - `docs/CLAUDE.md`（`:44`、`:71`、`:120`、`:135`、`:288-289`）、`src/README.md`（管线图与目录说明）
+- `ivlab239.xml` **无需改动**：文件既未改名也未新增，`_4OSD.v` 本来就未被登记
 
 **外部依赖**
 - 软核固件源码**不在本仓库**（仅有预编译 `ivlabIspSoftCore.hex`）。本变更只定义 RTL 侧契约
-  （区域地址 + 寄存器映射），固件侧改造列为仓库外依赖。
+  （区域地址 + 寄存器映射 + 位图格式），固件侧改造列为仓库外依赖。
+- `ti60-osd-main`（MCU 侧菜单 OSD）必须随本变更做 5 项改动：画布由 720 收窄到 544、
+  改为 1 bit/像素、基址改用固定值、删除运行时基址寄存器需求、
+  画布切换收敛为写菜单承载路的 `CTRL.buffer_select`。
+- `add-softcore-uart-app` 的 `softcore-uart-protocol` spec 需修订为
+  "`0x00` 与 `0x04` 均应答，其余大类只解析不应答"（归属见 design.md 的 Open Questions 4）。
+
+**已知不一致（本变更范围内需要处理）**
+- `src/control/RtlMaskUartAxiWriter.v` 用的是**旧一代报文约定**——大类字节固定 `0x06`、
+  子项打包成 `0x86`–`0x89`；而上位机工具发的是大类 `0x00`、子项 `0x01`–`0x05`。
+  两者互不兼容。该文件本次必须改动（1 bpp 位打包 + 上传目标固定为一路），是纠正口径的合适时机。
+- `src/top.v:496-498` 要求同一时刻只有一个 endpoint 应答；当前 `rtl_mask_mode = 1'b0`
+  已把 RTL 端点关闭，运行中的应答方是软核。该位必须保持 `1'b0`，
+  否则两个 endpoint 会同时解析同一个包并在 `top.v:1425` 的线与回线上撞车。
 
 **测试与综合**
 - `sim/` 目录为空（本仓库部分检出），`docs/testing.md:40` 记载的 `tb_hyperram_mask_overlay.v`
   不可扩展，需**新写**自检测试平台
 - Efinity 综合后需复核 Ti60 资源与时序（overlay 的组合地址逻辑变复杂）
+- 重点验证项：帧边界原子性（删除同步器与 3 拍 settle 是本次风险最高的一处改动）
 
 **向后兼容**
 - legacy 全屏掩膜功能被移除，上位机与固件必须同步改造，否则现有整屏掩膜能力失效
+- 位图格式由 8 bit/像素改为 1 bit/像素，**已上传的位图数据全部失效**，需重新生成

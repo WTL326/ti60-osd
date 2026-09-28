@@ -86,6 +86,35 @@
 #define FRAME_CMD_ENABLE   0x04U   /* 开关：enable */
 #define FRAME_CMD_PERSIST  0x05U   /* 保存到 Flash：无 payload */
 
+/* UI 大类（0x04）下的子项。
+ *
+ * 本端点只处理 0x06 / 0x07 / 0x08 三个；其余五个子项**只解析、不应答、不计入
+ * 坏包**——它们的业务实现（按键模拟、测距标记、方位角显示……）在协议文档与
+ * 两份参考实现里都不存在，本期不纳入。把这些常量收进来，是为了让"这是 UI 的
+ * 哪个子项"在代码与日志里可读，不是为了处理它们。
+ *
+ * 依据 docs/x2000_ui_protocol.md §3 与 tools/send_ui_via_adb.py 的子项取值，
+ * 两者一致；ti60-osd-main 只实现 3 个子项，不构成依据。*/
+#define FRAME_CMD_UI_SHOW_HIDE        0x01U   /* 菜单显隐          —— 本期不纳入 */
+#define FRAME_CMD_UI_KEY              0x02U   /* 模拟按键          —— 本期不纳入 */
+#define FRAME_CMD_UI_ATTITUDE         0x03U   /* 方位角/LRF/俯仰/横滚 —— 本期不纳入 */
+#define FRAME_CMD_UI_CLEAR            0x04U   /* 清除标记          —— 本期不纳入 */
+#define FRAME_CMD_UI_RANGE_MARK       0x05U   /* 测距标记坐标      —— 本期不纳入 */
+#define FRAME_CMD_UI_SET_VIEW         0x06U   /* 设置页面/选中项/flags */
+#define FRAME_CMD_UI_SET_IMAGE_VALUES 0x07U   /* 四个图像参数 */
+#define FRAME_CMD_UI_QUERY_VIEW       0x08U   /* 查询当前状态（无 payload） */
+
+/* payload 窗口的大小。
+ *
+ * 为什么需要它：UI 子项的参数全在 payload 里（SET_VIEW 的 page_id/sel/flags、
+ * SET_IMAGE_VALUES 的四个数值），一个字节都不留就无从处理命令。
+ * 为什么是 12：纳入范围的子项 payload 最长 4 字节；未纳入的里最长的是子项
+ * 0x03（valid_flags + 方位角 + LRF + 俯仰 + 横滚 = 9 字节）。取 12 两者都覆盖，
+ * 且这个开销是常量、与帧长无关。
+ * 为什么不是"缓存整帧"：掩膜分块的 payload 是位图原始字节、可达 4096 字节，
+ * 它不需要被上层看到，仍然算完即丢——"整帧不缓存"这条性质没有被破坏。*/
+#define FRAME_PAYLOAD_MAX 12U
+
 /******************************************************************************
 * 一个"到达帧尾"的帧的解析结果。
 *
@@ -101,6 +130,13 @@ typedef struct {
     uint8_t  crc_ok;       /* 收到的 CRC 与本地算出的 CRC 是否相同 */
     uint8_t  footer_ok;    /* 最后一字节是否为 FRAME_FOOTER */
     uint8_t  format_ok;    /* 类型字段是否为"上位机写" */
+
+    /* payload 的前若干字节（最多 FRAME_PAYLOAD_MAX 个）。
+     * 超长帧（如掩膜分块）只留前 FRAME_PAYLOAD_MAX 个；payload_len 仍是
+     * body_length-3，即"帧里声明有多少"与"本地留了多少"是两个数 ——
+     * 分开表达，调用者才能判断参数是否被截断，而不是误以为 payload 就这么短。*/
+    uint16_t payload_len;  /* body_length - 3 */
+    uint8_t  payload[FRAME_PAYLOAD_MAX];
 } frame_t;
 
 /******************************************************************************
@@ -123,6 +159,13 @@ typedef struct {
     /* body_length 越界时，解析器在"长度阶段"就直接拒绝、不读 body，
      * 所以这种帧根本到不了帧尾、也就不会产生应答。这个计数用于诊断。*/
     uint32_t bad_length_count;
+
+    /* payload 窗口（见 frame_t 的同名字段）。payload_len 每帧在帧头处清零，
+     * 缓冲区**不逐帧清零** —— 调用者必须先看 payload_len 再读 payload，
+     * 否则看到的是上一帧的残留。这样省掉每帧 12 字节的写，且语义更严格：
+     * "有几个字节有效"只由 payload_len 决定。*/
+    uint16_t payload_len;
+    uint8_t  payload[FRAME_PAYLOAD_MAX];
 } frame_parser_t;
 
 /******************************************************************************

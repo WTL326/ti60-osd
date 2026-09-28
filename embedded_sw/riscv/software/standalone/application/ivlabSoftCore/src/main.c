@@ -5,6 +5,13 @@
 * @brief IVLAB 239 视频管线的软核应用。在 uart1 上提供 0xBB 命令协议端点，
 *        调试输出走 semihosting（JTAG）通道。
 *
+* @note 2026-09：本端点现在管**两个**大类 —— 0x00（掩膜）与 0x04（UI 菜单）。
+*       UI 那一侧还要把菜单画布渲染进 HyperRAM 并提交，于是"协议判断 →
+*       渲染 → 提交 → 应答"这条链被抽到 osd_engine 里，本文件只负责取字节、
+*       解析、把引擎给出的应答写出去。抽出这一层的目的是可测：main.c 依赖
+*       bsp.h，在 qemu 上跑不了，而那条链里恰恰藏着"提交后才应答"这条
+*       最容易写错的顺序规则（见 osd_engine.h）。
+*
 * @note 调试输出走 BSP 的 semihosting 通路（受 bsp.h 里的
 *       ENABLE_SEMIHOSTING_PRINT 控制，取值必须为 1），因此打到 JTAG 调试
 *       控制台，而不是 uart0 的硬件串口引脚。
@@ -32,6 +39,8 @@
 #include "proto_uart.h"
 #include "frame.h"
 #include "protocol.h"
+#include "osd/osd_engine.h"     /* 渲染/提交/应答的时序都在这层 */
+#include "osd/osd_config.h"     /* 位图基址等契约常量（横幅里要打出来） */
 
 /* RISC-V 的"断点异常"编号。
  * BSP 的头文件里只定义了 2/7/9/11 号异常，我们依赖的这一个没有，所以在这里
@@ -273,9 +282,21 @@ static void report_frame(const frame_t *frame, const protocol_response_t *respon
         break;                 /* 成功：保持安静 */
 
     case PROTO_REASON_OTHER_CATEGORY:
-        /* 电子变倍/热点/伪彩色/UI 的帧：同一根串口线上正常的、持续发生的
+        /* 电子变倍/热点/伪彩色的帧：同一根串口线上正常的、持续发生的
          * 流量，不是异常。逐条打出来会把日志刷爆，还会因为 semihosting 的
-         * 停顿挤掉真正有用的输出。所以这里不打日志，只由统计行体现。*/
+         * 停顿挤掉真正有用的输出。所以这里不打日志，只由统计行体现。
+         * （0x04 已从这一组移出 —— 它现在归本端点管。）*/
+        break;
+
+    case PROTO_REASON_DEFERRED:
+        /* UI 命令成功，且应答已经等画布提交完成才发出。成功路径保持安静，
+         * 理由与 PROTO_REASON_OK 相同：正常业务不该和调试通道抢时间。*/
+        break;
+
+    case PROTO_REASON_UI_IGNORED:
+        /* UI 的 0x01–0x05：本端点不实现、按协议只解析不应答。这同样是
+         * "链路上正常的流量"而不是异常 —— `send_ui_via_adb.py --show` 之类
+         * 会走到这里，它超时是预期行为。逐条打日志只会刷屏。*/
         break;
 
     case PROTO_REASON_NOT_IMPLEMENTED:
@@ -369,24 +390,32 @@ static void poll_rx_loss(void)
 *       如果上一帧的应答还没发完，紧接着到达的下一帧，它的应答会被**静默丢掉**，
 *       而且没有任何错误提示。软件侧用"发送期间不接收"就把这个问题从根上消掉了。
 *
-* @note 代价是发送这 10 个字节期间（115200 下约 868 微秒）不解析新字节。
+* @note 代价是发送这段字节期间（10 字节在 115200 下约 868 微秒，
+*       QUERY_VIEW 的 18 字节约 1.56 毫秒）不解析新字节。
 *       但这期间到达的字节并不会丢——uart1 的接收中断照常把它们搬进接收环
 *       （中断不受主循环阻塞的影响），只是解析要等这一帧处理完。接收环有
 *       512 字节的余量，足够覆盖这段时间。
+*
+* @note **渲染与提交发生在 osd_engine_handle() 里面**，而且排在成功应答之前。
+*       UI 的 SET_VIEW / SET_IMAGE_VALUES 要"提交后才应答"（协议 §5.5），
+*       这条顺序规则属于引擎，不属于这里 —— 本函数只管把引擎给的字节发出去。
 ******************************************************************************/
 static void handle_frame(const frame_t *frame){
     protocol_response_t response;
+    uint8_t             ack[PROTOCOL_ACK_MAX];
+    uint8_t             ack_len;
 
-    protocol_handle(&s_stats, frame, &response);
+    ack_len = osd_engine_handle(&s_stats, frame, &response, ack);
     s_frames_processed++;
 
     report_frame(frame, &response);
 
-    if (response.send_ack != 0) {
-        /* 把协议层已经拼好的 10 字节直接发出去。返回值表示是否发送成功，
+    if (ack_len != 0U) {
+        /* 把引擎拼好的应答直接发出去。返回值表示是否发送成功，
          * 这里刻意忽略——发送失败只可能是 UART 异常，而那种情况下也没有
-         * 更好的补救办法。*/
-        (void)proto_uart_write(response.ack, PROTOCOL_ACK_LEN);
+         * 更好的补救办法。长度是变量：UI 的 QUERY_VIEW 是 18 字节，
+         * 其余都是 10 字节，写死 PROTOCOL_ACK_LEN 会把那个应答截断。*/
+        (void)proto_uart_write(ack, ack_len);
     }
 
     poll_rx_loss();
@@ -417,13 +446,19 @@ void main() {
     app_log_init();
     frame_parser_init(&s_parser);
     protocol_init(&s_stats);
+    /* 引擎初始化会清两块画布、渲染并提交第一屏，所以上电即有菜单。
+     * 它排在 isr_init() 之前：这期间要写几千次 AXI，中断还没开就不会有
+     * 字节挤在接收环里等 —— 虽然不会丢，但没必要留这个尾巴。*/
+    osd_engine_boot();
 
     /* 启动横幅。这几行主要是给现场确认"固件确实跑起来了"用的。
      * 把协议出处一并打出来：这条串口线上跑着好几个功能模块的帧，出问题时
      * 第一件要确认的就是"两端说的是不是同一代协议"。*/
     app_log("*** ivlabSoftCore ***");
     app_log("debug channel: semihosting (JTAG)");
-    app_log("protocol: BB frame, mask category 0x00 (docs/测试说明.md)");
+    app_log("protocol: BB frame, categories 0x00 (mask) + 0x04 (UI)");
+    app_log("osd: menu on OSD1 544x208 1bpp, canvas A/B = 0x%x / 0x%x",
+            (uint32_t)OSD_BLOCK0_ADDR, (uint32_t)OSD_BLOCK1_ADDR);
 
     /* 协议端点可用与否，取决于 SoC 是否生成了 uart1（见 proto_uart.h）。
      * 这里把结果明确打出来：一是让现场知道协议能不能用，二是它的 base 地址
@@ -476,7 +511,10 @@ void main() {
          * 结束后一次性发出，上传期间一次停顿都没有。
          *
          * 这样做的代价是日志不再"实时"——但换来的是协议本身可靠，而且那批
-         * 日志会在结束后的 200 ms 内完整出现，排查并不受影响。*/
+         * 日志会在结束后的 200 ms 内完整出现，排查并不受影响。
+         *
+         * 另外注意：**画布渲染不在这个循环里**，它随命令在 osd_engine_handle()
+         * 里同步完成。所以"线路静默"这条门槛只推迟日志、不推迟画面。*/
         if ((app_log_pending() != 0U) || (s_frames_processed != s_reported_frames)) {
             /* 读 CLINT 时间是 3 次 MMIO，不能每轮都做；用计数器粗降频。*/
             s_idle_spins++;

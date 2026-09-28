@@ -23,6 +23,17 @@ BT.1120 1280x1024
           -> PAL/BT.656 -> output/Adv7391Top -> CVBS
 ```
 
+`HyperRamMaskOverlayYuv422` is the four-window OSD compositor.  It reads up to
+four mutually non-overlapping bitmaps from HyperRAM and keys them onto the
+stream.  A bitmap is **1 bit per pixel**, packed MSB-first within each row
+(bit 7 is the leftmost pixel) with a **compact row stride of `width/8` bytes**;
+bit = 1 emits solid white `16'h80EB`, bit = 0 passes the video pixel through.
+There is no alpha path.  Window size and the eight A/B base addresses are
+elaboration-time parameters (`OSD0..3_WIDTH/HEIGHT/BASE_A/BASE_B`); window
+position, per-route enable and per-route A/B select are runtime registers behind
+`MaskControlRegs` and commit atomically.  The bitmaps live in
+`0x00A0_0000-0x00BF_FFFF`, 256 KB per route per buffer.
+
 `Bt1120Decoder` is the only active module that recognizes BT.1120 embedded
 SAV/EAV timing.  It emits a canonical native-resolution stream plus decoded
 coordinates.  `DvpFormatter` and `Downsample2xYuv422` consume that same stream,
@@ -34,10 +45,12 @@ so the two output branches cannot disagree about frame or line boundaries.
 - `dvp/`: native-resolution 16-bit-to-8-bit DVP formatting and its CDC.
 - `common/`: reusable streaming/CDC blocks.
 - `scaler/`: independent downsample and bicubic scale stages.
-- `overlay/`: independent flip, crosshair and mask composition stages.
+- `overlay/`: independent flip and crosshair stages plus the four-window OSD
+  compositor (1 bit/pixel bitmaps held in HyperRAM).
 - `memory/`: AXI arbitration, monitoring and HyperRAM frame buffering.
 - `output/`: PAL/BT.656 and ADV7391 generated output logic.
-- `control/`: UART command routing and mask upload control.
+- `control/`: UART command routing, the OSD control registers and bitmap upload
+  control.
 - `debug/`: VIO/clock/soft-core diagnostic helpers.
 - `legacy/`: inactive historical test and picture-loader modules; not listed
   as active Efinity design sources.

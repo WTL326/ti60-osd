@@ -62,7 +62,10 @@ OBJDIR = build
 OBJS = $(OBJDIR)/harness.o $(OBJDIR)/test_main.o $(OBJDIR)/test_protocol.o \
        $(OBJDIR)/test_app_log.o \
        $(OBJDIR)/frame.o $(OBJDIR)/crc16.o $(OBJDIR)/protocol.o \
-       $(OBJDIR)/app_log.o
+       $(OBJDIR)/app_log.o \
+       $(OBJDIR)/ui.o $(OBJDIR)/font.o $(OBJDIR)/scene_table.o \
+       $(OBJDIR)/composer.o $(OBJDIR)/font16_bin.o \
+       $(OBJDIR)/osd_engine.o $(OBJDIR)/canvas_mem.o
 
 .PHONY: all run clean
 
@@ -79,6 +82,12 @@ $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC)/%.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# osd/ 是本次变更新增的子目录（从 ti60-osd-main 移植的构图层）。
+# 单独一条规则而不是把文件摊到 src/ 下：那批文件有共同的来源与风格，
+# 放在一起将来才好整体对照上游。
+$(OBJDIR)/%.o: $(SRC)/osd/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # app_log.c 需要特殊处理：它 `#include "bsp.h"`，而真正的 bsp.h 会一路拖进

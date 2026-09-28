@@ -58,11 +58,16 @@ module Ti60AxiControlFabric #(
     output wire [15:0] zoom_accepted_count,
     output wire [15:0] zoom_rejected_count,
 
-    output wire        mask_cfg_enable,
-    output wire        mask_cfg_buffer_select,
-    output wire        mask_cfg_toggle,
-    input  wire        mask_applied_toggle,
-    output wire [15:0] mask_commit_count,
+    // 105 位配置快照（字段布局见 top.v 的说明）。掩膜类控制由 2 位扩到 4 路的
+    // 位置/使能/缓冲，位宽不足以再逐根引出，故打包成一条总线。
+    output wire [104:0] mask_cfg_data,
+    output wire         mask_cfg_toggle,
+    input  wire         mask_applied_toggle,
+    // 实际生效的状态，供 ACTIVE 回读（由 top.v 从视频域同步回来）
+    input  wire [3:0]   mask_applied_enable,
+    input  wire [3:0]   mask_applied_buffer,
+    input  wire         mask_applied_global_enable,
+    output wire [15:0]  mask_commit_count,
 
     output wire        hot_cfg_enable,
     output wire        hot_cfg_black_hot,
@@ -285,9 +290,19 @@ module Ti60AxiControlFabric #(
         .s_rdata(m_rdata[MASK_INDEX*32 +: 32]),
         .s_rresp(m_rresp[MASK_INDEX*2 +: 2]), .s_rlast(m_rlast[MASK_INDEX]),
         .s_rvalid(m_rvalid[MASK_INDEX]), .s_rready(m_rready[MASK_INDEX]),
-        .cfg_enable(mask_cfg_enable),
-        .cfg_buffer_select(mask_cfg_buffer_select),
+        .cfg_global_enable(mask_cfg_data[104]),
+        .cfg_enable({mask_cfg_data[78], mask_cfg_data[52],
+                     mask_cfg_data[26], mask_cfg_data[0]}),
+        .cfg_buffer({mask_cfg_data[79], mask_cfg_data[53],
+                     mask_cfg_data[27], mask_cfg_data[1]}),
+        .cfg_left0(mask_cfg_data[13:2]),   .cfg_top0(mask_cfg_data[25:14]),
+        .cfg_left1(mask_cfg_data[39:28]),  .cfg_top1(mask_cfg_data[51:40]),
+        .cfg_left2(mask_cfg_data[65:54]),  .cfg_top2(mask_cfg_data[77:66]),
+        .cfg_left3(mask_cfg_data[91:80]),  .cfg_top3(mask_cfg_data[103:92]),
         .cfg_toggle(mask_cfg_toggle), .applied_toggle(mask_applied_toggle),
+        .applied_enable(mask_applied_enable),
+        .applied_buffer_select(mask_applied_buffer),
+        .applied_global_enable(mask_applied_global_enable),
         .commit_count(mask_commit_count)
     );
 endmodule

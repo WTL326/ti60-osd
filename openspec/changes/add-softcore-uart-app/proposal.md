@@ -12,7 +12,7 @@
 
 - 新增软核应用工程 `embedded_sw/riscv/software/standalone/application/ivlabSoftCore/`，沿用现有工程的构建骨架（`makefile` 三段 include、`common/start.S`、`BSP_PATH/linker/default.ld`），产物为 `.elf/.hex/.bin/.asm/.map`。
 - **uart1 协议端点**：实现与上位机文档一致的 `0xBB` 协议帧收发——帧头 `0xBB`、`body_length`(2B)、body `{大类, 子项, 类型, payload}`、CRC-16/CCITT（多项式 `0x1021`，仅覆盖 body）、帧尾 `0xAA`。协议格式依据 `docs/测试说明.md` 的「指令构成」，与 `docs/adb_test_commands.md`、`docs/x2000_ui_protocol.md` 及 `tools/send_*_via_adb.py` 三方一致。
-- **大类归属**：同一根串口线上并存所有功能模块的帧（`0x00` 掩膜／`0x01` 电子变倍／`0x02` 热点／`0x03` 伪彩色／`0x04` UI）。**只有掩膜大类由本端点处理并应答**；其它大类只解析、不应答、不计入坏包——回一个"大类 0x00"的应答会让对应模块的上位机工具报"ACK 格式错误"。
+- **大类归属**：同一根串口线上并存所有功能模块的帧（`0x00` 掩膜／`0x01` 电子变倍／`0x02` 热点／`0x03` 伪彩色／`0x04` UI）。**`0x00` 与 `0x04` 由本端点处理**；其余大类只解析、不应答、不计入坏包——回一个"大类 0x00"的应答会让对应模块的上位机工具报"ACK 格式错误"。其中 `0x04` 的应答按子项区分长度（`0x08` 整帧 18 字节、其余 10 字节），且其 `0x01`–`0x05` 子项本期不纳入，只解析、不应答、不计入坏包（详见 `softcore-uart-protocol` 的"UI 大类的应答口径"）。
 - **ACK 应答**：对每个属于掩膜大类、且完整性通过的帧回应 10 字节 `BB 00 04 <大类> <子项> 02 <status> <crc_hi> <crc_lo> AA`；`status` 为二值，**`0xFF` = 成功、`0x00` = 失败**。CRC 或帧尾错误的帧**不应答**（字节不可信，无从判断归属，贸然回应可能撞进别的模块的通信）。
 - **掩膜子项分发表（框架）**：识别子项 `0x01` 开始上传、`0x02` 分块写入、`0x03` 设置位置、`0x04` 开关、`0x05` 保存 Flash，但本次**全部返回失败**（`status = 0x00`），并在调试日志中记录子项号、名称与失败原因。业务实现（含 HyperRAM 写入与 Flash 持久化）不在本次范围。
 - **调试输出通道**：保持 BSP 默认的 `ENABLE_SEMIHOSTING_PRINT=1`，调试输出经 semihosting/JTAG（`bsp_printf`）而非 uart0 硬件；uart0 仍由 `bsp_init()` 初始化但不承载输出。标准 newlib `printf` 不在调试通道内（`_write` 保持 BSP 现状），调试统一使用 `bsp_printf`。

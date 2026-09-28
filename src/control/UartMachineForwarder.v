@@ -107,6 +107,9 @@ module UartMachineForwarder #(
     wire [7:0] tx_mem_q;
     wire       frame_ram_we;
     wire [9:0] frame_ram_waddr;
+    // TX 侧握手/忙标志：在 RX 状态机里被引用，故必须在它之前声明
+    reg        tx_busy;
+    reg        tx_ack;
     reg [31:0] idle_clks;
     reg        tx_req;
     reg [8:0]  dispatch_len;
@@ -238,8 +241,10 @@ module UartMachineForwarder #(
     // ---------------------------------------------------------------
     // UART TX: replays the validated frame byte-for-byte to the machine.
     // ---------------------------------------------------------------
-    reg        tx_busy;
-    reg        tx_ack;
+    // 注：tx_busy / tx_ack 的声明已上移到本模块声明区 —— 它们在 RX 状态机里
+    //（本段之前）就被引用，而 ModelSim 的 vlog 不接受"先用后声明"的 reg
+    // （会先造出隐式线网、再与后面的声明冲突）。Efinity 容忍这种写法，
+    // 但为了能在 ModelSim 里编译整个设计，这里改成先声明。
     reg [8:0]  tx_index;
     reg [3:0]  tx_bit_index;
     reg [15:0] tx_clock_count;

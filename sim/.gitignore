@@ -1,0 +1,12 @@
+# ModelSim/Questa 的编译与运行产物
+# work*/ 而不是 work/ ：run_cdc_tb.sh 用 work_cdc 这个独立库（它多编一个
+# ConfigSnapshotCdc，与 run_tb.sh 的库不能混），漏掉通配会把几百个 .qdb 收进来。
+work*/
+transcript
+vsim.wlf
+*.wlf
+*.vstf
+
+# 基线导出：全尺寸一帧是 41 万个 16 位样本（约 2 MB），
+# 属于可重新生成的中间产物，不进版本控制。
+baseline_*.txt

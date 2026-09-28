@@ -29,6 +29,10 @@
 #include "frame.h"
 #include "crc16.h"
 #include "protocol.h"
+#include "osd/ui.h"      /* ui_init / ui_query_view：T6 直接查 UI 状态 */
+#include "osd/font.h"    /* T7 的参考实现要自己查字库 */
+#include "osd/canvas.h"  /* T7 读回位图做逐字节比对 */
+#include "osd/osd_engine.h"
 
 /* ===========================================================================
  * 辅助函数
@@ -449,17 +453,22 @@ static void test_policy(void)
      * 本端点管；如果给它们回一个"大类 0x00"的应答，那些模块的工具会报
      * "ACK 格式错误"，等于把别人撞坏。*/
     {
-        /* 三个向量长度各不相同（变倍帧更长），所以长度必须逐个给，
-         * 不能共用同一个 sizeof——那会读越界。*/
-        const uint8_t *others[3];
-        uint32_t       others_len[3];
+        /* 两个向量长度各不相同（变倍帧更长），所以长度必须逐个给，
+         * 不能共用同一个 sizeof——那会读越界。
+         *
+         * 2026-09 变更：这里原本还有第三个向量 F_UI（大类 0x04）。0x04 现在
+         * 归本端点管（见变更 add-quad-uart-app 的 spec「大类归属」），它不再
+         * 计入"其它大类"；而它的子项 0x01 属于"只解析不应答"的那一组。
+         * 新的期望（不应答、不计入 other、也不计坏包）在 T6 里逐条验证，
+         * 这里把它移出列表，避免同一件事有两个互相矛盾的断言。*/
+        const uint8_t *others[2];
+        uint32_t       others_len[2];
         uint32_t       k;
 
         others[0] = F_EZOOM; others_len[0] = sizeof(F_EZOOM);
         others[1] = F_HOT;   others_len[1] = sizeof(F_HOT);
-        others[2] = F_UI;    others_len[2] = sizeof(F_UI);
 
-        for (k = 0U; k < 3U; k++) {
+        for (k = 0U; k < 2U; k++) {
             frame_parser_init(&parser);
             feed_all(&parser, others[k], others_len[k], &f);
             protocol_handle(&stats, &f, &resp);
@@ -467,7 +476,7 @@ static void test_policy(void)
             h_check(resp.reason == PROTO_REASON_OTHER_CATEGORY,
                     "other category: reason is OTHER_CATEGORY");
         }
-        h_check(stats.other_category_count == 3U, "other-category count is 3");
+        h_check(stats.other_category_count == 2U, "other-category count is 2");
         h_check(stats.bad_packet_count == 0U,
                 "other category is NOT counted as bad packet");
         h_check(stats.accepted_count == 1U, "accepted count unchanged");
@@ -578,6 +587,564 @@ static void test_ack_per_frame(void)
 }
 
 /* ===========================================================================
+ * T6 UI 大类（0x04）—— 变更 add-quad-osd-overlay 的 §6 验收
+ *
+ * 帧向量的来源与 T1–T5 一致：由一份**独立的 Python 实现**算出（照协议参数直接
+ * 写：多项式 0x1021、初值 0x0000、不反射、无最终异或），没有运行过被测的 C 代码。
+ * 应答金标同样如此 —— 尤其是 EXP_QUERY_OK 那 18 个字节，它是"上位机工具按
+ * tools/send_ui_via_adb.py 的规则应当收到的东西"，逐字节写死。
+ * =========================================================================== */
+
+/* SET_VIEW：页 0x0100、选中第 2 项、flags = bit0（UI 显示） */
+static const uint8_t F_UI_SET_VIEW[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x06, 0x00, 0x01, 0x00, 0x02, 0x01,
+    0x4C, 0xD0, 0xAA
+};
+/* SET_VIEW：同上，但 flags = 0xFF（保留位 2–7 全置 1） */
+static const uint8_t F_UI_SET_VIEW_RSV[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x06, 0x00, 0x01, 0x00, 0x02, 0xFF,
+    0x42, 0x01, 0xAA
+};
+/* SET_VIEW：body_length = 5，比该子项要求的 7 短 */
+static const uint8_t F_UI_SET_VIEW_BADLEN[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x06, 0x00, 0x01, 0x00, 0x9D, 0xAE,
+    0xAA
+};
+/* SET_VIEW：页 0x9999 不在场景表里 */
+static const uint8_t F_UI_SET_VIEW_BADPAGE[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x06, 0x00, 0x99, 0x99, 0x00, 0x00,
+    0x9F, 0x67, 0xAA
+};
+/* SET_VIEW：页 0x0100 的第 5 项（PIP >）没有数值，不该允许编辑态 */
+static const uint8_t F_UI_SET_VIEW_BADEDIT[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x06, 0x00, 0x01, 0x00, 0x05, 0x02,
+    0xE5, 0x24, 0xAA
+};
+/* SET_IMAGE_VALUES：3/5/7/5，全部在范围内 */
+static const uint8_t F_UI_SET_IMG[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x07, 0x00, 0x03, 0x05, 0x07, 0x05,
+    0xB0, 0x99, 0xAA
+};
+/* SET_IMAGE_VALUES：首项 6 超出上限 5，整条应失败 */
+static const uint8_t F_UI_SET_IMG_RANGE[] = {
+    0xBB, 0x00, 0x07, 0x04, 0x07, 0x00, 0x06, 0x05, 0x07, 0x05,
+    0x0C, 0xDC, 0xAA
+};
+/* QUERY_VIEW：无 payload */
+static const uint8_t F_UI_QUERY[] = {
+    0xBB, 0x00, 0x03, 0x04, 0x08, 0x00, 0x55, 0x69, 0xAA
+};
+/* 本期不纳入的五个子项（0x01–0x05），各带 2 字节 payload */
+static const uint8_t F_UI_SUB1[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x01, 0x00, 0x00, 0x00, 0xFF, 0xB2,
+    0xAA
+};
+static const uint8_t F_UI_SUB2[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x02, 0x00, 0x00, 0x00, 0x64, 0x6E,
+    0xAA
+};
+static const uint8_t F_UI_SUB3[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x03, 0x00, 0x00, 0x00, 0x12, 0xDA,
+    0xAA
+};
+static const uint8_t F_UI_SUB4[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x04, 0x00, 0x00, 0x00, 0x43, 0xF7,
+    0xAA
+};
+static const uint8_t F_UI_SUB5[] = {
+    0xBB, 0x00, 0x05, 0x04, 0x05, 0x00, 0x00, 0x00, 0x35, 0x43,
+    0xAA
+};
+
+/* 应答金标（同样由独立 Python 实现算出） */
+static const uint8_t EXP_SET_VIEW_OK[] = {
+    0xBB, 0x00, 0x04, 0x04, 0x06, 0x02, 0xFF, 0x00, 0xC3, 0xAA
+};
+static const uint8_t EXP_SET_IMG_OK[] = {
+    0xBB, 0x00, 0x04, 0x04, 0x07, 0x02, 0xFF, 0x37, 0xF3, 0xAA
+};
+static const uint8_t EXP_SET_IMG_FAIL[] = {
+    0xBB, 0x00, 0x04, 0x04, 0x07, 0x02, 0x00, 0x29, 0x03, 0xAA
+};
+/* SET_VIEW 成功之后的 QUERY_VIEW：18 字节，正好是上位机工具期待的形状 */
+static const uint8_t EXP_QUERY_OK[] = {
+    0xBB, 0x00, 0x0C, 0x04, 0x08, 0x02, 0xFF, 0x01, 0x00, 0x02,
+    0x01, 0x03, 0x05, 0x07, 0x05, 0x22, 0x31, 0xAA
+};
+/* 再来一次 SET_VIEW 但 flags = 0xFF：保留位应被丢弃，回读只剩 0x03 */
+static const uint8_t EXP_QUERY_VIS[] = {
+    0xBB, 0x00, 0x0C, 0x04, 0x08, 0x02, 0xFF, 0x01, 0x00, 0x02,
+    0x03, 0x03, 0x05, 0x07, 0x05, 0x66, 0xB2, 0xAA
+};
+
+/******************************************************************************
+* @brief 把一帧完整喂进去并处理。
+*
+* @return 1 = 解析出了一个帧并已处理；0 = 没解析出帧。
+******************************************************************************/
+static int ui_feed(protocol_stats_t *stats, const uint8_t *bytes, uint32_t len,
+                   protocol_response_t *resp)
+{
+    frame_parser_t parser;
+    frame_t        f;
+
+    frame_parser_init(&parser);
+    if (feed_all(&parser, bytes, len, &f) != 1) {
+        return 0;
+    }
+    protocol_handle(stats, &f, resp);
+    return 1;
+}
+
+/******************************************************************************
+* @brief 按**上位机工具的规则**校验一个应答。
+*
+* @param ack      应答字节。
+* @param ack_len  应答整帧长度（数出来的）。
+* @param cat      期望的大类。
+* @param sub      期望的子项。
+* @param status   期望的状态字节。
+* @param body_len 期望的 body 长度。
+* @return 1 = 完全合规。
+*
+* @note 这几条正是 tools/send_ui_via_adb.py 的 `:104-107` 在做的事：
+*       整帧长度 == body_length + 6、帧头帧尾、body[:3] == (cat, sub, 0x02)、
+*       body[3] == 状态、以及 `crc16(完整 body)` 相符。用工具的规则而不是
+*       我自己的规则来验，才能保证"联调时工具不会报 UI命令失败"。
+******************************************************************************/
+static int ack_wellformed(const uint8_t *ack, uint8_t ack_len, uint8_t cat,
+                          uint8_t sub, uint8_t status, uint16_t body_len)
+{
+    uint16_t crc_recv, crc_calc;
+    uint16_t i;
+
+    if ((uint16_t)ack_len != (uint16_t)(body_len + 6U))          return 0;
+    if (ack[0] != 0xBBU || ack[ack_len - 1U] != 0xAAU)           return 0;
+    if (ack[1] != 0U || ack[2] != (uint8_t)body_len)             return 0;
+    if (ack[3] != cat || ack[4] != sub || ack[5] != 0x02U)       return 0;
+    if (ack[6] != status)                                        return 0;
+
+    crc_recv = (uint16_t)(((uint16_t)ack[3U + body_len] << 8) |
+                           (uint16_t)ack[4U + body_len]);
+    crc_calc = 0U;
+    for (i = 0U; i < body_len; i++) {
+        crc_calc = crc16_ccitt_update(crc_calc, ack[3U + i]);
+    }
+    return (crc_recv == crc_calc) ? 1 : 0;
+}
+
+/******************************************************************************
+* @brief T6：UI 大类的命令处理与应答口径。
+******************************************************************************/
+static void test_ui_channel(void)
+{
+    protocol_stats_t    stats;
+    protocol_response_t resp;
+
+    h_puts("T6 UI category 0x04\n");
+
+    /* ---- 6.1/6.2：SET_VIEW 合法帧进入表中处理，应答为定长 10 字节 ---- */
+    protocol_init(&stats);
+    ui_init();
+    h_check(ui_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp) == 1,
+            "SET_VIEW parsed");
+    h_check(resp.send_ack == 1U, "SET_VIEW asks for an ACK");
+    h_check(resp.status == PROTOCOL_STATUS_OK, "SET_VIEW accepted");
+    h_check(resp.defer_ack == 1U, "SET_VIEW defers its ACK until commit");
+    h_check(resp.ack_len == PROTOCOL_ACK_LEN, "SET_VIEW ACK is 10 bytes");
+    h_check(bytes_equal(resp.ack, EXP_SET_VIEW_OK, PROTOCOL_ACK_LEN),
+            "SET_VIEW ACK matches the golden vector");
+    h_check(ack_wellformed(resp.ack, resp.ack_len, 0x04U, 0x06U,
+                           PROTOCOL_STATUS_OK, 4U),
+            "SET_VIEW ACK passes the host tool's checks");
+    h_check(stats.accepted_count == 1U, "SET_VIEW counted as accepted");
+    h_check(stats.other_category_count == 0U, "SET_VIEW not counted as other");
+
+    /* ---- 6.1：长度不符则失败，且不应答成功 ---- */
+    protocol_init(&stats);
+    ui_init();
+    h_check(ui_feed(&stats, F_UI_SET_VIEW_BADLEN, sizeof(F_UI_SET_VIEW_BADLEN),
+                    &resp) == 1, "bad-length SET_VIEW parsed");
+    h_check(resp.status == PROTOCOL_STATUS_FAIL, "bad-length SET_VIEW fails");
+    h_check(resp.reason == PROTO_REASON_BAD_LENGTH, "reason is BAD_LENGTH");
+    h_check(stats.bad_packet_count == 1U, "bad-length counted as bad packet");
+    h_check(stats.accepted_count == 0U, "bad-length not counted as accepted");
+    h_check(resp.ack_len == PROTOCOL_ACK_LEN, "bad-length ACK is 10 bytes");
+
+    /* ---- 6.1：页面非法 / 编辑态用在无数值的行上，都失败 ---- */
+    protocol_init(&stats);
+    ui_init();
+    (void)ui_feed(&stats, F_UI_SET_VIEW_BADPAGE, sizeof(F_UI_SET_VIEW_BADPAGE), &resp);
+    h_check(resp.status == PROTOCOL_STATUS_FAIL, "unknown page fails");
+    ui_init();
+    (void)ui_feed(&stats, F_UI_SET_VIEW_BADEDIT, sizeof(F_UI_SET_VIEW_BADEDIT), &resp);
+    h_check(resp.status == PROTOCOL_STATUS_FAIL, "edit on a non-value row fails");
+
+    /* ---- 6.2：QUERY_VIEW 是 18 字节，且与上位机工具的解析逐字段对齐 ---- */
+    protocol_init(&stats);
+    ui_init();
+    (void)ui_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp);
+    h_check(ui_feed(&stats, F_UI_QUERY, sizeof(F_UI_QUERY), &resp) == 1,
+            "QUERY_VIEW parsed");
+    h_check(resp.ack_len == PROTOCOL_ACK_MAX, "QUERY_VIEW ACK is 18 bytes");
+    h_check(bytes_equal(resp.ack, EXP_QUERY_OK, PROTOCOL_ACK_MAX),
+            "QUERY_VIEW ACK matches the golden vector");
+    h_check(ack_wellformed(resp.ack, resp.ack_len, 0x04U, 0x08U,
+                           PROTOCOL_STATUS_OK, 12U),
+            "QUERY_VIEW ACK passes the host tool's checks (CRC over 12 bytes)");
+    h_check(resp.defer_ack == 0U, "QUERY_VIEW replies immediately");
+    /* 12 字节的 body ≠ 4 字节：这里顺带钉死"不能按定长 10 发" */
+    h_check(resp.ack_len != PROTOCOL_ACK_LEN, "QUERY_VIEW is NOT the 10-byte form");
+
+    /* ---- 6.3：保留位静默丢弃 —— 帧仍被接受，回读时保留位为 0 ---- */
+    ui_init();
+    h_check(ui_feed(&stats, F_UI_SET_VIEW_RSV, sizeof(F_UI_SET_VIEW_RSV), &resp) == 1,
+            "SET_VIEW with reserved flags parsed");
+    h_check(resp.status == PROTOCOL_STATUS_OK,
+            "reserved flags are dropped silently, not an error");
+    (void)ui_feed(&stats, F_UI_QUERY, sizeof(F_UI_QUERY), &resp);
+    h_check(bytes_equal(resp.ack, EXP_QUERY_VIS, PROTOCOL_ACK_MAX),
+            "read-back flags keep only bit0..bit1");
+
+    /* ---- 6.10：SET_IMAGE_VALUES 只改显示状态 ---- */
+    protocol_init(&stats);
+    ui_init();
+    h_check(ui_feed(&stats, F_UI_SET_IMG, sizeof(F_UI_SET_IMG), &resp) == 1,
+            "SET_IMAGE_VALUES parsed");
+    h_check(resp.status == PROTOCOL_STATUS_OK, "in-range values accepted");
+    h_check(bytes_equal(resp.ack, EXP_SET_IMG_OK, PROTOCOL_ACK_LEN),
+            "SET_IMAGE_VALUES ACK matches the golden vector");
+    /* 越界：整条失败，且四个值一个都不许变 */
+    h_check(ui_feed(&stats, F_UI_SET_IMG_RANGE, sizeof(F_UI_SET_IMG_RANGE),
+                    &resp) == 1, "out-of-range frame parsed");
+    h_check(resp.status == PROTOCOL_STATUS_FAIL, "out-of-range rejected");
+    h_check(bytes_equal(resp.ack, EXP_SET_IMG_FAIL, PROTOCOL_ACK_LEN),
+            "failure ACK matches the golden vector");
+    (void)ui_feed(&stats, F_UI_QUERY, sizeof(F_UI_QUERY), &resp);
+    h_check(resp.ack[11] == 0x03U && resp.ack[12] == 0x05U &&
+            resp.ack[13] == 0x07U && resp.ack[14] == 0x05U,
+            "four values unchanged after a rejected batch");
+
+    /* ---- 6.9：未纳入的 0x01–0x05 只解析，不应答、不计入任何计数 ---- */
+    {
+        static const struct { const uint8_t *f; uint32_t n; } kSubs[] = {
+            { F_UI_SUB1, sizeof(F_UI_SUB1) }, { F_UI_SUB2, sizeof(F_UI_SUB2) },
+            { F_UI_SUB3, sizeof(F_UI_SUB3) }, { F_UI_SUB4, sizeof(F_UI_SUB4) },
+            { F_UI_SUB5, sizeof(F_UI_SUB5) }
+        };
+        uint32_t k;
+
+        protocol_init(&stats);
+        ui_init();
+        for (k = 0U; k < 5U; k++) {
+            h_check(ui_feed(&stats, kSubs[k].f, kSubs[k].n, &resp) == 1,
+                    "out-of-scope UI sub parsed");
+            h_check(resp.send_ack == 0U, "out-of-scope UI sub: NO ACK");
+            h_check(resp.reason == PROTO_REASON_UI_IGNORED, "reason is UI_IGNORED");
+        }
+        h_check(stats.accepted_count == 0U, "out-of-scope subs are not accepted");
+        h_check(stats.bad_packet_count == 0U, "out-of-scope subs are not bad packets");
+        h_check(stats.other_category_count == 0U, "out-of-scope subs are not 'other'");
+    }
+
+    /* ---- 6.4：三类大类的计数口径 ---- */
+    {
+        /* F_MASK_ON 大类 0x00、F_UI_SET_VIEW 大类 0x04、F_EZOOM 大类 0x01 */
+        static const uint8_t F_MASK[] = {
+            0xBB, 0x00, 0x04, 0x00, 0x04, 0x00, 0x01, 0xCC, 0xE1, 0xAA
+        };
+        static const uint8_t F_EZOOM[] = {
+            0xBB, 0x00, 0x0B, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
+            0xFF, 0x03, 0xFF, 0xF9, 0x3D, 0xAA
+        };
+
+        protocol_init(&stats);
+        ui_init();
+        (void)ui_feed(&stats, F_MASK, sizeof(F_MASK), &resp);
+        (void)ui_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp);
+        (void)ui_feed(&stats, F_EZOOM, sizeof(F_EZOOM), &resp);
+        h_check(stats.accepted_count == 2U, "0x00 and 0x04 are both accepted");
+        h_check(stats.other_category_count == 1U, "0x01 is the only 'other'");
+        h_check(stats.bad_packet_count == 0U, "no bad packets in this mix");
+    }
+
+    /* ---- 大类 0x04 的未知子项（如 0x09）仍按"未知命令"处理 ---- */
+    {
+        static const uint8_t F_UI_UNKNOWN[] = {
+            0xBB, 0x00, 0x03, 0x04, 0x09, 0x00, 0x66, 0x58, 0xAA
+        };
+        protocol_init(&stats);
+        ui_init();
+        (void)ui_feed(&stats, F_UI_UNKNOWN, sizeof(F_UI_UNKNOWN), &resp);
+        h_check(resp.send_ack == 1U, "unknown UI sub still gets an ACK");
+        h_check(resp.reason == PROTO_REASON_UNKNOWN_COMMAND, "reason is UNKNOWN_COMMAND");
+        h_check(stats.bad_packet_count == 1U, "unknown UI sub counts as a bad packet");
+    }
+}
+
+/* ===========================================================================
+ * T7 引擎层：渲染 / 提交 / 应答的时序（任务 6.5 / 6.6 / 6.8 / 6.10）
+ *
+ * 这组用例跑的是 osd_engine + composer + canvas_mem 三层的组合。它们都不碰硬件，
+ * 所以能在 qemu 上把"提交后才应答"这条顺序规则的**可观测后果**钉住。
+ *
+ * 关于"顺序"能测到什么程度，先说清楚，免得高估这组用例：
+ *   单线程的离机测试里，"A 在 B 之前发生"只能通过**副作用**观察，不能直接观察
+ *   时序。所以这里验的是：命令成功返回时画布**已经是新的**（用"先投毒再检查"
+ *   的办法）、且恰好提交了一次；失败与查询则一次都不提交。真正端到端的那一句
+ *   ——"上位机收到成功时画面已就绪"——要等联调（8.6）。
+ * =========================================================================== */
+
+/* 参考实现：把字符网格**逐像素**展开成 1 bit/像素位图的一行。
+ *
+ * 它是 composer.c 改造前那条路径的等价物（那次是 8 bpp，这里按 1 bpp 写）。
+ * 写法与被测实现**刻意不同**：被测的是"一格字形 = 两个字节直接落盘"，
+ * 这里是"逐位判断、按位或进目标字节"。位序或字节序错一处，两者就会不一致，
+ * 所以逐字节比对是有意义的，不是把同一段代码抄两遍。 */
+static void ref_render_row(unsigned r, unsigned gy, uint8_t *out /* 68 字节 */)
+{
+    unsigned c, gx;
+
+    for (c = 0u; c < OSD_ROW_STRIDE; c++) out[c] = 0u;
+
+    for (c = 0u; c < OSD_GRID_COLS; c++) {
+        int      idx = font_lookup(osd_buf[r][c]);
+        uint16_t bits;
+
+        if (idx < 0) idx = font_lookup((uint16_t)'?');
+        bits = (idx < 0) ? 0u : font_row_bits(font_glyph(idx), gy);
+
+        for (gx = 0u; gx < OSD_GLYPH_W; gx++) {
+            unsigned x = c * OSD_GLYPH_W + gx;
+            if ((bits & (uint16_t)(1u << (OSD_GLYPH_W - 1u - gx))) != 0u) {
+                out[x >> 3] |= (uint8_t)(0x80u >> (x & 7u));   /* bit 7 最左 */
+            }
+        }
+    }
+}
+
+/* 刚被渲染过的那一块。引擎在提交后翻转了后台块，所以是 back ^ 1。 */
+static const uint8_t *just_rendered_block(void)
+{
+    return canvas_block_data(osd_engine_back_block() ^ 1);
+}
+
+/******************************************************************************
+* @brief 把一帧交给引擎处理。
+*
+* @return 待发应答的字节数（0 = 不应答）；-1 = 压根没解析出帧（测试向量错了）。
+******************************************************************************/
+static int engine_feed(protocol_stats_t *stats, const uint8_t *bytes, uint32_t len,
+                       protocol_response_t *resp, uint8_t *ack)
+{
+    frame_parser_t parser;
+    frame_t        f;
+
+    frame_parser_init(&parser);
+    if (feed_all(&parser, bytes, len, &f) != 1) {
+        return -1;
+    }
+    return (int)osd_engine_handle(stats, &f, resp, ack);
+}
+
+/******************************************************************************
+* @brief 把某一块整体填成固定值（"投毒"），用来证明渲染确实发生了。
+******************************************************************************/
+static void poison_block(int idx, uint8_t v)
+{
+    int save = osd_engine_back_block();
+
+    /* canvas_fill 只作用于"当前后台块"，所以要先切过去再切回来。 */
+    canvas_select_block(idx);
+    canvas_fill(0U, v, (uint32_t)OSD_BLOCK_BYTES);
+    canvas_select_block(save);
+}
+
+static void test_engine(void)
+{
+    protocol_stats_t    stats;
+    protocol_response_t resp;
+    uint8_t             ack[PROTOCOL_ACK_MAX];
+    uint32_t            commits;
+    int                 renders;
+    int                 n;
+    uint32_t            i;
+
+    h_puts("T7 engine: render / commit / ACK ordering\n");
+
+    /* ---- 上电：渲染并提交第一屏 ---- */
+    osd_engine_boot();
+    h_check(osd_engine_render_count() == 1, "boot renders the first screen");
+    h_check(s_commit_count == 1U, "boot commits exactly once");
+    h_check(s_last_ctrl & OSD_CTRL_ENABLE,
+            "boot leaves the menu window enabled (flags.bit0 = 1)");
+
+    /* ---- 6.5/6.6：SET_VIEW 成功 → 先渲染提交，再把成功应答交出来 ---- */
+    protocol_init(&stats);
+    poison_block(osd_engine_back_block(), 0xA5U);   /* 投毒：当前后台块整块 0xA5 */
+    commits = s_commit_count;
+    renders = osd_engine_render_count();
+
+    n = engine_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp, ack);
+    h_check(n == (int)PROTOCOL_ACK_LEN, "SET_VIEW returns a 10-byte ACK");
+    h_check(ack[6] == PROTOCOL_STATUS_OK, "ACK carries success");
+    h_check(osd_engine_last_deferred() == 1, "ACK was deferred until after commit");
+    h_check(s_commit_count == commits + 1U, "SET_VIEW commits exactly once");
+    h_check(osd_engine_render_count() == renders + 1, "SET_VIEW renders exactly once");
+
+    /* 投毒被覆盖 = 渲染确实在应答交出来之前发生了 */
+    {
+        const uint8_t *blk = just_rendered_block();
+        int still_poisoned = 1;
+        for (i = 0U; i < OSD_BLOCK_BYTES; i++) {
+            if (blk[i] != 0xA5U) { still_poisoned = 0; break; }
+        }
+        h_check(!still_poisoned, "canvas was rewritten before the ACK was handed out");
+    }
+
+    /* ---- 6.6：使能与缓冲选择在同一次提交里 ---- */
+    h_check((s_last_ctrl & OSD_CTRL_ENABLE) != 0U, "bit0 = 1 -> CTRL.enable set");
+    h_check(((s_last_ctrl & OSD_CTRL_BUFFER) != 0U) ==
+            ((osd_engine_back_block() ^ 1) == 1),
+            "CTRL.buffer_select matches the block just written (same commit)");
+    h_check(s_last_pos == ((((uint32_t)OSD_MENU_TOP) << 12) | (uint32_t)OSD_MENU_LEFT),
+            "menu position written in the same commit group");
+
+    /* ---- 6.5：失败的 SET_VIEW 不渲染、不提交 ---- */
+    commits = s_commit_count;
+    renders = osd_engine_render_count();
+    n = engine_feed(&stats, F_UI_SET_VIEW_BADPAGE, sizeof(F_UI_SET_VIEW_BADPAGE),
+                    &resp, ack);
+    h_check(n == (int)PROTOCOL_ACK_LEN, "failed SET_VIEW still answers");
+    h_check(ack[6] == PROTOCOL_STATUS_FAIL, "failed SET_VIEW answers with failure");
+    h_check(osd_engine_last_deferred() == 0, "failed SET_VIEW is not deferred");
+    h_check(s_commit_count == commits, "failed SET_VIEW does NOT commit");
+    h_check(osd_engine_render_count() == renders, "failed SET_VIEW does NOT render");
+
+    /* ---- 6.5：QUERY_VIEW 不渲染、不提交（无命令则零写入） ---- */
+    commits = s_commit_count;
+    renders = osd_engine_render_count();
+    n = engine_feed(&stats, F_UI_QUERY, sizeof(F_UI_QUERY), &resp, ack);
+    h_check(n == (int)PROTOCOL_ACK_MAX, "QUERY_VIEW returns an 18-byte ACK");
+    h_check(s_commit_count == commits, "QUERY_VIEW does NOT commit");
+    h_check(osd_engine_render_count() == renders, "QUERY_VIEW does NOT render");
+
+    /* ---- 6.9：未纳入的子项一律不产生应答，也不碰画布 ---- */
+    commits = s_commit_count;
+    renders = osd_engine_render_count();
+    n = engine_feed(&stats, F_UI_SUB2, sizeof(F_UI_SUB2), &resp, ack);
+    h_check(n == 0, "out-of-scope UI sub produces NO bytes at all");
+    h_check(s_commit_count == commits && osd_engine_render_count() == renders,
+            "out-of-scope UI sub leaves the canvas alone");
+
+    /* ---- 6.6：bit0 = 0 时把菜单窗口关掉（同一个提交组里） ---- */
+    {
+        /* 页 0x0100、选中第 2 项、flags = 0（bit0 = 0 → 不显示） */
+        static const uint8_t F_HIDE[] = {
+            0xBB, 0x00, 0x07, 0x04, 0x06, 0x00, 0x01, 0x00, 0x02, 0x00,
+            0x5C, 0xF1, 0xAA
+        };
+        protocol_init(&stats);
+        n = engine_feed(&stats, F_HIDE, sizeof(F_HIDE), &resp, ack);
+        h_check(n == (int)PROTOCOL_ACK_LEN && ack[6] == PROTOCOL_STATUS_OK,
+                "SET_VIEW with bit0 = 0 is accepted");
+        h_check((s_last_ctrl & OSD_CTRL_ENABLE) == 0U,
+                "bit0 = 0 -> CTRL.enable cleared in the same commit");
+        /* 置回 1，菜单恢复 */
+        (void)engine_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp, ack);
+        h_check((s_last_ctrl & OSD_CTRL_ENABLE) != 0U, "bit0 = 1 -> menu comes back");
+    }
+
+    /* ---- 6.10：SET_IMAGE_VALUES 只改显示状态，不动路由/使能 ---- */
+    {
+        uint8_t ctrl_before;
+        uint32_t pos_before;
+
+        protocol_init(&stats);
+        ctrl_before = s_last_ctrl;
+        pos_before  = s_last_pos;
+        commits = s_commit_count;
+
+        n = engine_feed(&stats, F_UI_SET_IMG, sizeof(F_UI_SET_IMG), &resp, ack);
+        h_check(n == (int)PROTOCOL_ACK_LEN && ack[6] == PROTOCOL_STATUS_OK,
+                "SET_IMAGE_VALUES accepted");
+        h_check(s_commit_count == commits + 1U, "values change redraws the canvas once");
+        /* 只比使能位。**缓冲选择必须翻**（乒乓就是每渲染一次换一块），
+         * 要求它不变等于要求禁用双缓冲 —— 首版就是这么写错的。
+         * 使能位不变才是这条用例要证明的：改数值不该改变菜单的显隐。 */
+        h_check((s_last_ctrl & OSD_CTRL_ENABLE) == (ctrl_before & OSD_CTRL_ENABLE),
+                "SET_IMAGE_VALUES leaves CTRL.enable untouched");
+        h_check(((s_last_ctrl & OSD_CTRL_BUFFER) != 0U) ==
+                ((osd_engine_back_block() ^ 1) == 1),
+                "SET_IMAGE_VALUES ping-pongs the buffer as usual");
+        h_check(s_last_pos == pos_before,
+                "SET_IMAGE_VALUES leaves the window position untouched");
+
+        /* 越界：不渲染、不提交，四个值全部不变 */
+        commits = s_commit_count;
+        renders = osd_engine_render_count();
+        n = engine_feed(&stats, F_UI_SET_IMG_RANGE, sizeof(F_UI_SET_IMG_RANGE),
+                        &resp, ack);
+        h_check(n == (int)PROTOCOL_ACK_LEN && ack[6] == PROTOCOL_STATUS_FAIL,
+                "out-of-range values rejected");
+        h_check(s_commit_count == commits, "rejected values do NOT commit");
+        h_check(osd_engine_render_count() == renders, "rejected values do NOT render");
+        /* 回读仍是上一次的合法值 */
+        n = engine_feed(&stats, F_UI_QUERY, sizeof(F_UI_QUERY), &resp, ack);
+        h_check(n == (int)PROTOCOL_ACK_MAX &&
+                ack[11] == 0x03U && ack[12] == 0x05U &&
+                ack[13] == 0x07U && ack[14] == 0x05U,
+                "four values survive a rejected batch");
+    }
+
+    /* ---- 6.8：1 bit/像素的打包与"逐像素展开"参考实现逐字节一致 ---- */
+    {
+        const uint8_t *blk = just_rendered_block();
+        uint8_t        ref[OSD_ROW_STRIDE];
+        unsigned       r, gy;
+        int            mismatch = 0;
+
+        for (r = 0u; (r < OSD_GRID_ROWS) && !mismatch; r++) {
+            for (gy = 0u; gy < OSD_GLYPH_H; gy++) {
+                unsigned y  = r * OSD_GLYPH_H + gy;
+                unsigned c;
+
+                ref_render_row(r, gy, ref);
+                for (c = 0u; c < OSD_ROW_STRIDE; c++) {
+                    if (blk[y * OSD_ROW_STRIDE + c] != ref[c]) {
+                        h_printf("        row y=%u byte %u: got %x want %x\n",
+                                 y, c, (uint32_t)blk[y * OSD_ROW_STRIDE + c],
+                                 (uint32_t)ref[c]);
+                        mismatch = 1;
+                        break;
+                    }
+                }
+                if (mismatch) break;
+            }
+        }
+        h_check(!mismatch, "1bpp packed bitmap == per-pixel expansion, byte for byte");
+    }
+
+    /* ---- 6.8/6.6：写 B 块时 A 块逐字节不变（双缓冲不被破坏） ---- */
+    {
+        /* 先问引擎"这一次会写哪一块"，再对**另一块**取快照。
+         * 直接假定写 A 或写 B 都会写错——乒乓的下一次落点取决于此前渲染了几次。*/
+        int            victim = osd_engine_back_block();
+        const uint8_t *safe   = canvas_block_data(victim ^ 1);
+        uint8_t        snapshot[OSD_ROW_STRIDE];
+        int            same = 1;
+
+        for (i = 0u; i < OSD_ROW_STRIDE; i++) snapshot[i] = safe[i];
+        (void)engine_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp, ack);
+        safe = canvas_block_data(victim ^ 1);
+        for (i = 0u; i < OSD_ROW_STRIDE && same; i++) {
+            if (safe[i] != snapshot[i]) same = 0;
+        }
+        h_check(same, "the other bank is left byte-identical by a render");
+    }
+}
+
+/* ===========================================================================
  * 本组用例的入口，由 test_main.c 调用
  * =========================================================================== */
 void test_protocol(void)
@@ -587,4 +1154,6 @@ void test_protocol(void)
     test_ack();
     test_policy();
     test_ack_per_frame();
+    test_ui_channel();
+    test_engine();
 }

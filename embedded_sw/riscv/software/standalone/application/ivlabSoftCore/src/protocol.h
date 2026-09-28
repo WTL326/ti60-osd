@@ -12,6 +12,13 @@
 *         main.c       把三者串起来，并决定什么时候输出调试信息。
 *       这样分层是为了可测试：前两层都是纯逻辑，可以在 qemu 上完整跑测试。
 *
+* @note 2026-09 新增 0x04（UI）大类。本端点现在管**两个**大类：
+*         0x00 掩膜 —— 全部子项应答 10 字节；
+*         0x04 UI   —— 子项 0x08 应答 18 字节，其余应答 10 字节，
+*                      子项 0x01–0x05 只解析、不应答、不计入坏包。
+*       两张大类各有一张子项分派表，但**走同一套判断顺序与同一个应答构造** ——
+*       差别只在"表"和"应答体长度"，不在流程。见 protocol.c。
+*
 * @note 本模块**不输出任何日志**。失败原因通过 PROTO_REASON_* 返回给调用者，
 *       由 main.c 决定怎么上报。理由有两个：依赖干净（只 include frame.h 和
 *       crc16.h，不牵扯 BSP）；职责单一（"怎么算"和"怎么告诉人"是两件事）。
@@ -23,7 +30,7 @@
 #include <stdint.h>
 #include "frame.h"
 
-/* 应答固定 10 字节：
+/* 固定应答的长度（掩膜大类的全部子项，以及 UI 大类除 QUERY_VIEW 外的子项）：
  *
  *     BB | 00 04 | 大类 | 子项 | 02 | 状态 | crc_hi | crc_lo | AA
  *
@@ -33,6 +40,19 @@
  *
  * 依据：docs/测试说明.md 的「应答固定 10 字节」一节。*/
 #define PROTOCOL_ACK_LEN 10U
+
+/* 应答缓冲的最大长度（= UI 的 QUERY_VIEW：整帧 18 字节）。
+ *
+ * 为什么要区分"固定 10"与"最大 18"两个宏，而不是干脆都用 18：
+ * 固定长度是**协议事实**（掩膜应答就是 10 字节，写错了上位机会判 ACK 格式错），
+ * 最大值只是**缓冲容量**。两个概念混成一个宏，就会出现"发送时按 18 字节发掩膜
+ * 应答"这种错误 —— 而那正是上位机工具 `:104` 会硬校验拒绝的东西。
+ * 所以：`ack_len` 决定实际发多少字节，`PROTOCOL_ACK_LEN` 是绝大多数情况下的取值。
+ *
+ * 18 = 6（帧头/长度/CRC/帧尾）+ 12（body）。
+ * 依据 docs/x2000_ui_protocol.md §3.3 与 tools/send_ui_via_adb.py 的
+ * `18 if sub == 8 else 10`。*/
+#define PROTOCOL_ACK_MAX 18U
 
 /* 状态码。按 docs/测试说明.md：「status：0xFF 成功，0x00 失败」。
  *
@@ -52,29 +72,40 @@
 *
 * 顺序上 PROTO_REASON_OK 放在第一个（值为 0），这样统计结构体清零后就是
 * "没有错误"——属 C 里常见的约定，便于 memset 风格的初始化。
+*
+* 注意：**本枚举的值被 main.c 当作 app_log_once() 的位号用**（每个原因整轮只报
+* 首次），所以取值必须保持在 0..15 之间，且不要重排已有项。
 ******************************************************************************/
 typedef enum {
     PROTO_REASON_OK = 0,           /* 属于本端点，命令被接受且执行成功 */
     PROTO_REASON_OTHER_CATEGORY,   /* 属于其它功能模块，本端点不负责（不应答） */
     PROTO_REASON_BAD_INTEGRITY,    /* CRC 或帧尾对不上，帧在传输中被破坏 */
     PROTO_REASON_BAD_FORMAT,       /* 类型字段不是"上位机写" */
-    PROTO_REASON_UNKNOWN_COMMAND,  /* 大类是掩膜，但子项不在命令表里 */
+    PROTO_REASON_UNKNOWN_COMMAND,  /* 大类归本端点，但子项不在该大类的命令表里 */
     PROTO_REASON_BAD_LENGTH,       /* 子项认识，但 body_length 与该命令不符 */
-    PROTO_REASON_NOT_IMPLEMENTED   /* 子项认识、长度也对，但还没有实现处理逻辑 */
+    PROTO_REASON_NOT_IMPLEMENTED,  /* 子项认识、长度也对，但处理逻辑还没实现 */
+    PROTO_REASON_UI_IGNORED,       /* UI 的 0x01–0x05：只解析，不应答、不计坏包 */
+    PROTO_REASON_DEFERRED          /* 已接受，但成功应答要等画布提交完成后再发 */
 } protocol_reason_t;
 
 /******************************************************************************
 * 收包统计。分开计数用于判断链路健康度。
 *
 * 为什么把"其它大类的帧"单独计：同一条串口线上跑着所有功能模块的帧，变倍、
-* 热点、UI 的流量都不属于本端点。如果把它们混进 bad_packet_count，"坏包率"
+* 热点、伪彩色的流量都不属于本端点。如果把它们混进 bad_packet_count，"坏包率"
 * 会永远很高、完全失去诊断意义。
+*
+* 0x04（UI）**不**计入 other_category_count：它现在归本端点管，计入 accepted_count。
+* 依据见变更 add-softcore-uart-app 的 spec「UI 大类的应答口径」：
+* "0x04 大类的收包 MUST 计入'被接受'计数，MUST NOT 计入'其它大类'计数"。
+* 这一条同时保住了 other_category_count 的原意 —— 它是"链路上还有谁在说话"的
+* 诊断量，把已成己任的大类算进去会让这个量失真。
 *
 * 用 uint32_t 是因为这些计数会一直累加，16 位在持续收包几小时后可能回绕。
 ******************************************************************************/
 typedef struct {
-    uint32_t accepted_count;        /* 掩膜帧：完整性/格式通过、子项已识别、长度正确 */
-    uint32_t bad_packet_count;      /* 完整性失败，或掩膜帧本身不合格 */
+    uint32_t accepted_count;        /* 本端点的帧：完整性/格式通过、子项已识别、长度正确 */
+    uint32_t bad_packet_count;      /* 完整性失败，或本端点的帧本身不合格 */
     uint32_t other_category_count;  /* 完整性通过、但大类不属于本端点 */
 } protocol_stats_t;
 
@@ -85,8 +116,10 @@ typedef struct {
 * 再自己拼帧。这样"帧该怎么组"的知识只存在于 protocol.c 一处。
 ******************************************************************************/
 typedef struct {
-    uint8_t           ack[PROTOCOL_ACK_LEN]; /* 待发送的 10 字节应答 */
+    uint8_t           ack[PROTOCOL_ACK_MAX]; /* 待发送的应答（长度见 ack_len） */
+    uint8_t           ack_len;               /* 应答的整帧字节数 */
     uint8_t           send_ack;              /* 1 = 需要发送该应答 */
+    uint8_t           defer_ack;             /* 1 = 先别发，等画布提交完成（见 6.5） */
     uint8_t           status;                /* 应答里的状态字节 */
     protocol_reason_t reason;                /* 为什么失败（或成功），供日志用 */
     const char       *command_name;          /* 子项名，未知时为 "?" */
@@ -103,7 +136,7 @@ typedef struct {
 void protocol_init(protocol_stats_t *stats);
 
 /******************************************************************************
-* @brief 按协议格式构造 10 字节应答。
+* @brief 按协议格式构造 10 字节应答（无 payload 的那种）。
 *
 * @param ack      输出缓冲，必须至少 PROTOCOL_ACK_LEN 字节。
 * @param category 大类，从收到的帧回显。
@@ -112,9 +145,31 @@ void protocol_init(protocol_stats_t *stats);
 *
 * @note CRC 只覆盖应答体那 4 个字节（大类|子项|0x02|状态），不覆盖帧头/长度/
 *       帧尾——与命令帧的规则一致。
+*
+* @note 这是 protocol_build_ack_payload() 在 payload 长度为 0 时的特例，
+*       单独留一个 4 参数版本是为了让绝大多数调用点（以及既有测试）读起来更直白。
 ******************************************************************************/
 void protocol_build_ack(uint8_t *ack, uint8_t category, uint8_t command,
                         uint8_t status);
+
+/******************************************************************************
+* @brief 按协议格式构造带 payload 的应答（QUERY_VIEW 用）。
+*
+* @param ack         输出缓冲，必须至少 PROTOCOL_ACK_MAX 字节。
+* @param category    大类，从收到的帧回显。
+* @param command     子项，从收到的帧回显。
+* @param status      状态字节。
+* @param payload     应答体里跟在状态字节之后的字节，允许为空。
+* @param payload_len payload 的字节数，上限由调用者保证不越界。
+* @return 整帧的字节数（= 6 + 4 + payload_len），调用者据此发送与填 ack_len。
+*
+* @note CRC 覆盖**完整的应答体**（4 + payload_len 字节），不是只覆盖前 4 个 ——
+*       QUERY_VIEW 的 12 字节 body 必须整段参与 CRC，否则上位机按
+*       `crc16(body)` 算出来的值对不上（`tools/send_ui_via_adb.py` 就是这么算的）。
+******************************************************************************/
+uint16_t protocol_build_ack_payload(uint8_t *ack, uint8_t category, uint8_t command,
+                                    uint8_t status, const uint8_t *payload,
+                                    uint16_t payload_len);
 
 /******************************************************************************
 * @brief 判断一帧该不该由本端点处理、该回什么。
@@ -128,18 +183,25 @@ void protocol_build_ack(uint8_t *ack, uint8_t category, uint8_t command,
 *         1) 完整性（CRC / 帧尾）—— 帧在传输中是否被破坏。**不通过就不应答**：
 *            连字节都不可信，也就无从判断这一帧是哪个模块的，贸然回一个应答
 *            可能撞进别的模块正在进行的通信里。
-*         2) 大类是不是掩膜（0x00）—— 不是就不应答、只计数。变倍、热点、
-*            伪彩色、UI 各有各的工具，回一个"大类 0x00"的应答给它们，会让
-*            那些工具报"ACK 格式错误"，等于把别人撞坏。
+*         2) 大类是不是本端点的（0x00 掩膜 / 0x04 UI）—— 不是就不应答、只计数。
+*            变倍、热点、伪彩色各有各的工具，回一个"大类 0x00"的应答给它们，
+*            会让那些工具报"ACK 格式错误"，等于把别人撞坏。
 *            这一条也解释了为什么大类**不能**在解析层硬校验（见 frame.h）。
 *         3) 从那一步起，帧确定是本端点的了：**每一个都会得到应答**，哪怕是
 *            格式错、子项不认识、长度不符——上位机需要明确的反馈，否则只能
 *            靠超时推进流程。
+*            **唯一的例外**是 UI 的 0x01–0x05：那五个子项本端点不实现，
+*            按协议必须只解析、不应答（否则会在别人的读取窗口里插进意外字节）。
 *         4) 类型字段、子项是否在表里、长度是否相符，依次判定。
 *
-* @note 本次变更里**没有任何掩膜命令会返回成功**：命令表里的处理函数统一返回
-*       失败（业务逻辑还没实现）。所以 status 目前恒为 0x00。真正区分
+* @note 掩膜大类的命令里**没有任何一条会返回成功**：命令表里的处理函数统一返回
+*       失败（业务逻辑还没实现）。所以掩膜帧的 status 目前恒为 0x00。真正区分
 *       "帧本身没问题、只是没实现"和"帧就是坏包"的，是那两个计数器。
+*       UI 大类的三条命令则已真正实现，成功时 status = 0xFF。
+*
+* @note `defer_ack` 只在 SET_VIEW / SET_IMAGE_VALUES 成功时为 1：那两条命令要等
+*       "画布写完 + 提交置位"之后才能回成功（协议 §5.5 的"提交后才应答"），
+*       而渲染发生在 handler 之外的 main 循环里，所以这里只能标记、不能发送。
 *
 ******************************************************************************/
 void protocol_handle(protocol_stats_t *stats, const frame_t *frame,

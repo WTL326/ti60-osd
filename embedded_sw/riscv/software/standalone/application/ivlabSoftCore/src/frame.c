@@ -49,6 +49,16 @@ void frame_parser_init(frame_parser_t *parser)
     parser->command = 0U;
     parser->type = 0U;
     parser->bad_length_count = 0U;
+    parser->payload_len = 0U;
+    /* 窗口在这里整体清零（而不是每帧清）：初始化只发生一次，代价可忽略；
+     * 每帧只清 payload_len（见 start_frame），所以"有效字节数"始终准确，
+     * 而缓冲区里可能残留上一帧的字节 —— 调用者按 payload_len 取用即可。*/
+    {
+        uint16_t i;
+        for (i = 0U; i < FRAME_PAYLOAD_MAX; i++) {
+            parser->payload[i] = 0U;
+        }
+    }
 }
 
 /******************************************************************************
@@ -79,6 +89,7 @@ static int start_frame(frame_parser_t *parser, uint8_t byte)
     parser->category = 0U;
     parser->command = 0U;
     parser->type = 0U;
+    parser->payload_len = 0U;
     return 0;
 }
 
@@ -156,13 +167,16 @@ int frame_parser_feed(frame_parser_t *parser, uint8_t byte, frame_t *out)
             parser->command = byte;
         } else if (parser->body_index == 2U) {
             parser->type = byte;
+        } else {
+            /* 第 3 字节起是 payload。只把**前 FRAME_PAYLOAD_MAX 个**抄进窗口，
+             * 其余照旧只折进上面那句 CRC 计算里 —— 掩膜分块那几千字节的位图
+             * 数据依然算完即丢、不占 RAM（"整帧不缓存"未被破坏）。
+             * 窗口只服务于 UI 子项那种几字节的参数，长度上限见 frame.h。*/
+            uint16_t k = (uint16_t)(parser->body_index - 3U);
+            if (k < FRAME_PAYLOAD_MAX) {
+                parser->payload[k] = byte;
+            }
         }
-        /* 从第 3 字节（payload）起，这里**什么都不做**，只把它折进上面那句
-         * CRC 计算里。这就是"整帧不缓存"的体现：payload 算完即丢，所以
-         * 掩膜分块的几千字节数据不会占用任何 RAM。
-         *
-         * 本次变更是"只做协议框架"，没有任何命令需要读 payload；将来若要
-         * 实现分块写入（子项 0x02），再针对那一条命令单独缓存即可。*/
 
         /* 收到第 body_length 个字节时，body 结束，转去收 CRC。
          * body_index 从 0 计，所以最后一个字节的下标是 body_length-1。
@@ -197,6 +211,17 @@ int frame_parser_feed(frame_parser_t *parser, uint8_t byte, frame_t *out)
         out->command     = parser->command;
         out->type        = parser->type;
         out->body_length = parser->body_length;
+
+        /* payload_len 是"帧里声明有多少"（body_length 减去 3 字节 body 头），
+         * 可能大于窗口容量；payload[] 里只有前 min(payload_len, 12) 个字节有效。
+         * 长度在 ST_LEN_L 阶段校验过 >= 3，所以这里的减法不会下溢。*/
+        out->payload_len = (uint16_t)(parser->body_length - 3U);
+        {
+            uint16_t i;
+            for (i = 0U; i < FRAME_PAYLOAD_MAX; i++) {
+                out->payload[i] = parser->payload[i];
+            }
+        }
 
         /* 三个布尔标志都写成 `? 1U : 0U` 而不是直接赋值比较表达式的结果。
          * 因为 C 里比较运算符的结果是 int 类型的 1/0，直接赋给 uint8_t 字段

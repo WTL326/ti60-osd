@@ -9,13 +9,23 @@
 // UartMachineForwarder passes to the machine.  The footer stays AA.
 //
 // Commands:
-//   86: width:u16, height:u16, total:u32
-//   87: offset:u32, unpacked mask bytes
+//   86: width:u16, height:u16, total:u32（total 是打包后的字节数）
+//   87: offset:u32, packed 1bpp mask bytes（偏移是**打包后**的字节偏移）
 //   88: left_x:s16, top_y:s16
 //   89: enable:u8
 //
-// Incoming 420x220 bytes are written directly to the inactive raw-mask
-// buffer.  The video overlay samples buffer/position/enable at video SOF.
+// 载荷是**已按 1 bit/像素打包**的位图字节（每字节 8 个像素，bit7 对应行内最左），
+// 由上位机工具负责打包；本模块只把收到的字节原样写进位图缓冲。
+//
+// 为什么打包放在工具侧而不是这里：这是 8 倍的链路时间。以 544x288 为例，
+// 115200 8N1 下 8 bit/像素要传 156 672 字节（约 13.6 秒），
+// 1 bit/像素只要 19 584 字节（约 1.7 秒）。格式本来就由工具决定（位图也是它生成的），
+// 把打包放在那里只有一个地方需要知道"位序是 bit7 最左"。
+//
+// **上传目标是固定的一路**（D11 选择（八））：协议里没有区域索引字段，
+// 也不以目标地址表达区域选择；基址由 MASK_A_BASE/MASK_B_BASE 给出，
+// 对应 D3 表第 1 行（掩膜上传固定路）。其余路的缓冲不受本模块影响。
+// 视频叠加侧在 SOF 采样 buffer/position/enable。
 module RtlMaskUartAxiWriter #(
     parameter integer CLK_HZ = 100000000,
     parameter integer BAUD = 115200,
@@ -61,7 +71,10 @@ module RtlMaskUartAxiWriter #(
     output wire         writer_active
 );
     localparam integer CLKS_PER_BIT = CLK_HZ / BAUD;
-    localparam integer MASK_BYTES = MASK_WIDTH * MASK_HEIGHT;
+    // 位图占用的字节数 = 宽 * 高 / 8（1 bit/像素、行紧凑打包）。
+    // 注意这与"收到的字节数"是同一个数 —— 因为打包在工具侧完成，
+    // 一个入站字节就是内存里的一个字节。
+    localparam integer MASK_BYTES = (MASK_WIDTH * MASK_HEIGHT) / 8;
 
     function [15:0] crc16_byte;
         input [15:0] crc_in;
