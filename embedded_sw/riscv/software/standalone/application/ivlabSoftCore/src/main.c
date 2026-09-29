@@ -39,6 +39,7 @@
 #include "proto_uart.h"
 #include "frame.h"
 #include "protocol.h"
+#include "osd/canvas.h"         /* 启动回读要用 canvas_read_regs/read_block */
 #include "osd/osd_engine.h"     /* 渲染/提交/应答的时序都在这层 */
 #include "osd/osd_config.h"     /* 位图基址等契约常量（横幅里要打出来） */
 
@@ -425,6 +426,309 @@ static void handle_frame(const frame_t *frame){
     }
 }
 
+/* ===========================================================================
+ * OSD 启动回读（诊断）
+ *
+ * 为什么要有这一段：回程那条线（UART_SR_FT）不通时，上位机收不到任何应答，
+ * "寄存器写进去了没有""位图真的落到 HyperRAM 了吗"就没有别的办法判断。
+ * 这一段把**硬件回读值**打到调试通道（semihosting）上，判断因此不依赖那条线。
+ *
+ * 打两组东西：
+ *   1) MaskControlRegs 的回读：COMMAND（暂存全局使能）、STATUS（提交次数 /
+ *      pending / 已生效全局使能）、CANVAS，以及**四路各自**的已生效使能与
+ *      缓冲选择（来自 ACTIVE）。每路一行，比读裸位域好认。
+ *      POS/CTRL 是**只写**寄存器，回读恒 0 —— 所以每行同时打出软件最后写下去
+ *      的值，两者并排才能和画面上的窗口位置对上。
+ *   2) 两块位图的内容回读：非零字节数、置位像素数、FNV-1a 指纹、首个非零字节
+ *      偏移，外加一张"每字符 = 8×8 像素"的缩略图。缩略图用来一眼确认菜单画在
+ *      该在的地方、边框与文字行有没有出来。
+ *
+ * 三条实现约束，都是被 app_log 的既有设计逼出来的（改这段时别踩）：
+ *   * app_log 的格式串**不支持宽度/精度**（写 %08x 会把它原样打出来，
+ *     见 app_log.h 的说明），所以定宽十六进制要自己补零（hex8）。
+ *   * app_log 每条消息**自带换行**，所以一行必须一次调用拼完，不能分几次 append。
+ *   * 日志环只有 1 KB，且正常路径下要等串口静默才发送。这一段是几千字符的量，
+ *     只入队的话会被整条整条地丢掉（log_drop，现象是"日志莫名其妙少了一截"）。
+ *     所以**每行之后主动排空**（diag_drain）。
+ *
+ * 调用位置放在 isr_init() **之前**：这几千字符的 semihosting 停顿期间中断还没开，
+ * 不会把 uart1 的接收 FIFO（128 字节）挤爆。放到主循环里就正好相反 ——
+ * 那正是 main.c 主循环里"线路静默才输出"那条门槛要防的事。
+ * ========================================================================= */
+#define OSD_BOOT_DIAG      1   /* 寄存器 + 位图内容回读            */
+#define OSD_BOOT_DIAG_MAP  1   /* 附缩略图（关掉可省约 3.5 KB 输出）*/
+
+#if OSD_BOOT_DIAG
+
+/* 缩略图：每个字符代表 8×8 像素。
+ * 这个划分不是随手取的：行跨距 68 字节 = 544/8，所以一格恰好是**每行一个
+ * 字节、共 8 行**，于是"格内有亮点"等价于"这 8 个字节里有任何一个非零"，
+ * 不必逐位判断。列数 = 544/8 = 68，行数 = 208/8 = 26。*/
+#define DIAG_CELLS_X  (OSD_CANVAS_W / 8)
+#define DIAG_CELLS_Y  (OSD_CANVAS_H / 8)
+#define DIAG_BYTES    ((uint32_t)OSD_BLOCK_BYTES)
+
+/* 把 32 位值写成 8 位定宽十六进制。
+ * app_log 不支持 %08x，而缺了前导零的寄存器值没法逐位比对，所以手工补零；
+ * 结果按 %s 传进去。*/
+static void hex8(char *dst, uint32_t v)
+{
+    static const char digits[] = "0123456789abcdef";
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        dst[i] = digits[(v >> ((7 - i) * 4)) & 0xFU];
+    }
+    dst[8] = '\0';
+}
+
+/* 把日志环排空。启动阶段专用：每行之后调用，避免 1 KB 的环装不下整段回读。*/
+static void diag_drain(void)
+{
+    while (app_log_pending() != 0U) {
+        (void)app_log_flush();
+    }
+}
+
+static void diag_dump_regs(void)
+{
+    canvas_regs_t r;
+    char          b1[9];
+    char          b2[9];
+    int           i;
+
+    canvas_read_regs(&r);
+
+    hex8(b1, r.command);
+    app_log("osd regs: COMMAND(readback)=%s staged_g_en=%u", b1, r.command & 1U);
+    diag_drain();
+
+    hex8(b1, r.status);
+    app_log("osd regs: STATUS=%s commit_count=%u pending=%u applied_g_en=%u",
+            b1, (r.status >> 16) & 0xFFFFU, (r.status >> 2) & 1U, r.status & 1U);
+    diag_drain();
+
+    hex8(b1, r.canvas);
+    app_log("osd regs: CANVAS=%s", b1);
+    diag_drain();
+
+    hex8(b1, r.active);
+    app_log("osd regs: ACTIVE=%s", b1);
+    diag_drain();
+
+    /* 四路各一行：ACTIVE 的 enable 在高半字节、buffer 在低半字节（D6）。
+     * 期望现场是 route0..3 = 0/1/0/0（只有菜单承载路使能）。*/
+    for (i = 0; i < 4; i++) {
+        app_log("osd route%d: enable=%u buffer=%c",
+                (uint32_t)i,
+                (r.active >> (4 + i)) & 1U,
+                ((r.active >> i) & 1U) ? 'B' : 'A');
+        diag_drain();
+    }
+
+    /* POS/CTRL：只写，回读恒 0。这里把"软件写的"和"硬件读的"并排打出来 ——
+     * 回读为 0 本身就是契约被现场证实的证据；若哪天回读非 0，说明 RTL 改了。*/
+    hex8(b1, r.pos_last);
+    hex8(b2, r.pos_read);
+    app_log("osd route1 POS: last_written=%s readback=%s (W-only)", b1, b2);
+    diag_drain();
+
+    hex8(b1, r.ctrl_last);
+    hex8(b2, r.ctrl_read);
+    app_log("osd route1 CTRL: last_written=%s readback=%s (W-only)", b1, b2);
+    diag_drain();
+}
+
+static void diag_dump_block(int idx, uint8_t *buf)
+{
+    char     line[DIAG_CELLS_X + 1];
+    char     h[9];
+    uint32_t i;
+    uint32_t nonzero = 0U;
+    uint32_t setbits = 0U;
+    uint32_t first   = 0xFFFFFFFFU;
+    uint32_t hash    = 2166136261U;      /* FNV-1a 的 32 位初值 */
+
+    (void)canvas_read_block(idx, buf);
+
+    for (i = 0U; i < DIAG_BYTES; i++) {
+        uint8_t b = buf[i];
+
+        hash = (hash ^ (uint32_t)b) * 16777619U;
+        if (b != 0U) {
+            uint8_t t = b;
+
+            if (first == 0xFFFFFFFFU) {
+                first = i;
+            }
+            nonzero++;
+            /* 置位像素数：1 bpp，一个字节 8 个像素。用 Brian Kernighan 的
+             * "清最低位"法逐位清点，不用内建 popcount —— 后者在没有扩展指令
+             * 时会退化成一次库调用，为这点量不值得。*/
+            while (t != 0U) {
+                setbits++;
+                t = (uint8_t)(t & (uint8_t)(t - 1U));
+            }
+        }
+    }
+
+    hex8(h, hash);
+    app_log("osd blk %c: nonzero=%u setbits=%u fnv1a=%s first=%u",
+            (idx == 1) ? 'B' : 'A', nonzero, setbits, h, first);
+    diag_drain();
+
+#if OSD_BOOT_DIAG_MAP
+    {
+        uint32_t cy;
+        uint32_t cx;
+
+        app_log("osd blk %c map ('#'=any lit pixel in this 8x8 cell):",
+                (idx == 1) ? 'B' : 'A');
+        diag_drain();
+
+        for (cy = 0U; cy < DIAG_CELLS_Y; cy++) {
+            for (cx = 0U; cx < DIAG_CELLS_X; cx++) {
+                uint8_t  any = 0U;
+                uint32_t r;
+
+                for (r = 0U; r < 8U; r++) {
+                    any = (uint8_t)(any | buf[(cy * 8U + r) * OSD_ROW_STRIDE + cx]);
+                }
+                line[cx] = any ? '#' : '.';
+            }
+            line[DIAG_CELLS_X] = '\0';
+            app_log("%s", line);
+            diag_drain();
+        }
+    }
+#endif
+}
+
+
+/******************************************************************************
+* @brief 往 HyperRAM 写一个已知图案再读回来，并读几个"应该有内容"的地址。
+*
+* @note 为什么需要它：现场读到两块位图**全零**时，全零有两种病因、读数一模一样 ——
+*       (甲) 所有写都被丢掉（地址映射或写通路），
+*       (乙) 清屏（写 0）成功了、但 composer 什么都没画。
+*       往返探针分开这两者：往返成功说明写通路是好的（病因在乙侧），
+*       往返失败说明写没落下去（病因在甲侧）。canvas_bytes_written() 则是乙的直证。
+*
+* @note 探针地址取 OSD1 槽位内、位图之外的那一段（0x00A40000 + 0x20000）：
+*       叠加扫描只看位图的前 14,144 字节，所以写在那里**不会被扫描到**、
+*       不会在画面上留下白点。另外几个地址只读不写，纯观测。
+******************************************************************************/
+/* 两个探针地址与"刚写下去的值"。留成文件级静态是为了在整段回读的**最后**
+ * 再读一次 —— 见 diag_probe_sticky()。*/
+static uint32_t s_probe_in_bitmap;   /* 位图内（会被叠加扫描到） */
+static uint32_t s_probe_out_bitmap;  /* 位图外（槽位尾部，扫不到） */
+static uint32_t s_probe_value = 0x5A5AA5A5u;
+
+static void diag_probe_memory(void)
+{
+    static const uint32_t peek_addr[4] = {
+        0x00A40000u,   /* OSD1 位图 A：本次要写的那一块            */
+        0x00B40000u,   /* OSD1 位图 B                              */
+        0x00C00000u,   /* CVBS 显示缓冲 0：RTL 在写，应非零        */
+        0x01000000u    /* 电子变倍源帧 A：RTL 在写，应非零         */
+    };
+    const uint32_t probe_addr = 0x00A40000u + 0x20000u;
+    const uint32_t pattern    = 0xA5C35A3Cu;
+    char           b1[9];
+    char           b2[9];
+    uint32_t       got;
+    int            i;
+
+    hex8(b1, canvas_bytes_written());
+    app_log("osd probe: bytes_written(total)=%s", b1);
+    diag_drain();
+
+    /* 只读观测：这几个地址都不写，读回非零说明软核的 HyperRAM 读通路是通的。*/
+    for (i = 0; i < 4; i++) {
+        hex8(b1, peek_addr[i]);
+        hex8(b2, canvas_peek(peek_addr[i]));
+        app_log("osd probe: rd %s = %s", b1, b2);
+        diag_drain();
+    }
+
+    /* 往返验证之一：写进"不会被扫描"的一段（槽位尾部），再读回来。*/
+    got = canvas_poke(probe_addr, pattern);
+    hex8(b1, probe_addr);
+    hex8(b2, pattern);
+    app_log("osd probe: wr %s <- %s", b1, b2);
+    diag_drain();
+    hex8(b1, got);
+    hex8(b2, pattern);
+    app_log("osd probe: read back %s %s", b1,
+            (got == pattern) ? "(MATCH)" : "(NO MATCH)");
+    diag_drain();
+
+    /* 往返验证之二：写进**位图内**（会被叠加扫描到的那一段）的低偏移。
+     * 这一条是本轮的关键：它和上一条的唯一差别就是落在被扫描的区间里。
+     * 写得进去的话，屏幕上那一点应当变白 —— 顺便也就证实了 RTL 扫的正是这一段。*/
+    s_probe_out_bitmap = probe_addr;
+    s_probe_in_bitmap  = 0x00A40000u + 0x100u;
+
+    got = canvas_poke(s_probe_in_bitmap, s_probe_value);
+    hex8(b1, s_probe_in_bitmap);
+    hex8(b2, s_probe_value);
+    app_log("osd probe: [in-bitmap] wr %s <- %s", b1, b2);
+    diag_drain();
+    hex8(b1, got);
+    app_log("osd probe: [in-bitmap] read back now = %s", b1);
+    diag_drain();
+}
+
+/******************************************************************************
+* @brief 整段回读的**最后**再读一次那两个探针地址。
+*
+* @note 这就是"写不进去"与"写进去又被清掉"的判别点：中间的 52 行缩略图要经过
+*       几十毫秒的 semihosting 输出，足够任何逐帧（16–40 ms）的动作跑好几轮。
+*         - 两个都还在      ⇒ 没有东西在清它，写是真的不落（地址/写通路）
+*         - 位图内变 0、位图外还在 ⇒ **有东西在周期性清"被叠加扫描的那一段"**，
+*           而 composer 的 208 行写就发生在同一区间里 —— 这正好解释"写了却读不到"
+******************************************************************************/
+static void diag_probe_sticky(void)
+{
+    char b1[9];
+    char b2[9];
+    char b3[9];
+
+    hex8(b1, canvas_peek(s_probe_in_bitmap));
+    hex8(b2, canvas_peek(s_probe_out_bitmap));
+    hex8(b3, s_probe_value);
+    app_log("osd probe: sticky in-bitmap=%s out-bitmap=%s (wrote %s)", b1, b2, b3);
+    diag_drain();
+}
+
+/******************************************************************************
+* @brief 上电回读一次：寄存器 + 两块位图 + 往返探针。
+*
+* @note 缓冲用 static：14,144 字节远超本工程的栈预算，而它只在启动时用一次、
+*       不进主循环，放 .bss 正合适。两块**共用**同一个缓冲 —— 先读 A、打完再
+*       读 B，省一半内存（回读是给眼睛看的，不需要两块同时在手）。
+******************************************************************************/
+static void osd_boot_diag(void)
+{
+    static uint8_t s_buf[DIAG_BYTES];
+
+    app_log("--- osd boot readback ---");
+    diag_drain();
+
+    diag_dump_regs();
+    diag_probe_memory();
+    diag_dump_block(0, s_buf);
+    diag_dump_block(1, s_buf);
+
+    /* 缩略图那几十毫秒已经过去，现在复读探针地址 —— 见 diag_probe_sticky。*/
+    diag_probe_sticky();
+
+    app_log("--- osd boot readback end ---");
+    diag_drain();
+}
+
+#endif /* OSD_BOOT_DIAG */
+
 /******************************************************************************
 * @brief 程序入口。
 *
@@ -459,6 +763,13 @@ void main() {
     app_log("protocol: BB frame, categories 0x00 (mask) + 0x04 (UI)");
     app_log("osd: menu on OSD1 544x208 1bpp, canvas A/B = 0x%x / 0x%x",
             (uint32_t)OSD_BLOCK0_ADDR, (uint32_t)OSD_BLOCK1_ADDR);
+
+#if OSD_BOOT_DIAG
+    /* 紧接着上电渲染做一次硬件回读。**排在 isr_init() 之前**：这一段要打
+     * 几千字符、每次 semihosting 都会让 hart 停一下，中断还没开就不会挤爆
+     * uart1 的接收 FIFO。理由与 osd_engine_boot() 排在同一个位置相同。*/
+    osd_boot_diag();
+#endif
 
     /* 协议端点可用与否，取决于 SoC 是否生成了 uart1（见 proto_uart.h）。
      * 这里把结果明确打出来：一是让现场知道协议能不能用，二是它的 base 地址

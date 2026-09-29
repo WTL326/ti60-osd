@@ -923,6 +923,19 @@ static void ref_render_row(unsigned r, unsigned gy, uint8_t *out /* 68 字节 */
     }
 }
 
+/* 整块字节的简单累加。只用来回答"两次渲染的结果是否不同" —— 不是校验和，
+ * 不需要抗碰撞。*/
+static uint32_t block_sum(const uint8_t *blk)
+{
+    uint32_t i;
+    uint32_t s = 0U;
+
+    for (i = 0u; i < (uint32_t)OSD_BLOCK_BYTES; i++) {
+        s += blk[i];
+    }
+    return s;
+}
+
 /* 刚被渲染过的那一块。引擎在提交后翻转了后台块，所以是 back ^ 1。 */
 static const uint8_t *just_rendered_block(void)
 {
@@ -966,6 +979,7 @@ static void test_engine(void)
     protocol_response_t resp;
     uint8_t             ack[PROTOCOL_ACK_MAX];
     uint32_t            commits;
+    uint32_t            boot_sum;
     int                 renders;
     int                 n;
     uint32_t            i;
@@ -979,6 +993,45 @@ static void test_engine(void)
     h_check(s_last_ctrl & OSD_CTRL_ENABLE,
             "boot leaves the menu window enabled (flags.bit0 = 1)");
 
+    /* ---- 上电那一帧必须**真的有内容** ----
+     *
+     * 这三条是后补的，补的是一个"223 条断言全绿、画面却一片空白"的缺陷：
+     * L3（ui/scene_build）→ L4（composer）这一步的调用当时漏掉了，网格一直是
+     * 全空格，composer 于是忠实地把空格渲染成一张全零位图 —— 窗口开着、位置对、
+     * 提交也生效了，**但内容是空的**，现场表现就是"叠加什么都没有"。
+     *
+     * 为什么原来的断言全都漏过：
+     *   "boot renders the first screen" 只数渲染次数，
+     *   "boot commits exactly once" 只数提交次数，
+     *   而那条"1bpp 打包与逐像素展开逐字节一致"比较的是**同一个网格**的两条
+     *   展开路径 —— 网格为空时两边同时为空，一致，照样通过。
+     * 所以这里必须换成**与网格内容无关**的性质：这一帧长什么样。*/
+    {
+        const uint8_t *boot_blk = just_rendered_block();
+        uint32_t       nz       = 0U;
+        uint32_t       k;
+        int            title_ink = 0;
+
+        for (k = 0U; k < (uint32_t)OSD_BLOCK_BYTES; k++) {
+            if (boot_blk[k] != 0U) nz++;
+        }
+        boot_sum = block_sum(boot_blk);
+
+        h_check(nz > 0U, "boot frame is not blank (scene_build ran before render)");
+        /* 两列边框 13 行 × 16 扫描行 × 2 字节，加上下边框，至少几百字节。
+         * 500 这个门槛远高于"个别杂散位"，又远低于真实的菜单量。*/
+        h_check(nz >= 500U, "boot frame looks like a menu-sized drawing");
+        /* 标题行（第 1 个字形行）必须有笔画：与具体字形无关，有文字就必然成立 */
+        for (k = (uint32_t)OSD_ROW_TITLE * (uint32_t)OSD_GLYPH_H
+                 * (uint32_t)OSD_ROW_STRIDE;
+             k < (uint32_t)(OSD_ROW_TITLE + 1U) * (uint32_t)OSD_GLYPH_H
+                 * (uint32_t)OSD_ROW_STRIDE;
+             k++) {
+            if (boot_blk[k] != 0U) { title_ink = 1; break; }
+        }
+        h_check(title_ink, "boot frame carries title text");
+    }
+
     /* ---- 6.5/6.6：SET_VIEW 成功 → 先渲染提交，再把成功应答交出来 ---- */
     protocol_init(&stats);
     poison_block(osd_engine_back_block(), 0xA5U);   /* 投毒：当前后台块整块 0xA5 */
@@ -991,6 +1044,10 @@ static void test_engine(void)
     h_check(osd_engine_last_deferred() == 1, "ACK was deferred until after commit");
     h_check(s_commit_count == commits + 1U, "SET_VIEW commits exactly once");
     h_check(osd_engine_render_count() == renders + 1, "SET_VIEW renders exactly once");
+    /* 换的页与上电页不同（0x0100 vs 0x0000），所以这一帧必须与上电帧不同 ——
+     * 堵住"网格只在启动时建一次、之后不再重建"这另一半缺陷。*/
+    h_check(block_sum(just_rendered_block()) != boot_sum,
+            "a page change actually changes the rendered frame");
 
     /* 投毒被覆盖 = 渲染确实在应答交出来之前发生了 */
     {
@@ -1144,6 +1201,95 @@ static void test_engine(void)
     }
 }
 
+
+/* ===========================================================================
+ * T8 回读（启动诊断用的那条路）
+ *
+ * 为什么单独测：canvas_read_regs() / canvas_read_block() 是本次新增的**可移植
+ * 边界上的公开接口**（canvas.h）。板级那份读的是真寄存器、离机测不到；但接口的
+ * **语义**可以在主机上钉死 —— 尤其是"回读出来的位域与提交时写下去的一致"这条：
+ * enable/buffer 的高低位写反、或者路号用错，在上板时只表现为"诊断输出看着不对"，
+ * 很难往接口实现上想。这不是假设：主机后端的初版就把 0x10/0x01（**0 路**的位）
+ * 当成了菜单承载路的位，是这一组用例把它逼出来的。
+ * =========================================================================== */
+void test_readback(void)
+{
+    protocol_stats_t    stats;
+    protocol_response_t resp;
+    uint8_t             ack[PROTOCOL_ACK_MAX];
+    static uint8_t      buf[OSD_BLOCK_BYTES];   /* 14 KB：走 .bss，别占栈 */
+    canvas_regs_t       regs;
+    const uint8_t      *ref;
+    uint32_t            i;
+    int                 n;
+    int                 same;
+
+    h_puts("T8 readback: what we read back matches what we committed\n");
+
+    protocol_init(&stats);
+    n = engine_feed(&stats, F_UI_SET_VIEW, sizeof(F_UI_SET_VIEW), &resp, ack);
+    h_check(n == (int)PROTOCOL_ACK_LEN, "readback: SET_VIEW still succeeds");
+
+    canvas_read_regs(&regs);
+
+    /* ---- POS：只写寄存器，回读恒 0；写入值应等于 {top[11:0], left[11:0]} ---- */
+    h_check(regs.pos_read == 0U, "readback: POS reads back 0 (write-only)");
+    h_check(regs.pos_last == (((uint32_t)OSD_MENU_TOP << 12)
+                              | (uint32_t)OSD_MENU_LEFT),
+            "readback: POS last_written = {top[11:0], left[11:0]}");
+
+    /* ---- CTRL：同上；使能位必须与那次提交一致 ---- */
+    h_check(regs.ctrl_read == 0U, "readback: CTRL reads back 0 (write-only)");
+    h_check(regs.ctrl_last == (uint32_t)s_last_ctrl,
+            "readback: CTRL last_written matches the committed value");
+    h_check((regs.ctrl_last & OSD_CTRL_ENABLE) != 0U,
+            "readback: committed CTRL has enable set (flags.bit0 = 1)");
+
+    /* ---- ACTIVE：enable 在高半字节、buffer 在低半字节，且只有菜单承载路 ---- */
+    h_check(((regs.active >> 4) & 0xFU) == (0x1U << OSD_MENU_ROUTE),
+            "readback: ACTIVE enable nibble holds only the menu route");
+    h_check((regs.active & 0xFU) == ((s_last_ctrl & OSD_CTRL_BUFFER)
+                                         ? (0x1U << OSD_MENU_ROUTE) : 0U),
+            "readback: ACTIVE buffer nibble mirrors CTRL.buffer_select");
+    h_check((regs.active >> 8) == 0U, "readback: ACTIVE upper bits are zero");
+
+    /* ---- 内容回读：与 canvas_block_data() 逐字节相同 ---- */
+    h_check(canvas_read_block(0, buf) == (uint32_t)OSD_BLOCK_BYTES,
+            "readback: block read returns the whole block");
+    ref = canvas_block_data(0);
+    same = 1;
+    for (i = 0u; i < (uint32_t)OSD_BLOCK_BYTES; i++) {
+        if (ref[i] != buf[i]) { same = 0; break; }
+    }
+    h_check(same, "readback: block A content matches canvas_block_data()");
+
+    /* ---- 两块各读各的：把 B 整块投毒，A 的回读结果不应受影响 ---- */
+    poison_block(1, 0x5AU);
+    (void)canvas_read_block(0, buf);
+    same = 1;
+    for (i = 0u; i < (uint32_t)OSD_BLOCK_BYTES; i++) {
+        if (ref[i] != buf[i]) { same = 0; break; }
+    }
+    h_check(same, "readback: block A read is unaffected by poisoning block B");
+    h_check(canvas_read_block(1, buf) == (uint32_t)OSD_BLOCK_BYTES,
+            "readback: block B read returns the whole block");
+    h_check(buf[0] == 0x5AU, "readback: block B read sees the poisoned bytes");
+
+    /* ---- 诊断用的裸访问：把语义钉死。
+     * 这几条的价值在于**它们是板上那套探针的离机对照**：现场看到"往返 NO MATCH"
+     * 时，先看这里过不过 —— 这里过，说明接口语义没写错，问题在板上那条路。 ---- */
+    h_check(canvas_bytes_written() > 2u * (uint32_t)OSD_BLOCK_BYTES,
+            "readback: composer wrote bytes beyond the two boot clears");
+    h_check(canvas_poke(OSD_BLOCK1_ADDR + 0x100u, 0x5A5A1234u) == 0x5A5A1234u,
+            "readback: poke inside a block round-trips");
+    h_check(canvas_peek(OSD_BLOCK1_ADDR + 0x100u) == 0x5A5A1234u,
+            "readback: peek sees what poke wrote");
+    h_check(canvas_poke(OSD_BLOCK0_ADDR + 0x101u, 0xFFFFFFFFu) == 0u,
+            "readback: unaligned poke is refused");
+    h_check(canvas_peek(0x00C00000u) == 0u,
+            "readback: peek outside the blocks returns 0 (no fake success)");
+}
+
 /* ===========================================================================
  * 本组用例的入口，由 test_main.c 调用
  * =========================================================================== */
@@ -1156,4 +1302,5 @@ void test_protocol(void)
     test_ack_per_frame();
     test_ui_channel();
     test_engine();
+    test_readback();
 }

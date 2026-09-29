@@ -45,9 +45,14 @@ SRC = ../src
 #                    harness.c 里的 _start 自己负责。
 #   -Wall -Wextra    打开警告。测试代码自己先要干净。
 #   -g3 -Og          带调试信息、轻度优化，方便出问题时看。
-#   -I. -I$(SRC)     头文件搜索路径：当前目录（harness.h）和被测源码目录。
+#   -I. -I$(SRC) -I$(SRC)/osd
+#                    头文件搜索路径：当前目录（harness.h）、被测源码目录，
+#                    以及 osd/ 子目录。**-I$(SRC)/osd 不能省**：canvas_mem.c
+#                    是画布的主机后端、被放在本目录下，而它 include 的是
+#                    "canvas.h"（靠"同目录"解析）—— 少了这一条它找不到
+#                    ../src/osd/canvas.h，现象是 canvas_mem.c:13 报没有该文件。
 CFLAGS = -march=rv32im_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 \
-         -nostdlib -nostartfiles -Wall -Wextra -g3 -Og -I. -I$(SRC)
+         -nostdlib -nostartfiles -Wall -Wextra -g3 -Og -I. -I$(SRC) -I$(SRC)/osd
 
 # -T qemu32.lds 用自定义链接脚本（说明见该文件）。
 # --no-warn-rwx-segments 关掉"代码段同时可写可执行"的警告——裸机程序本来就
