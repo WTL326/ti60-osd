@@ -5,7 +5,8 @@
 # 用法：
 #     bash sim/run_tb.sh                    # 快速冒烟（180x144 + 四路 64x48）
 #     bash sim/run_tb.sh full               # 全画幅（720x576 + 四路 256x128，慢）
-#     bash sim/run_tb.sh menu               # 菜单承载路实参 544x208
+#     bash sim/run_tb.sh menu               # 菜单承载路旧实参 544x208
+#     bash sim/run_tb.sh menu8              # 菜单承载路缩小后实参 272x208
 #     bash sim/run_tb.sh max                # 单路最大尺寸 544x288
 #     bash sim/run_tb.sh full +BASELINE=sim/baseline_before.txt
 #
@@ -31,10 +32,11 @@ MODE="${1:-fast}"
 shift || true
 
 # 几何由**编译期宏**选择：位图尺寸决定了测试平台内部内存模型的槽位布局，
-# 改不了运行时。四种几何覆盖任务 7.2-7.6 需要的全部尺寸组合。
+# 改不了运行时。五种几何覆盖任务 7.2-7.6 需要的全部尺寸组合。
 case "$MODE" in
     full) DEFINES="+define+TB_FULLWIN" ;;   # 720x576 + 四路 256x128（2x2 并排）
-    menu) DEFINES="+define+TB_MENU"    ;;   # 720x576 + 四路 544x208（菜单承载路实参）
+    menu) DEFINES="+define+TB_MENU"    ;;   # 720x576 + 四路 544x208（菜单路旧实参）
+    menu8) DEFINES="+define+TB_MENU8"  ;;   # 720x576 + 四路 272x208（菜单路缩小后实参）
     max)  DEFINES="+define+TB_MAXWIN"  ;;   # 720x576 + 四路 544x288（D6 上限）
     *)    DEFINES="+define+FAST_FRAME" ;;   # 180x144 + 四路 64x48（冒烟）
 esac

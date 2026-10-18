@@ -50,7 +50,7 @@ BT.656 输出前目前只有**一路**掩膜叠加（`src/overlay/HyperRamMaskOv
   尺寸与基址不进寄存器，改由参数给出。
 - **把 `0x04` UI 大类协议的显示状态语义并入本变更范围**（线上应答契约归
   `add-softcore-uart-app` 的 `softcore-uart-protocol`）：菜单承载在 D3 表第 2 行
-  那一路（`0x00A4_0000`/`0x00B4_0000`，参数 544×208），
+  那一路（`0x00A4_0000`/`0x00B4_0000`，参数 **272×208**、字符格 8×16），
   RTL 侧对"菜单"与"掩膜"不作区分；协议解析与字形合成在软核侧，
   **尽量复用 `ti60-osd-main` 的现有 C 代码**，不重写。
 - 两条位图上传路径都改为 **1 bit/像素位打包**：RTL 侧 `RtlMaskUartAxiWriter` 与软核 AXI 路径，
@@ -100,7 +100,7 @@ BT.656 输出前目前只有**一路**掩膜叠加（`src/overlay/HyperRamMaskOv
 **外部依赖**
 - 软核固件源码**不在本仓库**（仅有预编译 `ivlabIspSoftCore.hex`）。本变更只定义 RTL 侧契约
   （区域地址 + 寄存器映射 + 位图格式），固件侧改造列为仓库外依赖。
-- `ti60-osd-main`（MCU 侧菜单 OSD）必须随本变更做 5 项改动：画布由 720 收窄到 544、
+- `ti60-osd-main`（MCU 侧菜单 OSD）必须随本变更做 5 项改动：画布由 720 收窄到 **272**（字符格由 16×16 改成 8×16）、
   改为 1 bit/像素、基址改用固定值、删除运行时基址寄存器需求、
   画布切换收敛为写菜单承载路的 `CTRL.buffer_select`。
 - `add-softcore-uart-app` 的 `softcore-uart-protocol` spec 需修订为

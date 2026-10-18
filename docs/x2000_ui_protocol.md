@@ -90,6 +90,12 @@ image_enhance:u8 | contrast:u8 | image_brightness:u8 | screen_brightness:u8
 | `0x0900` | 显示设置 |
 | `0x0901` | 画面移动 |
 
+> **实现范围（当前固件）**：上表是**协议侧保留的稳定 ID 全集**，但 TI60 固件目前只实现了 3 页 ——
+> `0x0000` 一级菜单（9 项）、`0x0100` 图像设置（6 项，前 4 项是数值行）、`0x0200` 图像模式
+> （规格里叫“调色板”，固件标题是 `IMAGE MODE`，4 项）。
+> 对其余页发 `SET_VIEW` 一律返回失败（10 字节应答、`status=0x00`），且不改变当前状态。
+> 逐页对照与测试命令见 [osd_menu_test_commands.md](osd_menu_test_commands.md)。
+
 页面 ID 在菜单文字或生成数组顺序变化后保持不变。完整映射由 `tools/generate_ui_menu.py` 中的 `PAGE_PATH_IDS` 维护。
 
 ## 5. X2000 推荐刷新顺序

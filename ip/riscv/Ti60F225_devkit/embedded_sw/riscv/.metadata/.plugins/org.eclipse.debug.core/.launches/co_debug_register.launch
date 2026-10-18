@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
-    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE" value="${none}"/>
-    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="H:\Efinity\2026.1\debugger\bin\jtag_daemon_cmd.bat"/>
-    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="&quot;--register_id&quot;&#10;&quot;RISCV-IDE&quot;&#10;&quot;--auto_select&quot;&#10;&quot;--chain_tap&quot;&#10;&quot;1,tap1,5&quot;&#10;&quot;--gdb_port&quot;&#10;&quot;3333&quot;&#10;&quot;--jtag_khz&quot;&#10;&quot;6000&quot;&#10;&quot;--debug&quot;&#10;&quot;--cfg_file&quot;&#10;&quot;H:\Project\ivlab-fpga-239-ti60f225+200MHz_reconstruction\embedded_sw\riscv\bsp\efinix\EfxSapphireSoc\openocd\co_debug\co_debug.cfg&quot;"/>
-</launchConfiguration>

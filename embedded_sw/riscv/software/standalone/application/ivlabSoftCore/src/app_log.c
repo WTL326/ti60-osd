@@ -493,9 +493,27 @@ uint32_t app_log_flush(void)
 
     s_emit[out] = '\0';
 
+#ifdef APP_LOG_OFF
+    /* APP_LOG_OFF：日志只丢弃、不输出。
+     *
+     * 为什么需要这个开关：日志默认走 semihosting（bsp.h 的
+     * ENABLE_SEMIHOSTING_PRINT=1，底层是 slli/ebreak/srai），而**本核在没有
+     * 调试器时会把那条 ebreak 变成"挂住等调试器"**，不是异常 —— 于是固件会停在
+     * 第一次真正输出日志的地方，后面的 proto_uart_init()/isr_init() 永远轮不到，
+     * 表现就是"菜单画得出来、ADB 全无应答"，且只在**不接调试器**时出现。
+     *
+     * 所以烧进 flash、要脱离调试器自启的那份固件必须带这个开关
+     * （work_pnr/run_merge_flash_image.sh 就是带 LOG=off 编的）。
+     * 带调试器调试时不要开它，否则那串启动横幅/回读日志就看不到了。
+     *
+     * 实现上只跳过这一句、其余队列逻辑照旧：这样 app_log_pending() 的语义不变，
+     * 调用方（diag_drain / 主循环）的"排空"循环仍然会正常结束。
+     * 本函数是 app_log.c 里唯一碰硬件的地方，所以挡住它一个就够了。*/
+#else
     /* 唯一的硬件调用点。这一句会让 CPU 停顿若干时间（见 app_log.h），
      * 所以它被放在主循环里、在服务完 uart1 之后。*/
     bsp_printf("%s", s_emit);
+#endif /* APP_LOG_OFF */
 
     return out;
 }

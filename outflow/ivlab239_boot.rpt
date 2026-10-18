@@ -1,0 +1,8 @@
+**** Efinity Programming Tool Generation Report *****
+Time: 2026-10-08 23:15
+
+Generated FPGA Soc Image output file: H:/Project/ivlab-239/outflow/ivlab239_boot.hex
+Flash Address  Length      Input Image File
+0x00000000     0x000e6bf3  H:/Project/ivlab-239/outflow/ivlab239_c.hex
+0x00380000     0x000047c2  H:/Project/ivlab-239/embedded_sw/riscv/software/standalone/application/ivlabSoftCore/build/ivlabSoftCore.bin
+

@@ -461,7 +461,7 @@ module HyperRamMaskOverlayYuv422 #(
             frame_top0    <= 12'sd0;  frame_top1  <= 12'sd0;
             frame_top2    <= 12'sd0;  frame_top3  <= 12'sd0;
             active_buffer_select <= 4'd0;
-            stall_count   <= 32'd0;
+            //stall_count   <= 32'd0;
             frame_count   <= 16'd0;
             read_error_count <= 16'd0;
             s1_dx0 <= 17'sd0;  s1_dx1 <= 17'sd0;

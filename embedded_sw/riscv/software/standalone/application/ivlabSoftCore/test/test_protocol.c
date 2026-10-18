@@ -1018,9 +1018,11 @@ static void test_engine(void)
         boot_sum = block_sum(boot_blk);
 
         h_check(nz > 0U, "boot frame is not blank (scene_build ran before render)");
-        /* 两列边框 13 行 × 16 扫描行 × 2 字节，加上下边框，至少几百字节。
-         * 500 这个门槛远高于"个别杂散位"，又远低于真实的菜单量。*/
-        h_check(nz >= 500U, "boot frame looks like a menu-sized drawing");
+        /* 门槛**由画布推导**，不写魔数：两列边框 = 每行 2 字节 × 画布高。
+         * 这样改字符格尺寸（画布会跟着变）时门槛自动跟着走，不会再失效 ——
+         * 上一版就是个按 16×16 算出来的 500，画布变成 1/4 后它就没意义了。*/
+        h_check(nz >= 2U * (uint32_t)OSD_CANVAS_H,
+                "boot frame looks like a menu-sized drawing");
         /* 标题行（第 1 个字形行）必须有笔画：与具体字形无关，有文字就必然成立 */
         for (k = (uint32_t)OSD_ROW_TITLE * (uint32_t)OSD_GLYPH_H
                  * (uint32_t)OSD_ROW_STRIDE;
@@ -1217,7 +1219,7 @@ void test_readback(void)
     protocol_stats_t    stats;
     protocol_response_t resp;
     uint8_t             ack[PROTOCOL_ACK_MAX];
-    static uint8_t      buf[OSD_BLOCK_BYTES];   /* 14 KB：走 .bss，别占栈 */
+    static uint8_t      buf[OSD_BLOCK_BYTES];   /* 7 KB：走 .bss，别占栈 */
     canvas_regs_t       regs;
     const uint8_t      *ref;
     uint32_t            i;

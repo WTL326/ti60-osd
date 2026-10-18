@@ -16,7 +16,10 @@
 
 ## 前置
 
-- [ ] `EFINITY_HOME` 已设（`efx_*` 脚本与 `binGen.py` 都依赖它）
+- [ ] `EFINITY_HOME` 已设（`efx_*` 脚本与 `binGen.py` 都依赖它）。
+      阶段 6 的 `run_merge_flash_image.sh` 还会自己导出 `EFXPGM_HOME`/`EFXDBG_HOME`/
+      `PYTHONHOME` —— 官方 `multi_image_merger.py` 少了这几个会以各种方式报错
+      （KeyError、`No module named 'encodings'`），脚本里已一并处理，不必手工设。
 - [ ] 已备份改动前的 `outflow/`（时序/资源/warn.log 的对照基线）
 
 > **基线是"调试位流"的数字，比对时要按这个口径。** 现有 `outflow/` 里那份产物
@@ -52,13 +55,15 @@ LA 的探针输入端口本身就是该信号的负载，于是即便它原本�
 
 位流 A = `rtl_mask_mode = 1'b0`、**不含调试核**，它是正式位流，时序结论以它为准。
 
-> **关键**：不跑 `work_dbg/` 脚本**并不等于**得到正式位流 —— `run_efx_pnr.sh` 里写死了
-> `--vdb_file outflow/ivlab239_c.dbg.vdb`（调试核的 vdb）。必须：
-> ```bash
-> cp work_pnr/run_efx_pnr.sh work_pnr/run_efx_pnr_formal.sh
-> # 把 --vdb_file ".../outflow/ivlab239_c.dbg.vdb" 改成 ".../outflow/ivlab239_c.vdb"
-> # 其余参数一字不改（--use_vdb_file on、--prj、--sdc_file、--seed 1 都保留）
-> ```
+**关键**：不跑 `work_dbg/` 脚本**并不等于**得到正式位流 —— `run_efx_pnr.sh` 里写死了
+`--vdb_file outflow/ivlab239_c.dbg.vdb`（调试核的 vdb）。必须：
+
+```bash
+cp work_pnr/run_efx_pnr.sh work_pnr/run_efx_pnr_formal.sh
+# 把 --vdb_file ".../outflow/ivlab239_c.dbg.vdb" 改成 ".../outflow/ivlab239_c.vdb"
+# 其余参数一字不改（--use_vdb_file on、--prj、--sdc_file、--seed 1 都保留）
+```
+
 > **判定**：`outflow/ivlab239_c.route.rpt` 的 `GBUFCE Assignments` 表里
 > **不出现** `edb_top_autodbg_inst__/bscan_TCK_buffered`。出现了就是误带了 `.dbg.vdb`。
 
@@ -268,6 +273,50 @@ LA 的探针输入端口本身就是该信号的负载，于是即便它原本�
 
 ---
 
+## 阶段 6：固化位流 + 固件到 flash（掉电自启）
+
+前面几个阶段都是「JTAG 烧位流 + GDB 下载固件」，掉电即失效。这一阶段把两者合并成
+**一个**镜像写进 SPI flash，让板子脱离调试器也能起来。
+
+- [ ] **6.0** ROM 里的 bootloader 是**用本仓库 BSP 编的那份**（不是 Efinity 的默认 init）。
+      判定与修法见 `docs/osd_menu_test_commands.md` §1.2c —— **漏了这一步，后面全白做**：
+      Efinity 默认灌入的 bootloader 用了另一套 SoC 地址映射（SPI `0xF8014000`，本 SoC 是
+      `0xF8006000`），会让 flash 自启永远失败
+- [ ] **6.1** 位流三连已跑完，且 `outflow/ivlab239_c.hex` 是**本次**的产物
+      （判定同 1.3：头部是 `Mode: active`，且 `ivlab239_c.route.rpt` 里没有调试核）
+- [ ] **6.2** `bash work_pnr/run_merge_flash_image.sh` → `outflow/ivlab239_boot.hex`。
+      脚本会自己编固件、合并、并**逐字节复验**；只有退出码 0 才算过
+      （`multi_image_merger.py` 自身出错也退 0，不能只看它）
+- [ ] **6.3** 核对 `outflow/ivlab239_boot.rpt` 两行：位流 `0x00000000`、
+      固件 `0x00380000` / `0x00009582`（38274 字节；固件改了这行会变）
+- [ ] **6.4** Efinity Programmer（USB JTAG）烧 `outflow/ivlab239_boot.hex`，**active 模式**
+- [ ] **6.5** **整机断电**（不要只按复位），重上电，**不接调试器、不下载固件**
+- [ ] **6.6** `python tools/check_ui_end_to_end.py --dry-run` 自检，再
+      `python tools/check_ui_end_to_end.py` 应全绿
+
+6.2 是 bash 脚本。PowerShell 里这么调（**不必设 `EFINITY_HOME`**，脚本自带默认值；
+路径写全就不要求当前目录在仓库根）：
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" H:/Project/ivlab-239/work_pnr/run_merge_flash_image.sh
+```
+
+**判据为什么成立**：`check_ui_end_to_end.py` 不幂等，依赖 `ui_init()` 的数值初值
+`[3,5,7,5]`（只在上电初始化时存在，`SET_VIEW` 不复位它们）。它能跑过 = 软核确实
+冷启动过一次 = 固件是从 flash 被 bootloader 搬进 `0x1000` 起来的，
+而不是上一次 JTAG 下载的残留。
+
+**注意**：自启时**看不到启动横幅是正常的** —— 日志走 semihosting，不接调试器时
+`ebreak` 被 `src/main.c` 的 `trap()` 静默吞掉（那是为"现场不接调试器运行"专门写的）。
+别用"有没有横幅"判断自启成败。要在自启后看横幅，按 §2 的说明用
+`monitor reset halt` + `continue`，**不要 `load`**。
+
+> **归档**：`outflow/ivlab239_boot.hex` 与 `.rpt` 也要随正式位流一起归档，
+> 并在 `outflow/formal/README` 里记下 `git rev-parse HEAD`。它约 11 MB，且可由两个
+> 输入完全复现，所以**不入库**（根目录 `.gitignore` 已忽略；真要入库用 `git add -f`）。
+
+---
+
 ## 看起来像故障但不是故障
 
 - **`send_ui_via_adb.py` 的 `--show`/`--hide`/`--key`/`--clear`/`--marker` 超时**：
@@ -276,11 +325,18 @@ LA 的探针输入端口本身就是该信号的负载，于是即便它原本�
 - **位流 B 里一切经软核的 ADB 命令都没反应**：`rtl_mask_mode=1` 把 `riscv_uart_rx_1`
   切成常量，软核收不到 UART。预期行为。
 - **旧固件的掩膜上传在位流 A 上没有画面变化**：它写的是 `0x0040_0000` 的老画布，
-  新 RTL 已不读那一段；本轮位流也沿用了旧固件的 BRAM init。
+  新 RTL 已不读那一段；位流里那 4 KB 片上 RAM 装的始终是 Efinix 的 SPI-flash
+  bootloader（不是本工程的固件——固件在 flash `0x00380000`，或由 GDB 下到 `0x1000`）。
 - **`tools/generate_ui_menu.py` / `generate_ui_font.py` 直接失败**：前者输出路径写死在
   不存在的 `D:\Desktop\...`，后者依赖 PIL 且 `src/ui/` 不存在。属后续"26 页菜单"那条路。
 - **`EFX.warn.log` 里的 `Re-wiring to GND non-driven net`**：`hbram_top` 的 `native_*`
   端口与调试核的探针位，改动前就有，不是本次引入的。
+- **`efx_map` 一启动就 `EXCEPTION_ACCESS_VIOLATION`（段错误），日志里连工程都没读**：
+  先查 **`EFINITY_HOME` 有没有设**。`work_syn/run_efx_map.sh` 用的是绝对路径调
+  `H:/Efinity/2026.1/bin/efx_map`，所以看起来"不需要环境变量"，但**工具自己要它**
+  去找器件/器件库数据 —— 少了就直接崩在启动处，栈是 `libefx.dll`，看不出跟工程有关。
+  实测：`export EFINITY_HOME="H:/Efinity/2026.1"` 后同一条命令 59 秒跑完、退出码 0。
+  同样的坑对 `efx_pnr` / `efx_pgm` 一样。
 - **OSD0 / OSD2 / OSD3 三路"没有内容"或"使能恒 0"**：当前位流里
   `rtl_mask_mode = 1'b0` 把掩膜上传状态机旁路了（OSD0 因此无写入方），而固件只写 OSD1；
   另三路的暂存值一直是复位值 0，**每次 UI 提交都会把它们按 0 推出去**。

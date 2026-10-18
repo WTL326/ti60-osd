@@ -1833,19 +1833,25 @@ module top #(
     //          上传状态机的基址一行都不用改）
     //   路 1 = 菜单承载路，取第 2 行（与上传路必须不同，否则上传会覆盖菜单画布）
     //   路 2/3 暂未分配，按 D6 上限取尺寸
-    // 尺寸为**编译期参数**（D6）：改尺寸要重新综合。菜单的 544x208 是菜单框本身，
+    // 尺寸为**编译期参数**（D6）：改尺寸要重新综合。菜单的 272x208 是菜单框本身，
     // 其余路取上限 544x288 作为掩膜的默认画布。
     HyperRamMaskOverlayYuv422 #(
-        .OSD0_WIDTH           (544),  .OSD0_HEIGHT          (288),
+        .OSD0_WIDTH           (544),  
+        .OSD0_HEIGHT          (288),
         .OSD0_BASE_A          (32'h00A0_0000),
         .OSD0_BASE_B          (32'h00B0_0000),
-        .OSD1_WIDTH           (544),  .OSD1_HEIGHT          (208),
+        // 菜单承载路：尺寸必须与固件 src/osd/osd_config.h 的 OSD_CANVAS_W/H 一致，
+        // 且随字符格改变（8×16 格 × 34 列 × 13 行 = 272×208）。改这里要重新综合。
+        .OSD1_WIDTH           (272),  
+        .OSD1_HEIGHT          (208),
         .OSD1_BASE_A          (32'h00A4_0000),
         .OSD1_BASE_B          (32'h00B4_0000),
-        .OSD2_WIDTH           (544),  .OSD2_HEIGHT          (288),
+        .OSD2_WIDTH           (544),  
+        .OSD2_HEIGHT          (288),
         .OSD2_BASE_A          (32'h00A8_0000),
         .OSD2_BASE_B          (32'h00B8_0000),
-        .OSD3_WIDTH           (544),  .OSD3_HEIGHT          (288),
+        .OSD3_WIDTH           (544),  
+        .OSD3_HEIGHT          (288),
         .OSD3_BASE_A          (32'h00AC_0000),
         .OSD3_BASE_B          (32'h00BC_0000),
         .FRAME_WIDTH          (720),

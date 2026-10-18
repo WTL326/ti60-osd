@@ -57,6 +57,19 @@
 `define TB_POS1 {16'd88,  16'd368}
 `define TB_POS2 {16'd0,   16'd368}
 `define TB_POS3 {16'd176, 16'd0}
+`elsif TB_MENU8
+// 菜单缩小后的**实参几何**：字符格 8×16、34 列 × 13 行 → 272×208。
+// 为什么必须单独一组：行跨距变成 34 字节（非 2 的幂），一个 256 字节缓存块从
+// "覆盖约 3.8 行"变成"覆盖约 7.5 行" —— 预取与命中的行为跟旧几何不是一回事，
+// 得用突发/停滞计数实测，不能想当然。四路按 2×2 铺开（2×272=544≤720，2×208=416≤576）。
+`define TB_FRAME_W  720
+`define TB_FRAME_H  576
+`define TB_W0 272
+`define TB_H0 208
+`define TB_POS0 {16'd0,   16'd0}
+`define TB_POS1 {16'd272, 16'd0}
+`define TB_POS2 {16'd0,   16'd208}
+`define TB_POS3 {16'd272, 16'd208}
 `elsif TB_MAXWIN
 `define TB_FRAME_W  720
 `define TB_FRAME_H  576

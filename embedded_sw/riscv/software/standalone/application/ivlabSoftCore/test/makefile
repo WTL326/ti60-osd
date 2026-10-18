@@ -69,7 +69,7 @@ OBJS = $(OBJDIR)/harness.o $(OBJDIR)/test_main.o $(OBJDIR)/test_protocol.o \
        $(OBJDIR)/frame.o $(OBJDIR)/crc16.o $(OBJDIR)/protocol.o \
        $(OBJDIR)/app_log.o \
        $(OBJDIR)/ui.o $(OBJDIR)/font.o $(OBJDIR)/scene_table.o \
-       $(OBJDIR)/composer.o $(OBJDIR)/font16_bin.o \
+       $(OBJDIR)/composer.o $(OBJDIR)/font8x16_bin.o \
        $(OBJDIR)/osd_engine.o $(OBJDIR)/canvas_mem.o
 
 .PHONY: all run clean

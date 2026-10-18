@@ -176,16 +176,19 @@ void isr_routine(){
 *       代码里就是按这个规则拆的。
 *
 * @note 为什么"断点异常"要容忍而不是当错误处理：
-*       调试输出用的 semihosting，其底层是往代码里插一条特殊指令序列
-*       （slli x0,x0,0x1f; ebreak; srai x0,x0,7，见 BSP 的 semihosting.h）。
-*       ebreak 这条指令会让 CPU 停下、等调试器来处理。
-*       但如果**没有连接调试器**，就没人处理它，ebreak 会变成一个普通的
-*       "断点异常"跳进这里。这时候如果像其它异常一样停机，整个软核就死了、
-*       协议端点也随之失效——而现场完全可能不接调试器运行。
-*       所以这里对它特殊处理：只计数、直接返回。
-*       返回之后 CPU 会接着执行 ebreak 的下一条指令（srai x0,x0,7，这条
-*       只是往 x0 里写值，没有副作用），于是这次 semihosting 调用就安静地
-*       变成了"什么都不做"，程序继续正常跑。
+*       断点异常的 mepc 指向 ebreak 自身，直接 return 会让 mret 回到同一条
+*       指令上原地死循环（trap.S 的 trap_entry 不碰 mepc）。所以这里计数 +
+*       把 mepc 推过这条 ebreak 再返回，行为是"跳过并继续"。
+*
+* @note **但这并不能解决"不接调试器跑固件"的问题**（曾经的误解，实测已否）：
+*       调试输出用的 semihosting，底层是 slli/ebreak/srai 序列
+*       （semihosting.h:97-99）。本核在没有调试器时，这条 ebreak **不会**变成
+*       断点异常跳进本函数，而是把核挂住等调试器 —— 证据：读 0xA5D8 处的
+*       s_semihosting_breakpoints，不接调试器时恒为 0（本函数从未被调用），
+*       而核停在那儿、PC 冻结、CSR 全 0。现场表现是"菜单画得出来（它排在
+*       第一次日志输出之前），但协议端点永远起不来、ADB 全部无应答"。
+*       要让它不接调试器也能跑，只能**不让固件走 semihosting**
+*       （bsp.h 的 ENABLE_SEMIHOSTING_PRINT，或让 app_log 不再 flush）。
 *
 * @note 其它异常是真故障（比如非法指令），既不吞掉也不停机：计数 + 只把第一条
 *       打到日志里，然后继续运行。这样既留下了线索，又不会因为一个偶发异常
@@ -209,8 +212,24 @@ void trap(){
     }
 
     if (cause == CAUSE_BREAKPOINT) {
-        /* semihosting 调用、且没有调试器接管：忽略。详见上面的说明。*/
+        /* 断点异常：跳过这条 ebreak 再返回。
+         *
+         * 为什么必须推 mepc：断点异常的 mepc 指向 ebreak **自身**，trap.S 的
+         * trap_entry 不碰 mepc，而 mret 会回到 mepc —— 不推的话就是原地死循环。
+         * （调试器接管时由调试器自己跳过，轮不到这里。）
+         *
+         * **但请注意：这条分支不是"没接调试器时 semihosting 的出路"。**
+         * 实测（读 0xA5D8 处的 s_semihosting_breakpoints 恒为 0）表明：本核在
+         * 没有调试器时，semihosting 的 ebreak **不会**变成断点异常跳进来，而是
+         * 直接把核挂住等调试器。所以"不接调试器跑固件"这件事**不能**靠这里补救，
+         * 只能不让固件走 semihosting（见 app_log.h 与 bsp.h 的
+         * ENABLE_SEMIHOSTING_PRINT）。这段保留只是为了：万一代码里真出现
+         * ebreak 引发的断点异常，行为是"跳过并继续"而不是卡死。
+         *
+         * +4 而不是 +2：本工程用 -march=rv32im_zicsr_zifencei，没开压缩指令集，
+         * 指令都是 4 字节。*/
         s_semihosting_breakpoints++;
+        csr_write(mepc, csr_read(mepc) + 4);
         return;
     }
 
@@ -461,9 +480,10 @@ static void handle_frame(const frame_t *frame){
 #if OSD_BOOT_DIAG
 
 /* 缩略图：每个字符代表 8×8 像素。
- * 这个划分不是随手取的：行跨距 68 字节 = 544/8，所以一格恰好是**每行一个
+ * 这个划分不是随手取的：行跨距 34 字节 = 272/8，所以一格恰好是**每行一个
  * 字节、共 8 行**，于是"格内有亮点"等价于"这 8 个字节里有任何一个非零"，
- * 不必逐位判断。列数 = 544/8 = 68，行数 = 208/8 = 26。*/
+ * 不必逐位判断。列数 = 272/8 = 34，行数 = 208/8 = 26 —— 字符格宽也是 8 px，
+ * 所以横向**一个缩略格正好是一个字符**（纵向两个）。*/
 #define DIAG_CELLS_X  (OSD_CANVAS_W / 8)
 #define DIAG_CELLS_Y  (OSD_CANVAS_H / 8)
 #define DIAG_BYTES    ((uint32_t)OSD_BLOCK_BYTES)
@@ -615,7 +635,7 @@ static void diag_dump_block(int idx, uint8_t *buf)
 *       往返失败说明写没落下去（病因在甲侧）。canvas_bytes_written() 则是乙的直证。
 *
 * @note 探针地址取 OSD1 槽位内、位图之外的那一段（0x00A40000 + 0x20000）：
-*       叠加扫描只看位图的前 14,144 字节，所以写在那里**不会被扫描到**、
+*       叠加扫描只看位图的前 7,072 字节，所以写在那里**不会被扫描到**、
 *       不会在画面上留下白点。另外几个地址只读不写，纯观测。
 ******************************************************************************/
 /* 两个探针地址与"刚写下去的值"。留成文件级静态是为了在整段回读的**最后**
@@ -704,7 +724,7 @@ static void diag_probe_sticky(void)
 /******************************************************************************
 * @brief 上电回读一次：寄存器 + 两块位图 + 往返探针。
 *
-* @note 缓冲用 static：14,144 字节远超本工程的栈预算，而它只在启动时用一次、
+* @note 缓冲用 static：7,072 字节远超本工程的栈预算，而它只在启动时用一次、
 *       不进主循环，放 .bss 正合适。两块**共用**同一个缓冲 —— 先读 A、打完再
 *       读 B，省一半内存（回读是给眼睛看的，不需要两块同时在手）。
 ******************************************************************************/
@@ -761,7 +781,7 @@ void main() {
     app_log("*** ivlabSoftCore ***");
     app_log("debug channel: semihosting (JTAG)");
     app_log("protocol: BB frame, categories 0x00 (mask) + 0x04 (UI)");
-    app_log("osd: menu on OSD1 544x208 1bpp, canvas A/B = 0x%x / 0x%x",
+    app_log("osd: menu on OSD1 272x208 1bpp 8x16 cell, canvas A/B = 0x%x / 0x%x",
             (uint32_t)OSD_BLOCK0_ADDR, (uint32_t)OSD_BLOCK1_ADDR);
 
 #if OSD_BOOT_DIAG

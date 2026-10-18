@@ -1,6 +1,6 @@
 Efinity Synthesis report for project edb_top
 Version: 2026.1.132.4.5
-Generated at: Sep 22, 2026 21:56:47
+Generated at: Oct 08, 2026 22:42:27
 Copyright (C) 2013 - 2026  All rights reserved.
 
 Top-level Entity Name : edb_top
@@ -48,10 +48,10 @@ Total number of FFs with enable signals: 561
 |CE Signal                                       |Number of FF loads|
 +------------------------------------------------+------------------+
 |debug_hub_inst/n96                              |               82 |
+|ceg_net14                                       |               64 |
 |la0/n1114                                       |               64 |
 |la0/tu_trigger                                  |               64 |
 |la0/n1631                                       |               64 |
-|ceg_net14                                       |               64 |
 |ceg_net19                                       |               32 |
 |la0/addr_ct_en                                  |               25 |
 |ceg_net26                                       |               22 |
@@ -61,8 +61,8 @@ Total number of FFs with enable signals: 561
 |la0/regsel_ld_en                                |               13 |
 |la0/la_biu_inst/n351                            |               11 |
 |la0/la_biu_inst/n2081                           |               10 |
-|la0/la_biu_inst/fifo_with_read_inst/is_last_data|               10 |
 |la0/la_biu_inst/fifo_push                       |               10 |
+|la0/la_biu_inst/fifo_with_read_inst/is_last_data|               10 |
 |ceg_net5                                        |                6 |
 |la0/op_reg_en                                   |                4 |
 |la0/la_biu_inst/data_o_en                       |                4 |
@@ -70,10 +70,10 @@ Total number of FFs with enable signals: 561
 |la0/n3453                                       |                3 |
 |la0/n2620                                       |                3 |
 |ceg_net11                                       |                3 |
-|debug_hub_inst/n265                             |                1 |
 |ceg_net2                                        |                1 |
-|la0/trigger_skipper_n/equal_6/n127              |                1 |
 |ceg_net27                                       |                1 |
+|la0/trigger_skipper_n/equal_6/n127              |                1 |
+|debug_hub_inst/n265                             |                1 |
 +------------------------------------------------+------------------+
 
 ### ### EFX_FF CE enables (end) ### ### ###

@@ -2,7 +2,14 @@
 
 以下命令在电脑端执行，通过ADB让X2000向`/dev/ttyS1`发送现有Python脚本生成的同一报文。命令只负责发送；带“查询”的命令不会在终端显示回包。
 
+> **要测 OSD 菜单显示，请看 [osd_menu_test_commands.md](osd_menu_test_commands.md)。** 那份带判据（回包该是什么、画面上该看到什么）与排查表。
+> 本文件是全模块的裸命令清单，只负责“发出去”，看不出成功失败。
+
 ## UI菜单和状态
+
+> **实现范围**：固件目前只实现了 3 个菜单页 —— `0x0000` 一级菜单（9 项）、`0x0100` 图像设置（6 项，前 4 项是数值行）、`0x0200` 图像模式（4 项）。下面第一段里只有这三页的 `SET_VIEW` 会成功，其余页返回失败（`status=0x00`）。
+> 另外 `0x01`–`0x05`（显示/隐藏/按键/状态/清除/测距标记）在固件里**只解析、不应答**，发出去必然超时 —— **这是设计，不是故障**。
+> **要显示/隐藏菜单，用 `0x06` 的 `flags.bit0`**（即下面的 `--view` 不带/带 `--hidden`），不是“隐藏UI”那一条。
 
 ```powershell
 adb shell 'stty -F /dev/ttyS1 115200 raw -echo & echo -ne "\\xBB\\x00\\x04\\x04\\x01\\x00\\x01\\xED\\xE0\\xAA" > /dev/ttyS1' # 显示UI
@@ -24,6 +31,10 @@ adb shell 'stty -F /dev/ttyS1 115200 raw -echo & echo -ne "\\xBB\\x00\\x07\\x04\
 adb shell 'stty -F /dev/ttyS1 115200 raw -echo & echo -ne "\\xBB\\x00\\x03\\x04\\x08\\x00\\x55\\x69\\xAA" > /dev/ttyS1' # 查询当前菜单页、选中项和四项数值
 ```
 以下每条命令直接显示对应页面并选中注释中的菜单项，序号从0开始。
+
+> **这一段的页面大多不在当前固件里**：下表的页面与条目文字按**规格**（26 页）写，
+> 而固件只有 `0x0000`/`0x0100`/`0x0200` 三页，条目文字与条目数也不同（例如 `0x0200` 固件里是 4 项、不是 7 项）。
+> 其余页发过去回 `status=0x00`。逐页对照见 [osd_menu_test_commands.md](osd_menu_test_commands.md) 附录 B。
 
 ```POWERSHELL
 adb shell 'stty -F /dev/ttyS1 115200 raw -echo & echo -ne "\\xBB\\x00\\x07\\x04\\x06\\x00\\x00\\x00\\x00\\x01\\x5C\\x06\\xAA" > /dev/ttyS1' # 0x0000 一级菜单 [0] Настройки изображения

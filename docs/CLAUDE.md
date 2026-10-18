@@ -14,6 +14,64 @@
 
 使用易灵思IDE进行编译
 
+### 位流 + 软核固件 → 单一 flash 镜像（掉电自启）
+
+**`work_*/run_*.sh` 都是 bash 脚本** —— PowerShell 里 `export` 和 `bash` 都不认
+（分别报 `无法将"export"项识别为 cmdlet`、`无法将"bash"项识别为 cmdlet`）。
+按你所在的 shell 二选一：
+
+PowerShell：
+
+```powershell
+$env:EFINITY_HOME = "H:/Efinity/2026.1"
+& "C:\Program Files\Git\bin\bash.exe" H:/Project/ivlab-239/work_pnr/run_merge_flash_image.sh
+```
+
+Git Bash：
+
+```bash
+export EFINITY_HOME="H:/Efinity/2026.1"     # 不设则 efx_* 一启动就崩
+bash work_syn/run_efx_map.sh
+bash work_pnr/run_efx_pnr_formal.sh          # 正式版：用 outflow/ivlab239_c.vdb
+bash work_pnr/run_efx_pgm.sh                 # → outflow/ivlab239_c.hex（active 模式）
+bash work_pnr/run_merge_flash_image.sh       # 编固件 + 合并 + 逐字节复验
+                                             # → outflow/ivlab239_boot.hex
+```
+
+> 两个脚本的环境要求不同：`run_merge_flash_image.sh` **不设 `EFINITY_HOME` 也能跑**
+> （自带默认值 `H:/Efinity/2026.1`，并会自己补 `EFXPGM_HOME`/`EFXDBG_HOME`/
+> `PYTHONHOME` 与 RISC-V IDE 的工具链）；上面三条 `efx_*` 则必须显式给
+> `EFINITY_HOME`，否则一启动就崩。
+>
+> **脚本路径要不依赖当前目录，就写绝对路径。** 脚本*内部*全用绝对路径（所以
+> 跑起来之后的读写与 cwd 无关），但**你传给 bash 的那个脚本路径本身**是相对 cwd
+> 解析的 —— 在 `H:\Efinity\2026.1\bin` 下敲 `bash work_pnr/run_merge_flash_image.sh`
+> 会报 `No such file or directory`。两种写法任选：先 `cd H:\Project\ivlab-239`，
+> 或路径直接写全（正斜杠 `H:/...` 与反斜杠 `H:\...` 都行）。下面 Git Bash 那段
+> 的相对路径同样要求 cwd 在仓库根目录。
+
+再用 Efinity Programmer（USB JTAG）烧 `outflow/ivlab239_boot.hex`，然后**整机断电重上电**。
+
+**flash 布局是 bootloader 定死的硬契约**（`bootloader/src/bootloaderConfig.h:17-19`）：
+位流 `0x000000`，固件 `0x00380000`（上限 `0x1F000` = 124 KB），
+上电由位流内那 4 KB 片上 ROM（CPU `0xF9000000`）的 bootloader 搬到 CPU `0x1000` 再跳转。
+固件放错地址不会报错，只会起不来。
+
+**另一个硬约束**：ROM 里那份 bootloader 必须是用本仓库 BSP 编的。
+`ip/riscv/settings.json` 的 `HexFile_PathEnable=1'b0` 会让 Efinity 灌入**它自己的默认
+bootloader**，那份按另一套 SoC 地址映射编（SPI 用 `0xF8014000`，本 SoC 是
+`0xF8006000`），结果是**flash 自启永远失败而 JTAG 下载一切正常**。
+改 ROM 初始化 = 重出位流，步骤见
+[OSD 菜单测试命令](osd_menu_test_commands.md) §1.2c。
+
+**第三个硬约束：烧进 flash 的那份固件必须用 `LOG=off` 编**（`run_merge_flash_image.sh`
+已经这么做了）。日志默认走 semihosting，而本核在没有调试器时会把 semihosting 的
+`ebreak` 变成"挂住等调试器"——固件会停在第一次输出日志的地方：菜单画得出来，但
+`proto_uart_init()`/`isr_init()` 永远轮不到，ADB 全哑。`LOG=off` 让日志只丢弃、不碰硬件。
+需要看日志时用默认的 `LOG=semihosting` 编、走 §1.2b 的 JTAG 流程。
+
+验收与细节见 [OSD 菜单测试命令](osd_menu_test_commands.md) §1.2a。
+
 ### 测试
 
 ```bash
@@ -60,8 +118,9 @@ BT.1120 输入 (80 MHz)
   ↓ UartMachineForwarder (UART 路由)
   ↓ RISC-V 软核 (50 MHz, clk50M 域)
       - CPU: VexRiscv (RV32IM)
-      - 存储: HyperRAM 0x0000_0000-0x007F_FFFF (8 MiB)
-      - 固件: ivlabIspSoftCore.hex
+      - 存储: DDR 窗口自 0x1000 起（soc.h SYSTEM_DDR_BMB），即外挂 HyperRAM
+      - 固件: ivlabSoftCore —— build/ivlabSoftCore.bin，烧在 SPI flash 0x00380000，
+              上电由位流内烤着的 bootloader 搬到 CPU 0x1000 执行
       - AXI 主接口: 访问控制寄存器
   ↓ Ti60AxiControlFabric (AXI 控制总线)
   ↓ ConfigSnapshotCdc (CDC: 50 MHz → 100 MHz)
@@ -271,6 +330,7 @@ H:\questasim64_10.6c\win64\vsim -do modelsim_hot_focus.do  # ~1 分钟
 - [内存映射与 AXI](docs/memory_axi.md) — HyperRAM 布局、三缓冲协议、AXI 拓扑
 - [测试与仿真](docs/testing.md) — Cocotb 测试、Questa Sim 脚本、工具链
 - [时序与资源](docs/timing_resources.md) — 时序约束、资源使用、DSP 添加指南
+- [OSD 菜单测试命令](osd_menu_test_commands.md) — 现场手册：前置、启动自检、正向/负向命令与判据（`0x04` UI）
 
 ## 控制接口
 
@@ -284,17 +344,22 @@ H:\questasim64_10.6c\win64\vsim -do modelsim_hot_focus.do  # ~1 分钟
 - `tools/send_zoom_via_adb.py` — 电子变倍 ROI
 - `tools/send_hot_focus_via_adb.py` — 热点追踪启用/禁用
 - `tools/send_mask_via_adb.py` — 上传位图（1 bit/像素，打包在工具侧完成）
+- `tools/send_ui_via_adb.py` — OSD 菜单（`0x04` UI）：切页/选中/编辑态/显隐/数值/回读
+- `tools/check_ui_end_to_end.py` — `0x04` 端到端验收（`--dry-run` 可离机自检）
 
 ## HyperRAM 内存映射
 
-- `0x00000000–0x003FFFFF`: RISC-V 固件 (4 MiB)
+- `0x00000000–0x003FFFFF`: RISC-V 固件 (4 MiB)。固件本体从 `0x1000` 起、实际 38274 字节
+  （`_start`=`0x1000`，到 `.data` 末尾 `0xA582`）。上电由 SPI flash `0x00380000` 搬来。
+  **注意**：SoC 的 4 KB 片上 RAM（装 bootloader）不在这一段，它在
+  `0xF9000000`（`soc.h SYSTEM_RAM_A_CTRL`），也是 CPU 的复位向量
 - `0x00400000–0x007FFFFF`: RISC-V 工作区 (4 MiB)。改造前起始处放过 720×576 8-bit
   掩膜画布（`0x00400000`/`0x00500000`），**本次改造后 RTL 不再从本段读画布**
 - `0x00800000–0x009FFFFF`: 保留 (2 MiB)，无 RTL 访问者（软件约定，非硬件禁访）
 - `0x00A00000–0x00BFFFFF`: **OSD 位图区** (2 MiB)：`0xA0` 段装 4 路的 A 缓冲、
   `0xB0` 段装 4 路的 B 缓冲，各 256 KB 槽位（`0xA0`/`0xA4`/`0xA8`/`0xAC`
   与 `0xB0`/`0xB4`/`0xB8`/`0xBC`）。1 bit/像素、行跨距 `width/8`，
-  位流实际尺寸 544×288 与 544×208，一缓冲仅 19 KB 量级
+  位流实际尺寸 544×288（掩膜上传路）与 272×208（菜单承载路，字符格 8×16），一缓冲 7~20 KB
 - `0x00C00000–0x00EFFFFF`: CVBS 显示缓冲 0/1/2 (3 MiB)
 - `0x01000000–0x0177FFFF`: 电子变倍源帧 A/B/C (7.5 MiB)
 - `0x01800000–0x01F7FFFF`: 电子变倍结果帧 A/B/C (7.5 MiB)

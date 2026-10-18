@@ -1,0 +1,21 @@
+# ===== 既有规则（保留）=====
+# 合并后的 SPI-flash 镜像（位流 + 软核固件），约 11 MB。
+# 不入库：可由 outflow/ivlab239_c.hex + build/ivlabSoftCore.bin 复现。
+# 确需入库用 git add -f 绕过。
+#
+# 与之配套的 .rpt 不忽略：记录镜像 flash 地址与长度，是唯一凭据，体积可忽略。
+/outflow/*
+!/outflow/*.rpt
+
+# 固件构建的"上次用的日志模式"标记（makefile 生成，构建状态非源码）。
+embedded_sw/riscv/software/standalone/application/ivlabSoftCore/build/.log_mode
+
+# ===== 新增：Efinix 实现工作目录 / 生成产物（可复现，不入库）=====
+/work_dbg/
+/work_pnr/
+/work_syn/
+/work_pt/
+/ooc/
+
+# ===== 新增：Eclipse / IDE 元数据（纯本地状态，不入库）=====
+**/.metadata/

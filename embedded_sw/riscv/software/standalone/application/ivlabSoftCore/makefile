@@ -27,6 +27,20 @@ CFLAGS+=-DSMP
 # 少了这一行，报错是 src/osd/osd_engine.h 找不到 frame.h。
 CFLAGS+=-Isrc
 
+# 日志通道开关（详见 src/app_log.c 里 APP_LOG_OFF 那段说明）：
+#   LOG=semihosting （默认）—— 日志经 semihosting 打到调试控制台。**必须插着调试器**：
+#                             本核在没有调试器时会把 semihosting 的 ebreak 变成"挂住
+#                             等调试器"，固件会停在第一次输出日志的地方，后面的
+#                             proto_uart_init()/isr_init() 永远轮不到。
+#   LOG=off                 —— 日志只丢弃、不输出。**烧进 flash、要脱离调试器自启的
+#                             固件必须用这个**（work_pnr/run_merge_flash_image.sh
+#                             就是这么调的）。
+# 两者只用同一个源文件，区别只在这个宏。
+LOG ?= semihosting
+ifeq ($(LOG),off)
+CFLAGS+=-DAPP_LOG_OFF
+endif
+
 # 参与编译的源文件：
 #   src/ 下的全部 .c / .cpp / .S —— 本项目自己的代码
 #   common/start.S              —— 启动代码（设置栈、拷贝数据段、调用 main）
@@ -55,3 +69,21 @@ include ${STANDALONE}/common/standalone.mk
 # 链接脚本沿用 BSP 的默认脚本（ram 从 0x00001000 开始，长度 124 KB）。
 # 这里显式再写一次是因为 standalone.mk 里用的是 ?=，允许工程覆盖。
 LDSCRIPT = ${BSP_PATH}/linker/default.ld
+
+# 让"切换 LOG 模式"能真正触发重编。
+#
+# 为什么需要：LOG 只改 CFLAGS、不改任何源文件的时间戳，make 因此察觉不到切换，
+# 会直接拿上次留下的 .o 重新链接 —— 结果就是"用 LOG=off 编"却拿到一份带
+# semihosting 的固件（烧进 flash 不接调试器就挂住），或者反过来"想调试却没日志"。
+# 这类"编出来的不是想要的"极难看出来，所以把它堵在构建系统里。
+#
+# 做法：一个 stamp 文件保存**上次用的模式**，所有 .o 依赖它。只有在文件内容与
+# 当前 LOG 不符时才重写它 —— 于是它的 mtime 变新，全部 .o 重编；模式没变则一动不动，
+# 增量编译照旧。
+#
+# 注意不能用"每个模式一个 stamp 文件名"的写法（$(OBJDIR)/.log_mode_$(LOG)）：
+# 切回去时那个文件早就存在、mtime 比 .o 旧，make 会认为无需重编 —— 这是个只在不
+# 同模式之间来回切时才暴露的坑，实测踩到过。
+LOGSTAMP := $(OBJDIR)/.log_mode
+_UNUSED := $(shell mkdir -p $(OBJDIR); test "$$(cat $(LOGSTAMP) 2>/dev/null)" = "$(LOG)" || printf '%s\n' '$(LOG)' > $(LOGSTAMP))
+$(OBJS): $(LOGSTAMP)
