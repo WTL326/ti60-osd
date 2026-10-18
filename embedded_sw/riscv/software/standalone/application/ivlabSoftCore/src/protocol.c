@@ -172,6 +172,46 @@ static uint8_t handler_ui_set_image_values(const frame_t *frame, uint8_t *out,
 }
 
 /******************************************************************************
+* @brief 处理 SET_ITEM_VALUE（子项 0x09）：设置任意页任意条目的运行期值。
+*
+* @param frame 要处理的帧。payload = `page_id:u16BE | item_idx:u8 | value…`。
+* @return 成功 PROTOCOL_STATUS_OK，失败 PROTOCOL_STATUS_FAIL。
+*
+* @note value 的长度与含义由条目的 value_kind 决定（NUM/ONOFF/ENUM 取 1 字节，
+*       EDIT 取文本），所以这里**只负责切出 value 这一段、不做语义校验**——
+*       越界与否只有 UI 层知道。与 handler_ui_set_image_values 是同一个分工：
+*       协议层管"这一帧是不是这条命令"，UI 层管"这几个字节算不算合法值"。
+*
+* @note payload_len 是**帧里声明**的长度，payload[] 里实际只留了前
+*       FRAME_PAYLOAD_MAX 个（见 frame.h）——两者是独立的数。所以这里按
+*       min(payload_len, FRAME_PAYLOAD_MAX) 取可用长度，超出的部分从来没被
+*       抄进窗口，不会读越界；被调用方据此决定是截断还是拒绝。
+******************************************************************************/
+static uint8_t handler_ui_set_item_value(const frame_t *frame, uint8_t *out,
+                                         uint16_t *out_len)
+{
+    uint16_t page_id;
+    uint8_t  item_idx;
+    uint32_t avail, vlen;
+
+    (void)out;
+    *out_len = 0U;                    /* 定长 10 字节应答 */
+
+    page_id  = (uint16_t)(((uint16_t)frame->payload[0] << 8) |
+                          (uint16_t)frame->payload[1]);
+    item_idx = frame->payload[2];
+
+    avail = (uint32_t)frame->payload_len;
+    if (avail > (uint32_t)FRAME_PAYLOAD_MAX) avail = (uint32_t)FRAME_PAYLOAD_MAX;
+    if (avail < 3U) return PROTOCOL_STATUS_FAIL;   /* 表已保证 >= 3，防御 */
+    vlen = avail - 3U;
+
+    return (ui_set_item_value(page_id, item_idx, &frame->payload[3], vlen) == 0)
+               ? PROTOCOL_STATUS_OK
+               : PROTOCOL_STATUS_FAIL;
+}
+
+/******************************************************************************
 * @brief 处理 QUERY_VIEW（子项 0x08）：把当前状态填进应答参数段。
 *
 * @param frame   要处理的帧（无 payload，用不到）。
@@ -245,6 +285,13 @@ static const protocol_entry_t s_ui_table[] = {
       "set-view",         handler_ui_set_view },
     { FRAME_CMD_UI_SET_IMAGE_VALUES, 7U,      0U, 1U, 1U,
       "set-image-values", handler_ui_set_image_values },
+    /* payload 变长（page_id:u16BE + item_idx:u8 + value…）→ LEN_ANY，
+     * 最小 3 字节 payload（只给 page_id 与 item_idx、value 为空，对 EDIT 即
+     * "清空"），对应 body >= 6。
+     * defer = 1：与 SET_VIEW 同——值改了要重画，成功应答必须排在
+     * composer_render() + canvas_commit() 之后（协议 §5.5）。*/
+    { FRAME_CMD_UI_SET_ITEM_VALUE,   LEN_ANY, FRAME_BODY_LEN_MIN + 3U, 1U, 1U,
+      "set-item-value",   handler_ui_set_item_value },
     /* payload 0 → body 3；应答 18 字节。查询不改画面，所以不 defer。*/
     { FRAME_CMD_UI_QUERY_VIEW,       3U,      0U, 1U, 0U,
       "query-view",       handler_ui_query_view }

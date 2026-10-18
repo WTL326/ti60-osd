@@ -14,6 +14,11 @@
  *   6. QUERY_VIEW 应答体改为 12 字节（本文件的 UI_QUERY_PAYLOAD_LEN = 8）
  *   7. UI_FLAG_SELECTED 改名为 UI_FLAG_VISIBLE，语义由"选中"改为"UI 显示"
  *   8. 删除语言位（UI_FLAG_LANG_RU / bit2），UI_FLAG_MASK 由 0x07 改为 0x03
+ *      —— **2026-10-18 变更：bit2 已按《技术协议-2》附录A 的双语要求恢复为语言
+ *      位，UI_FLAG_MASK 回到 0x07。** 这不是回退：D11 当初删它，是因为那一期
+ *      菜单只有英文、语言不构成状态；附录A 全菜单是 EN/RU 双语，语言重新成为
+ *      运行期状态。bit2 本来就在"保留位、静默丢弃"区间内，所以上位机旧帧
+ *      （该位为 0）依然合法、行为不变，向后兼容。
  * =============================================================================
  */
 #ifndef OSD_CONFIG_H
@@ -30,7 +35,16 @@
 #define OSD_ROW_SEPARATOR      2
 #define OSD_ROW_ITEM0          3     /* sel=0 落在这一行                      */
 #define OSD_ROW_BORDER_BOTTOM 12
-#define OSD_MAX_ITEMS          9     /* 行 3..11 共 9 行给菜单项              */
+#define OSD_MAX_ITEMS          9     /* 行 3..11 共 9 行给菜单项（可见行）     */
+
+/* 单页条目数上限（场景表数组容量）。
+ *
+ * 与 OSD_MAX_ITEMS(9) 的区别：9 是**一屏能画几行**，它受栅格高度限制；
+ * 本值是**一页最多几个条目**，受最长的那一页限制。附录A 里 SETTING(0x0500)
+ * 有 10 项，画不下就靠窗口平移（见 ui.c 的 scene_build）；若这里仍按 9 声明
+ * 数组，第 10 项会被静默截断——编译期只报越界初始化、运行期表现为"最后一项
+ * 消失"，很难查。取 12 是给后续加项留余量。 */
+#define OSD_ITEMS_CAP         12
 
 #define OSD_COL_BORDER_L       0
 #define OSD_COL_PREFIX         1     /* 前缀占 2 列："> " / "* " / "  "       */
@@ -130,12 +144,14 @@
 
 /* SET_VIEW.flags 位定义（D11（二））。
  *
- * bit2–bit7 是**保留位**：软核按 UI_FLAG_MASK 取值后静默丢弃，不报错、不影响
+ * bit3–bit7 是**保留位**：软核按 UI_FLAG_MASK 取值后静默丢弃，不报错、不影响
  * 其余字段，回读时也为 0。这比"保留位必须为 0、否则失败"宽容，是刻意的 ——
- * 让上位机将来可以先行占用高位而不必与软核同步发版。 */
+ * 让上位机将来可以先行占用高位而不必与软核同步发版。
+ * （bit2 已从保留位转为语言位，见上面 D11 第 8 项的变更说明。） */
 #define UI_FLAG_VISIBLE   0x01u   /* bit0 UI 显示（原 UI_FLAG_SELECTED，语义已改） */
 #define UI_FLAG_EDIT      0x02u   /* bit1 数值编辑态                              */
-#define UI_FLAG_MASK      0x03u
+#define UI_FLAG_LANG_RU   0x04u   /* bit2 语言：0 = EN，1 = RU（2026-10-18 恢复） */
+#define UI_FLAG_MASK      0x07u
 
 /* UI 内部状态位。
  *
