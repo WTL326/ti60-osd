@@ -11,11 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install RISC-V toolchain + qemu
+      - name: Install qemu (provides qemu-system-riscv32)
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-riscv64-unknown-elf qemu-system-misc
+          sudo apt-get install -y qemu-system-misc
+
+      # 用版本固定的预编译裸机工具链，而不是 apt 的 gcc-riscv64-unknown-elf：
+      # 1) 与 Efinity 的 riscv-none-elf- 同宗，test/makefile 的 RISCV_BIN 默认值正好匹配；
+      # 2) GCC 15 必然支持 -march=rv32im_zicsr_zifencei，规避 apt 版本不认该扩展的风险；
+      # 3) 版本写死，CI 结果可复现。
+      - name: Install pinned bare-metal RISC-V toolchain (xPack riscv-none-elf)
+        run: |
+          set -euo pipefail
+          VER=15.2.0-1
+          URL="https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases/download/v${VER}/xpack-riscv-none-elf-gcc-${VER}-linux-x64.tar.gz"
+          curl -fsSL "$URL" | sudo tar xz -C /opt
+          DEST=$(ls -d /opt/xpack-riscv-none-elf-gcc-*/ | head -1)
+          echo "${DEST}bin" >> "$GITHUB_PATH"
+          "${DEST}bin/riscv-none-elf-gcc" --version | head -1
 
       - name: Build & run firmware 0xBB tests (rv32im + qemu)
         working-directory: embedded_sw/riscv/software/standalone/application/ivlabSoftCore/test
-        run: make RISCV_BIN=riscv64-unknown-elf- QEMU=qemu-system-riscv32
+        run: make QEMU=qemu-system-riscv32
