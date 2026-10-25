@@ -19,3 +19,6 @@ embedded_sw/riscv/software/standalone/application/ivlabSoftCore/build/.log_mode
 
 # ===== 新增：Eclipse / IDE 元数据（纯本地状态，不入库）=====
 **/.metadata/
+
+# ===== 新增：本地一次性打包产物（非源码，可复现，不入库）=====
+embedded_sw/riscv/software/standalone/application/ivlabSoftCore.zip

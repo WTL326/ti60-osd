@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# pre-push: regression gate before pushing.
+#
+# Runs the firmware 0xBB protocol tests (test/ -> rv32im + qemu) when the
+# Efinity RISC-V toolchain is available. If the toolchain is missing, it
+# warns and ALLOWS the push (so machines without the toolchain are not
+# blocked). Override the toolchain prefix with RISCV_BIN, e.g.
+#   RISCV_BIN=riscv64-unknown-elf- git push
+set -u
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "pre-push: not a git repo, skip."; exit 0; }
+APP="$ROOT/embedded_sw/riscv/software/standalone/application/ivlabSoftCore"
+[ -d "$APP/test" ] || { echo "pre-push: test dir not found at $APP/test, skip."; exit 0; }
+
+RISCV_BIN="${RISCV_BIN:-riscv-none-elf-}"
+if ! command -v "${RISCV_BIN}gcc" >/dev/null 2>&1; then
+  echo "pre-push: BLOCKED - '${RISCV_BIN}gcc' not found; cannot run firmware regression before push." >&2
+  echo "pre-push: Install the Efinity RISC-V toolchain (or set RISCV_BIN to your prefix) and retry." >&2
+  echo "pre-push: To push anyway WITHOUT the gate: git push --no-verify" >&2
+  exit 1
+fi
+
+echo "pre-push: running firmware tests -> make -C test (RISCV_BIN=$RISCV_BIN)"
+if make -C "$APP/test" RISCV_BIN="$RISCV_BIN"; then
+  echo "pre-push: tests passed."
+  exit 0
+else
+  echo "pre-push: TESTS FAILED -> push blocked. Fix, or 'git push --no-verify' to override." >&2
+  exit 1
+fi

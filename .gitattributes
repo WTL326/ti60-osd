@@ -1,0 +1,4 @@
+# 钩子脚本跨平台必须保持 LF。
+# Windows 下若 core.autocrlf 把它们转成 CRLF，bash 执行钩子会因 shebang 行
+# 末尾的 \r 报 "bash\r: No such file or directory"。强制 scripts/git-hooks/ 用 LF。
+scripts/git-hooks/* text eol=lf

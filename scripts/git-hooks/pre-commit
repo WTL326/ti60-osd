@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# pre-commit: fast, toolchain-free checks. Blocks the commit only on
+# whitespace errors; large files only produce a warning.
+set -u
+
+# 1) Whitespace errors in staged changes (trailing spaces, space-before-tab, etc.)
+if ! git diff --cached --check --no-color; then
+  echo "pre-commit: whitespace problems in staged changes (see above). Fix and re-stage." >&2
+  exit 1
+fi
+
+# 2) Warn (do not block) on staged files larger than 5 MB.
+LIMIT=5242880
+git diff --cached --name-only --diff-filter=ACM | while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  sz=$(wc -c < "$f" 2>/dev/null || echo 0)
+  if [ "$sz" -gt "$LIMIT" ]; then
+    echo "pre-commit: WARNING large staged file: $f ($sz bytes)" >&2
+  fi
+done
+
+exit 0

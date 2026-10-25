@@ -1,0 +1,21 @@
+name: verify
+
+on:
+  push:
+    branches: [ main, quad-osd-overlay ]
+  pull_request:
+
+jobs:
+  firmware-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install RISC-V toolchain + qemu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-riscv64-unknown-elf qemu-system-misc
+
+      - name: Build & run firmware 0xBB tests (rv32im + qemu)
+        working-directory: embedded_sw/riscv/software/standalone/application/ivlabSoftCore/test
+        run: make RISCV_BIN=riscv64-unknown-elf- QEMU=qemu-system-riscv32
